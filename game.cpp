@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 
+// #include <car.h>
 
 const int screenWidth = 1400;
 const int screenHeight = 900;
@@ -43,7 +44,11 @@ bool server = false;
 class Car {
     public:
         Car();
-        void Draw();
+        void carUpdate(double deltaTime);
+        double accelerate(double dTime, bool forward);
+        void draw();
+
+    private:
         double acceleration = 1;
         double speed = 0;
         double maxSpeed = 5;
@@ -51,27 +56,69 @@ class Car {
         const Vector2 size{20, 40};
         double direction = 0;
         double angle;
+        Rectangle rectangle;
 };
 
 Car::Car() {
+    position = {screenWidth/2, screenHeight/2};
+}
 
+void Car::draw() {
+    Rectangle rectangle = {position.x-size.x/2, position.y-size.y/2, size.x, size.y};
+    DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, WHITE);  
+}
+
+double Car::accelerate(double dTime, bool forward) {
+    if (forward) {
+        speed += acceleration * dTime;
+    } else {
+        speed -= acceleration * dTime;
+    }
+    if (speed > maxSpeed) {
+        speed = maxSpeed;
+    }
+    return speed;
+}
+
+void Car::carUpdate(double deltaTime) {
+    if (IsKeyDown(KEY_W)){
+        speed += acceleration * deltaTime;
+    } 
+    if (IsKeyDown(KEY_S)){
+        speed -= acceleration * deltaTime;
+    }
+    if (speed > maxSpeed) {
+        speed = maxSpeed;
+    }
+    if (IsKeyDown(KEY_D)){
+        angle -= 2 * deltaTime;
+        direction += (2 * (180/M_PI)) * deltaTime;
+    }
+    if (IsKeyDown(KEY_A)){
+        angle += 2 * deltaTime;
+        direction -= (2 * (180/M_PI)) * deltaTime;
+    }
+    // direction = (angle * (180/M_PI));
+    position.x -= sin(angle) * speed;
+    position.y -= cos(angle) * speed;
 }
 
 Car car;
 
-void Car::Draw() {
-    Rectangle rectangle = {position.x-size.x/2, position.y-size.y/2, size.x, size.y};
-    // DrawRectangle(position.x-size.x/2, position.y-size.y/2, size.x, size.y, WHITE);
-    // car.direction += 0.03 * (180/M_PI);
-    // std::cout << car.direction << std::endl;
-    DrawRectanglePro(rectangle, {size.x/2, size.y/2}, car.direction, WHITE); 
-}
+// void Car::Draw() {
+//     Rectangle rectangle = {position.x-size.x/2, position.y-size.y/2, size.x, size.y};
+//     // DrawRectangle(position.x-size.x/2, position.y-size.y/2, size.x, size.y, WHITE);
+//     // car.direction += 0.03 * (180/M_PI);
+//     // std::cout << car.direction << std::endl;
+//     // DrawRectanglePro(rectangle, {size.x/2, size.y/2}, car.direction, WHITE); 
+// }
+
 void Render() {
     const Color backgroundColor = BLACK;
 
     BeginDrawing();
     ClearBackground(backgroundColor);
-    car.Draw();
+    car.draw();
 
     //vec2Begin = {screenWidth/2, 0}
     //vec2Eind = {11, 1}
@@ -82,36 +129,39 @@ void Render() {
 }
 
 void Start() {
-    car.position = {screenWidth/2, screenHeight/2};
-    car.speed = 0;
+    // car.position = {screenWidth/2, screenHeight/2};
+    // car.speed = 0;
 }
 
 void Update(double deltaTime) {
-    if (IsKeyDown(KEY_W)){
-        car.speed += car.acceleration * deltaTime;
-    } 
-    if (IsKeyDown(KEY_S)){
-        car.speed -= car.acceleration * deltaTime;
-    }
-    if (car.speed > car.maxSpeed) {
-        car.speed = car.maxSpeed;
-    }
-    if (IsKeyDown(KEY_D)){
-        car.angle -= 0.03 * deltaTime;
-        car.direction += (0.03 * (180/M_PI)) * deltaTime;
-    }
-    if (IsKeyDown(KEY_A)){
-        car.angle += 30 * deltaTime;
-        car.direction -= (30 * (180/M_PI)) * deltaTime;
-    }
-    // this.x -= Math.sin(this.angle) * this.speed;
-    // this.y -= Math.cos(this.angle) * this.speed;
-    // car.position.y += car.speed * deltaTime;
-    std::cout << car.direction << std::endl;
-    std::cout << car.angle << std::endl;
+    car.carUpdate(deltaTime);
+    // if (IsKeyDown(KEY_W)){
+    //     car.accelerate(deltaTime, true);
+    //     // car.speed += car.acceleration * deltaTime;
+    // } 
+    // if (IsKeyDown(KEY_S)){
+    //     car.accelerate(deltaTime, false);
+    //     // car.speed -= car.acceleration * deltaTime;
+    // }
+    // // if (car.speed > car.maxSpeed) {
+    // //     car.speed = car.maxSpeed;
+    // // }
+    // if (IsKeyDown(KEY_D)){
+    //     car.angle -= 2 * deltaTime;
+    //     car.direction += (2 * (180/M_PI)) * deltaTime;
+    // }
+    // if (IsKeyDown(KEY_A)){
+    //     car.angle += 2 * deltaTime;
+    //     car.direction -= (2 * (180/M_PI)) * deltaTime;
+    // }
+    // // this.x -= Math.sin(this.angle) * this.speed;
+    // // this.y -= Math.cos(this.angle) * this.speed;
+    // // car.position.y += car.speed * deltaTime;
+    // std::cout << car.direction << std::endl;
+    // std::cout << car.angle << std::endl;
 
-    car.position.x -= sin(car.angle) * car.speed;
-    car.position.y -= cos(car.angle) * car.speed;
+    // car.position.x -= sin(car.angle) * car.speed;
+    // car.position.y -= cos(car.angle) * car.speed;
 
 }   
 
