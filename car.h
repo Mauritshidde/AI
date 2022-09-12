@@ -15,10 +15,10 @@ class Car {
     private:
         Rays rays;
         void move(double deltaTime);
-        double friction = 0.5;
-        double acceleration = 2;
+        double friction = 10;
+        double acceleration = 40;
         double speed = 0;
-        double maxSpeed = 5;
+        double maxSpeed = 100;
         Vector2 position;
         const Vector2 size{20, 40};
         double direction = 0;
@@ -106,8 +106,8 @@ void Car::move(double deltaTime) {
     
     
     
-    position.x -= sin(angle) * speed;
-    position.y -= cos(angle) * speed;
+    position.x -= sin(angle) * speed * deltaTime;
+    position.y -= cos(angle) * speed * deltaTime;
 }
 
 double Car::accelerate(double dTime, bool forward) {
