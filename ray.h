@@ -47,11 +47,14 @@ class Rays {
         void update(Vector2 newStart, double newAngle);
         void draw();
     private:
-        void calcRayHits();
+        bool calcRayHits();
         void castRays();
 
         std::vector<Vector2> eindRay; 
+        std::vector<Vector3> hitCoordVec3; 
         Vector2 startRay;
+        Vector3 hitCoordVec;
+        
         double rayAmount, angle, rayLenght, rayAngle;
         const double raySpread = M_PI*2;
         const double halfRaySpread = raySpread/2;
@@ -63,7 +66,7 @@ Rays::Rays() {
     rayLenght = 200;
 }
 
-void Rays::calcRayHits() {
+bool Rays::calcRayHits() {
     GameMapE map;
     std::vector<Vector3> touches;
     // Vector2 test[6];
@@ -86,29 +89,52 @@ void Rays::calcRayHits() {
             valueVec.z = test.z;
             touches.push_back(valueVec); 
         }
+
+        if (touches.size() > 0) {
+            double minOffset = touches.at(0).z;
+            int minOffsetLocation = 0;
+            for (int i=0; i < touches.size(); i++) {
+                if (minOffset > touches.at(i).z) {
+                    minOffset = touches.at(i).z;
+                    minOffsetLocation = i;
+                }
+
+            }
+            hitCoordVec = touches.at(minOffsetLocation);
+            return true;
+        }
     }
+    return false;
 }
 
 void Rays::draw() {
     for (int i=0; i < 8; i++) {
         Vector2 start = {startRay.x, startRay.y};
-        Vector2 eind = {eindRay.at(i).x, eindRay.at(i).y};
+        // Vector2 eind = {eindRay.at(i).x, eindRay.at(i).y};
+        Vector2 eind = {hitCoordVec3.at(i).x, hitCoordVec3.at(i).y};
         DrawLineV(start, eind, WHITE);
     }
 }
 
 void Rays::update(Vector2 newStart, double newAngle) {
     eindRay = {};
+    hitCoordVec3 = {};
     angle = newAngle;
 
     startRay.x = newStart.x;
     startRay.y = newStart.y;
 
     castRays();
-    
-    calcRayHits();
     for (int i=0; i < 8; i++) {
-
+        if (calcRayHits()) {
+            hitCoordVec3.push_back(hitCoordVec);
+        } else {
+            hitCoordVec3.push_back({});
+        }
+        // std::cout << hit.x << std::endl;
+        for (int i=0; i < 8; i++) {
+            
+        }
     }
 }
 
