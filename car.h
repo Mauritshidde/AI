@@ -78,7 +78,7 @@ void Car::move(double deltaTime) {
     }
     if (speed > 0) {
         speed -= friction * deltaTime;
-    } else {
+    } else if (speed < 0) {
         speed += friction * deltaTime;
     }
 
@@ -87,22 +87,22 @@ void Car::move(double deltaTime) {
     // }
     // direction = (angle * (180/M_PI));
     
-    if (speed != 0) {
-        int flip;
-        if (speed > 0) {
-            flip = 1;
-        } else {
-            flip = -1;
-        }
-        if (action[2]) {
-            angle -= 2 * deltaTime * flip;
-            direction += (2 * (180/M_PI)) * deltaTime * flip;
-        }
-        if (action[3]) {
-            angle += 2 * deltaTime * flip;
-            direction -= (2 * (180/M_PI)) * deltaTime * flip;
-        }
+    // if (speed != 0) {
+    // int flip;
+    // if (speed > 0) {
+    //     flip = 1;
+    // } else {
+    //     flip = -1;
+    // }
+    if (action[2]) {
+        angle -= 2 * deltaTime;
+        direction += (2 * (180/M_PI)) * deltaTime;
     }
+    if (action[3]) {
+        angle += 2 * deltaTime;
+        direction -= (2 * (180/M_PI)) * deltaTime;
+    }
+    // }
     
     
     
