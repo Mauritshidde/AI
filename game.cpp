@@ -47,7 +47,7 @@ void Update(double deltaTime) {
 
 int main() {
     InitWindow(screenWidth, screenHeight, "car");
-    SetWindowState(FLAG_VSYNC_HINT);
+    // SetWindowState(FLAG_VSYNC_HINT);
 
     Start();
     while (!WindowShouldClose()){

@@ -14,6 +14,7 @@ GameMapE::GameMapE() {
 
 void GameMapE::draw() {
     DrawLineStrip(wallVector, 6, WHITE);
+    DrawLineV(wallVector[0], wallVector[5], WHITE);
 }
 
 // Vector2 * GameMap::returnWalls() {

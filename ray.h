@@ -47,7 +47,7 @@ class Rays {
         void update(Vector2 newStart, double newAngle);
         void draw();
     private:
-        bool calcRayHits();
+        bool calcRayHits(int endRayLoc);
         void castRays();
 
         std::vector<Vector2> eindRay; 
@@ -66,24 +66,26 @@ Rays::Rays() {
     rayLenght = 200;
 }
 
-bool Rays::calcRayHits() {
+bool Rays::calcRayHits(int endRayLoc) {
     GameMapE map;
     std::vector<Vector3> touches;
+    Vector2 endRay = eindRay.at(endRayLoc);
     // Vector2 test[6];
     // test = map.returnWalls();
     // std::cout << map.wallVector;
     for (int i=0; i < 6; i++) {
+        // std::cout << endRay.x << "  " << endRay.y << std::endl;
         Vector4 test;
         if (i < 5) {
-            test = getIntersection(startRay, eindRay.at(i), map.wallVector[i], map.wallVector[i+1]);
+            test = getIntersection(startRay, endRay, map.wallVector[i], map.wallVector[i+1]);
             // std::cout  << test.x << " " << test.y << " " << test.z << std::endl;
         } else {
-            test = getIntersection(startRay, eindRay.at(i), map.wallVector[i], map.wallVector[0]);
+            test = getIntersection(startRay, endRay, map.wallVector[i], map.wallVector[0]);
         }
 
         if (test.w == 5) {
             Vector3 valueVec;
-            std::cout << valueVec.z << " ";
+            // std::cout << valueVec.z << " ";
             valueVec.x = test.x;
             valueVec.y = test.y;
             valueVec.z = test.z;
@@ -110,9 +112,16 @@ bool Rays::calcRayHits() {
 void Rays::draw() {
     for (int i=0; i < 8; i++) {
         Vector2 start = {startRay.x, startRay.y};
+        if (hitCoordVec3.at(i).x == 0 && hitCoordVec3.at(i).y == 0 && hitCoordVec3.at(i).z) {
+            Vector2 eind = {eindRay.at(i).x, eindRay.at(i).y};
+            DrawLineV(start, eind, WHITE);
+        } else {
+            Vector2 eind = {hitCoordVec3.at(i).x, hitCoordVec3.at(i).y};
+            DrawLineV(start, eind, RED);
+        }
         // Vector2 eind = {eindRay.at(i).x, eindRay.at(i).y};
-        Vector2 eind = {hitCoordVec3.at(i).x, hitCoordVec3.at(i).y};
-        DrawLineV(start, eind, WHITE);
+        // DrawLineV(start, eind, WHITE);
+
     }
 }
 
@@ -126,7 +135,7 @@ void Rays::update(Vector2 newStart, double newAngle) {
 
     castRays();
     for (int i=0; i < 8; i++) {
-        if (calcRayHits()) {
+        if (calcRayHits(i)) {
             hitCoordVec3.push_back(hitCoordVec);
         } else {
             hitCoordVec3.push_back({});
