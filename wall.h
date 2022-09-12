@@ -1,6 +1,7 @@
 #include <cmath>
 
-class Wall {
+class WallE {
     private:
+    int pool;
     public:
 };

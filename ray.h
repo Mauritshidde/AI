@@ -1,9 +1,13 @@
 #include <raylib.h>
-#include <vector>
+// #include <vector>
 #include <cmath>
 
 #include <iostream>
 
+#include "GameMap.h"
+
+
+GameMapE map2;
 double lerp(double A, double B, double t) {
     double value = A + (B-A) *t;
     return value;
@@ -52,7 +56,13 @@ Rays::Rays() {
 }
 
 void Rays::calcRayHits() {
-
+    GameMapE map2;
+    // Vector2 test[6];
+    // test = map2.returnWalls();
+    std::cout << map2.wallVector;
+    for () {
+        getIntersection(1, 2, 3, 4);
+    }
 }
 
 void Rays::draw() {

@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "car.h"
-#include "map.h"
 
 const int screenWidth = 1980;
 const int screenHeight = 1024;
@@ -12,7 +11,7 @@ std::vector<Car> cars;
 
 bool server = false;
 
-Map map;
+GameMapE map;
 // Car car(Vector2{screenWidth/2, screenHeight/2});
 
 
@@ -28,6 +27,7 @@ void Render() {
         cars.at(i).draw();
     }
     
+    DrawFPS(10,10);
     EndDrawing();
 }
 
