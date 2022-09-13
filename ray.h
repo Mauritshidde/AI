@@ -1,18 +1,55 @@
 #include <raylib.h>
 #include <cmath>
+#include <vector>
 #include <iostream>
 
-#include "GameMap.h"
+// #include "GameMap.h"
+// #include "utils.h"
+
+// GameMapE map2;
 
 
-GameMapE map2;
 
-double lerp(double A, double B, double t) {
+
+class Rays {
+    public:
+        Rays();
+        ~Rays();
+        void update(Vector2 newStart, double newAngle);
+        void draw();
+        // std::vector<Vector2> returnMap() { GameMapE map; return map.wallVectorVec;};
+        double lerp(double A, double B, double t);
+        Vector4 getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D);
+        void setWallVec(std::vector<Vector2> vec) {wallVector = vec;};
+    private:
+        bool calcRayHits(int endRayLoc);
+        void castRays();
+
+        std::vector<Vector2> eindRay, wallVector; 
+        std::vector<Vector3> hitCoordVec3; 
+        Vector2 startRay;
+        Vector3 hitCoordVec;
+        
+        double rayAmount, angle, rayLenght, rayAngle;
+        const double raySpread = M_PI*2;
+        const double halfRaySpread = raySpread/2;
+
+};
+
+Rays::Rays() {
+    rayAmount = 8.0f;
+    rayLenght = 200;
+}
+
+Rays::~Rays() {}
+
+
+double Rays::lerp(double A, double B, double t) {
     double value = A + (B-A) *t;
     return value;
 }
 
-Vector4 getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
+Vector4 Rays::getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
     double tTop = (D.x-C.x) * (A.y-C.y) - (D.y-C.y) * (A.x-C.x);
     double uTop = (C.y-A.y) * (A.x-B.x) - (C.x-A.x) * (A.y-B.y);
     double bottom = (D.y-C.y) * (B.x-A.x) - (D.x-C.x) * (B.y-A.y);
@@ -39,33 +76,8 @@ Vector4 getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
 }
 
 
-class Rays {
-    public:
-        Rays();
-        void update(Vector2 newStart, double newAngle);
-        void draw();
-    private:
-        bool calcRayHits(int endRayLoc);
-        void castRays();
-
-        std::vector<Vector2> eindRay; 
-        std::vector<Vector3> hitCoordVec3; 
-        Vector2 startRay;
-        Vector3 hitCoordVec;
-        
-        double rayAmount, angle, rayLenght, rayAngle;
-        const double raySpread = M_PI*2;
-        const double halfRaySpread = raySpread/2;
-
-};
-
-Rays::Rays() {
-    rayAmount = 8.0f;
-    rayLenght = 200;
-}
 
 bool Rays::calcRayHits(int endRayLoc) {
-    GameMapE map;
     std::vector<Vector3> touches;
     Vector2 endRay = eindRay.at(endRayLoc);
     // Vector2 test[6];
@@ -75,10 +87,10 @@ bool Rays::calcRayHits(int endRayLoc) {
         // std::cout << endRay.x << "  " << endRay.y << std::endl;
         Vector4 test;
         if (i < 5) {
-            test = getIntersection(startRay, endRay, map.wallVector[i], map.wallVector[i+1]);
+            test = getIntersection(startRay, endRay, wallVector[i], wallVector[i+1]);
             // std::cout  << test.x << " " << test.y << " " << test.z << std::endl;
         } else {
-            test = getIntersection(startRay, endRay, map.wallVector[i], map.wallVector[0]);
+            test = getIntersection(startRay, endRay, wallVector[i], wallVector[0]);
         }
 
         if (test.w == 5) {
@@ -110,16 +122,18 @@ bool Rays::calcRayHits(int endRayLoc) {
 void Rays::draw() {
     for (int i=0; i < 8; i++) {
         Vector2 start = {startRay.x, startRay.y};
-        if (hitCoordVec3.at(i).x == 0 && hitCoordVec3.at(i).y == 0 && hitCoordVec3.at(i).z) {
+        if (hitCoordVec3.at(i).x == 0 && hitCoordVec3.at(i).y == 0 && hitCoordVec3.at(i).z == 0) {
             Vector2 eind = {eindRay.at(i).x, eindRay.at(i).y};
             DrawLineV(start, eind, WHITE);
         } else {
             Vector2 eind = {hitCoordVec3.at(i).x, hitCoordVec3.at(i).y};
-            if (eind.x == 0) {
+            // if (eind.x == 0) {
 
-            } else {
-                DrawLineV(start, eind, RED);
-            }
+            // } else {
+
+            // }
+            DrawLineV(start, eind, RED);
+            // std::cout << hitCoordVec3.at(i).z << std::endl;
         }
         // Vector2 eind = {eindRay.at(i).x, eindRay.at(i).y};
         // DrawLineV(start, eind, WHITE);

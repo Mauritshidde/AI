@@ -5,15 +5,19 @@
 
 class Car {
     public:
-        Car(Vector2 newPosition, bool control);
+        Car(Vector2 newPosition, bool control, std::vector<Vector2> map);
         void update(double deltaTime);
         double accelerate(double dTime, bool forward);
         void castRay();
         void controls();
         void draw();
+        void createPolygon();
+        bool checkCollision();
+        bool polyIntersect(std::vector<Vector2> poly1, std::vector<Vector2> poly2);
 
     private:
         Rays rays;
+        bool alive;
         void move(double deltaTime);
         double friction = 10;
         double acceleration = 40;
@@ -26,17 +30,33 @@ class Car {
         Rectangle rectangle;
         bool controlType;
         bool action[4];
+        std::vector<Vector2> polygon, wallVec;
+        
+
 
 };
 
-Car::Car(Vector2 newPosition, bool control) {
+Car::Car(Vector2 newPosition, bool control, std::vector<Vector2> map) {
     position = newPosition;
     controlType = control;
-    
+    alive = true;
+    wallVec = map;
+    rays.setWallVec(map);
+}
+
+void Car::createPolygon() {
+    polygon = {};
+    polygon.push_back({position.x, position.y});
+    polygon.push_back({position.x-size.x, position.y});
+    polygon.push_back({position.x-size.x, position.y-size.y});
+    polygon.push_back({position.x, position.y-size.y});
+    // std::cout << points.at(0).x << "x " << points.at(1).x << "x " << points.at(2).x << "x " << points.at(3).x << std::endl;
+    // std::cout << points.at(0).y << "y " << points.at(1).y << "y " << points.at(2).y << "y " << points.at(3).y << std::endl;
 }
 
 void Car::draw() {
     Rectangle rectangle = {position.x-size.x/2, position.y-size.y/2, size.x, size.y};
+    createPolygon();
     DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, WHITE);  
     rays.draw();
 }
@@ -122,7 +142,35 @@ double Car::accelerate(double dTime, bool forward) {
     return speed;
 }
 
+bool Car::polyIntersect(std::vector<Vector2> poly1, std::vector<Vector2> poly2) {
+    for (int i=0; i < poly1.size(); i++) {
+        for (int j=0; j < poly2.size(); j++) {
+            Vector4 check = rays.getIntersection(poly1.at(i), poly1.at((i+1)%poly1.size()), poly2.at(j), poly2.at((j+1)%poly2.size()));
+            if (check.w == 5) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool Car::checkCollision() {
+    for (int i=0; i < wallVec.size(); i++) {
+        // std::cout << wallVec.at(0).x;
+        if (polyIntersect(polygon, {wallVec.at(i), wallVec.at((i+1)%wallVec.size())})) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void Car::update(double deltaTime) {
-    rays.update({position.x-size.x/2, position.y-size.y/2}, angle);
-    move(deltaTime);
+    if (alive) {
+        move(deltaTime);
+        rays.update({position.x-size.x/2, position.y-size.y/2}, angle);
+        createPolygon();
+        if(checkCollision()) {
+            alive = false;
+        } 
+    }
 }

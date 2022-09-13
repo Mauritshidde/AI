@@ -1,4 +1,5 @@
 #include <raylib.h>
+#include <vector>
 
 class GameMapE {
     public:
@@ -6,6 +7,7 @@ class GameMapE {
         void draw();
         // Vector2 * returnWalls();
         Vector2 wallVector[6] = {{200,100}, {400, 600},{700,800}, {700, 1100},{1100,300}, {1200, 600}};
+        std::vector<Vector2> wallVectorVec = {{200,100}, {400, 600},{700,800}, {700, 1100},{1100,300}, {1200, 600}};
 };
 
 GameMapE::GameMapE() {

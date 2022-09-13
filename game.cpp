@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "car.h"
+#include "GameMap.h"
 
 const int screenWidth = 1980;
 const int screenHeight = 1024;
@@ -33,7 +34,7 @@ void Render() {
 
 void Start() {
     for (int i=0; i < 6; i++) {
-        Car car(Vector2{screenWidth/2, screenHeight/2}, 1);
+        Car car(Vector2{screenWidth/2, screenHeight/2+100}, 1, map.wallVectorVec);
         cars.push_back(car);
     }
 }
