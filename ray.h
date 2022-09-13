@@ -1,7 +1,5 @@
 #include <raylib.h>
-// #include <vector>
 #include <cmath>
-
 #include <iostream>
 
 #include "GameMap.h"
@@ -92,19 +90,19 @@ bool Rays::calcRayHits(int endRayLoc) {
             touches.push_back(valueVec); 
         }
 
-        if (touches.size() > 0) {
-            double minOffset = touches.at(0).z;
-            int minOffsetLocation = 0;
-            for (int i=0; i < touches.size(); i++) {
-                if (minOffset > touches.at(i).z) {
-                    minOffset = touches.at(i).z;
-                    minOffsetLocation = i;
-                }
-
+    }
+    if (touches.size() > 0) {
+        double minOffset = touches.at(0).z;
+        int minOffsetLocation = 0;
+        for (int i=0; i < touches.size(); i++) {
+            if (minOffset > touches.at(i).z) {
+                minOffset = touches.at(i).z;
+                minOffsetLocation = i;
             }
-            hitCoordVec = touches.at(minOffsetLocation);
-            return true;
+
         }
+        hitCoordVec = touches.at(minOffsetLocation);
+        return true;
     }
     return false;
 }
@@ -117,7 +115,11 @@ void Rays::draw() {
             DrawLineV(start, eind, WHITE);
         } else {
             Vector2 eind = {hitCoordVec3.at(i).x, hitCoordVec3.at(i).y};
-            DrawLineV(start, eind, RED);
+            if (eind.x == 0) {
+
+            } else {
+                DrawLineV(start, eind, RED);
+            }
         }
         // Vector2 eind = {eindRay.at(i).x, eindRay.at(i).y};
         // DrawLineV(start, eind, WHITE);
