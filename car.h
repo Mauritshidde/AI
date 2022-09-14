@@ -46,17 +46,61 @@ Car::Car(Vector2 newPosition, bool control, std::vector<Vector2> map) {
 
 void Car::createPolygon() {
     polygon = {};
-    polygon.push_back({position.x, position.y});
-    polygon.push_back({position.x-size.x, position.y});
-    polygon.push_back({position.x-size.x, position.y-size.y});
-    polygon.push_back({position.x, position.y-size.y});
+    Vector2 polygonCenter = {position.x, position.y};
+    // DrawCircle(int(polygonCenter.x), int(polygonCenter.y), 20, RED); 
+    float x, y, y2,x2,x3,y3,x4,y4;
+    double rad = hypot(size.x,size.y)/2;
+    double alpha = atan2(size.x, size.y);
+    // x = position.x - cos(angle-hypot(size.x,size.y)) * size.x;
+    // y = position.x - sin(angle) * size.x;
+    // x = (position.x * cos(angle) - position.y * sin(angle)) * position.x;
+    // y = (position.x * sin(angle) - position.y * cos(angle)) * position.y;
+    // x = x*cos(angle)-y*sin(angle);
+    // y = y*sin(angle)+x*cos(angle);
+    x = position.x - sin(angle - alpha) * rad;
+    y = position.y - cos(angle - alpha) * rad;
+
+    x2 = position.x - sin(angle + alpha) * rad;
+    y2 = position.y - cos(angle + alpha) * rad;
+
+    x3 = position.x - sin(PI + angle-alpha) * rad;
+    y3 = position.y - cos(PI + angle-alpha) * rad;
+
+    x4 = position.x - sin(PI + angle + alpha) * rad;
+    y4 = position.y - cos(PI + angle + alpha) * rad;
+    // x = polygonCenter.x + size.x/2 *sin(angle-alpha) - size.y/2 *cos(angle);
+    // y = polygonCenter.x + size.x/2 *cos(angle-alpha) + size.y/2 *sin(angle);
+
+    // x2 = polygonCenter.x - size.x/2 *sin(angle-alpha) - size.y/2 *cos(angle);
+    // y2 = polygonCenter.x - size.x/2 *cos(angle-alpha) + size.y/2 *sin(angle);
+
+    // x3 = polygonCenter.x - size.x/2 *sin(angle-alpha) + size.y/2 *cos(angle);
+    // y3 = polygonCenter.x - size.x/2 *cos(angle-alpha) - size.y/2 *sin(angle);
+
+    // x4 = polygonCenter.x + size.x/2 *sin(angle-alpha) + size.y/2 *cos(angle);
+    // y4 = polygonCenter.x + size.x/2 *cos(angle-alpha) - size.y/2 *sin(angle);
+
+    std::cout << x << " " << y << " " << position.x << " " << position.y << std::endl;
+    // x = position.x*sin(angle);
+    // y = position.y*sin(angle);
+    // std::cout<< x << " x " << position.x << std::endl;
+    // std::cout<< y << " y " << position.y << std::endl;
+
+    polygon.push_back({x,y});
+    polygon.push_back({x2,y2});
+    polygon.push_back({x3,y3});
+    polygon.push_back({x4,y4});
+    DrawLineV(polygon.at(0), polygon.at(1), RED);
+    DrawLineV(polygon.at(1), polygon.at(2), RED);
+
+    DrawLineV(polygon.at(2), polygon.at(3), RED);
+    DrawLineV(polygon.at(3), polygon.at(0), RED);
     // std::cout << points.at(0).x << "x " << points.at(1).x << "x " << points.at(2).x << "x " << points.at(3).x << std::endl;
     // std::cout << points.at(0).y << "y " << points.at(1).y << "y " << points.at(2).y << "y " << points.at(3).y << std::endl;
 }
 
 void Car::draw() {
-    Rectangle rectangle = {position.x-size.x/2, position.y-size.y/2, size.x, size.y};
-    createPolygon();
+    Rectangle rectangle = {position.x, position.y, size.x, size.y};
     DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, WHITE);  
     rays.draw();
 }
@@ -167,10 +211,11 @@ bool Car::checkCollision() {
 void Car::update(double deltaTime) {
     if (alive) {
         move(deltaTime);
-        rays.update({position.x-size.x/2, position.y-size.y/2}, angle);
+        rays.update({position.x, position.y}, angle);
         createPolygon();
         if(checkCollision()) {
             alive = false;
         } 
     }
+
 }

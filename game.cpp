@@ -34,7 +34,7 @@ void Render() {
 
 void Start() {
     for (int i=0; i < 6; i++) {
-        Car car(Vector2{screenWidth/2, screenHeight/2+100}, 1, map.wallVectorVec);
+        Car car(Vector2{screenWidth/2, screenHeight/2+300}, 1, map.wallVectorVec);
         cars.push_back(car);
     }
 }
