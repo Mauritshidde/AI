@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <fstream>
+#include <nlohmann/json.hpp>
 
 #include "car.h"
 #include "GameMap.h"
@@ -33,8 +35,18 @@ void Render() {
 }
 
 void Start() {
+    std::ifstream f("example.json");
+    nlohmann::json data = nlohmann::json::parse(f);
+
+    map.setMap(data);
+
     for (int i=0; i < 6; i++) {
-        Car car(Vector2{screenWidth/2, screenHeight/2+300}, 1, map.wallVectorVec);
+        // for (int i=0; i < map.wallVectorVec.size(); i++) {
+        //     std::cout << map.wallVectorVec.at(i).x << " xs " << map.wallVectorVec.at(i).y << "  y ";
+
+        // }
+
+        Car car(Vector2{screenWidth/2, screenHeight/2+300}, 1, map.wallVectorVec, map.arraySize);
         cars.push_back(car);
     }
 }

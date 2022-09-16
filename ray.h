@@ -20,7 +20,7 @@ class Rays {
         // std::vector<Vector2> returnMap() { GameMapE map; return map.wallVectorVec;};
         double lerp(double A, double B, double t);
         Vector4 getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D);
-        void setWallVec(std::vector<Vector2> vec) {wallVector = vec;};
+        void setWallVec(std::vector<Vector2> vec, int arraySize) {wallVector = vec; mapArraySize = arraySize;};
     private:
         bool calcRayHits(int endRayLoc);
         void castRays();
@@ -33,6 +33,7 @@ class Rays {
         double rayAmount, angle, rayLenght, rayAngle;
         const double raySpread = M_PI*2;
         const double halfRaySpread = raySpread/2;
+        int mapArraySize;
 
 };
 
@@ -83,10 +84,10 @@ bool Rays::calcRayHits(int endRayLoc) {
     // Vector2 test[6];
     // test = map.returnWalls();
     // std::cout << map.wallVector;
-    for (int i=0; i < 6; i++) {
+    for (int i=0; i < mapArraySize; i++) {
         // std::cout << endRay.x << "  " << endRay.y << std::endl;
         Vector4 test;
-        if (i < 5) {
+        if (i < mapArraySize-1) {
             test = getIntersection(startRay, endRay, wallVector[i], wallVector[i+1]);
             // std::cout  << test.x << " " << test.y << " " << test.z << std::endl;
         } else {

@@ -5,7 +5,7 @@
 
 class Car {
     public:
-        Car(Vector2 newPosition, bool control, std::vector<Vector2> map);
+        Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize);
         void update(double deltaTime);
         double accelerate(double dTime, bool forward);
         void castRay();
@@ -19,29 +19,31 @@ class Car {
         Rays rays;
         bool alive;
         void move(double deltaTime);
-        double friction = 10;
-        double acceleration = 40;
+        double friction = 20;
+        double acceleration = 50;
         double speed = 0;
-        double maxSpeed = 100;
+        double maxSpeed = 200;
         Vector2 position;
-        const Vector2 size{20, 40};
+        const Vector2 size{10, 20};
         double direction = 0;
         double angle;
         Rectangle rectangle;
         bool controlType;
         bool action[4];
         std::vector<Vector2> polygon, wallVec;
+        int wallArraySize;
         
 
 
 };
 
-Car::Car(Vector2 newPosition, bool control, std::vector<Vector2> map) {
+Car::Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize) {
     position = newPosition;
     controlType = control;
     alive = true;
     wallVec = map;
-    rays.setWallVec(map);
+    rays.setWallVec(map, wallArraySize);
+    wallArraySize = arraySize;
 }
 
 void Car::createPolygon() {
@@ -80,7 +82,7 @@ void Car::createPolygon() {
     // x4 = polygonCenter.x + size.x/2 *sin(angle-alpha) + size.y/2 *cos(angle);
     // y4 = polygonCenter.x + size.x/2 *cos(angle-alpha) - size.y/2 *sin(angle);
 
-    std::cout << x << " " << y << " " << position.x << " " << position.y << std::endl;
+    // std::cout << x << " " << y << " " << position.x << " " << position.y << std::endl;
     // x = position.x*sin(angle);
     // y = position.y*sin(angle);
     // std::cout<< x << " x " << position.x << std::endl;
