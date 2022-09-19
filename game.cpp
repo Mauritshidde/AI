@@ -46,7 +46,7 @@ void Start() {
 
         // }
 
-        Car car(Vector2{screenWidth/2, screenHeight/2+300}, 1, map.wallVectorVec, map.arraySize);
+        Car car(map.spawn, 1, map.wallVectorVec, map.arraySize, map.outerWall, map.outerSize);
         cars.push_back(car);
     }
 }

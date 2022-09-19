@@ -10,47 +10,115 @@
 const int screenWidth = 1980;
 const int screenHeight = 1024;
 
+bool inner, outer, spawn;
+
 bool server = false;
-std::vector<Vector2> map;
+std::vector<Vector2> innerMap, outerMap;
+Vector2 spawnLocation;
+
+void saveMap() {
+    nlohmann::json j;
+    j["inner"]["lenght"] = innerMap.size();
+    j["outer"]["lenght"] = outerMap.size();
+
+    for (int i=0; i < innerMap.size(); i++) {
+        j["inner"][std::to_string(i)]["x"] = innerMap.at(i).x;
+        j["inner"][std::to_string(i)]["y"] = innerMap.at(i).y;
+    }
+
+    for (int i=0; i < outerMap.size(); i++) {
+        j["outer"][std::to_string(i)]["x"] = outerMap.at(i).x;
+        j["outer"][std::to_string(i)]["y"] = outerMap.at(i).y;
+    }
+
+    j["spawn"]["x"] = spawnLocation.x;
+    j["spawn"]["y"] = spawnLocation.y;
+    std::ofstream testfile;
+    testfile.open ("example.json");
+    testfile << j;
+    testfile.close();
+}
 
 void Render() {
     const Color backgroundColor = BLACK;
-
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-        Vector2 position = GetMousePosition();
-        map.push_back(position);
-    } 
+    
+    if (IsKeyDown(KEY_O)) {
+        inner = true;
+        outer = false;
+        spawn = false;
+    } else if (IsKeyDown(KEY_P)) {
+        inner = false;
+        outer = true;
+        spawn = false;
+    } else if (IsKeyDown(KEY_Q)) {
+        inner = false;
+        outer = false;
+        spawn = true;
+    }
+    if (inner) {
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            Vector2 innerPosition = GetMousePosition();
+            innerMap.push_back(innerPosition);
+        }
+    } else if (outer) {
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            Vector2 outerPosition = GetMousePosition();
+            outerMap.push_back(outerPosition);
+        }
+    } else if (spawn) {
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            spawnLocation = GetMousePosition();
+        }
+    }
+     
 
     BeginDrawing();
     ClearBackground(backgroundColor);
 
-    if ( map.size() == 1) {
+    DrawCircle(spawnLocation.x, spawnLocation.y, 4, RED);
+    if ( innerMap.size() == 1) {
 
-    } else if (map.size() == 2) {
-        DrawLineV(map.at(0), map.at(1), RED);
+    } else if (innerMap.size() == 2) {
+        DrawLineV(innerMap.at(0), innerMap.at(1), RED);
     } else {
-        for (int i=0; i < map.size(); i++) {
-            if (i == map.size()-1) {
-                DrawLineV(map.at(i), map.at(0), RED);
+        for (int i=0; i < innerMap.size(); i++) {
+            if (i == innerMap.size()-1) {
+                DrawLineV(innerMap.at(i), innerMap.at(0), RED);
             } else {
-                DrawLineV(map.at(i), map.at(i+1), RED);
+                DrawLineV(innerMap.at(i), innerMap.at(i+1), RED);
+            }
+        }
+    }
+
+    if ( outerMap.size() == 1) {
+
+    } else if (outerMap.size() == 2) {
+        DrawLineV(outerMap.at(0), outerMap.at(1), RED);
+    } else {
+        for (int i=0; i < outerMap.size(); i++) {
+            if (i == outerMap.size()-1) {
+                DrawLineV(outerMap.at(i), outerMap.at(0), RED);
+            } else {
+                DrawLineV(outerMap.at(i), outerMap.at(i+1), RED);
             }
         }
     }
     if (IsKeyDown(KEY_ENTER)) {
-        nlohmann::json j;
-        j["lenght"] = map.size();
+        saveMap();
+        // nlohmann::json j;
+        // j["lenght"] = map.size();
 
-        for (int i=0; i < map.size(); i++) {
-            std::cout << i << std::endl;
-            j[std::to_string(i)]["x"] = map.at(i).x;
-            j[std::to_string(i)]["y"] = map.at(i).y;
+        // for (int i=0; i < map.size(); i++) {
+        //     std::cout << i << std::endl;
+        //     j[std::to_string(i)]["x"] = map.at(i).x;
+        //     j[std::to_string(i)]["y"] = map.at(i).y;
 
-            std::ofstream testfile;
-            testfile.open ("example.json");
-            testfile << j;
-            testfile.close();
-        }
+        //     std::ofstream testfile;
+        //     testfile.open ("example.json");
+        //     testfile << j;
+        //     testfile.close();
+        // }
+
         // std::ofstream myfile;
         // myfile.open ("example.txt");
         // for (int i=0; i < map.size(); i++) {
@@ -58,14 +126,14 @@ void Render() {
         // }
         // myfile.close();
     }
-    int a;
-    std::ifstream myfile;
-    myfile.open("example.txt");
-    bool door = true;
+    // int a;
+    // std::ifstream myfile;
+    // myfile.open("example.txt");
+    // bool door = true;
     
     
 
-    auto j3 = nlohmann::json::parse(R"({"happy": true, "pi": 3.141})");
+    // auto j3 = nlohmann::json::parse(R"({"happy": true, "pi": 3.141})");
 
     
 
@@ -74,16 +142,24 @@ void Render() {
 
     
 
-    std::ifstream f("example.json");
-    nlohmann::json data = nlohmann::json::parse(f);
-    std::cout << data << std::endl;
+    // std::ifstream f("example.json");
+    // nlohmann::json data = nlohmann::json::parse(f);
+    // std::cout << data << std::endl;
     
+    // for (int i=0; i < screenWidth; i++) {
+    //     for (int j=0; i < screenHeight; i++) {
+    //         DrawLineV({i,i},{i+1, i+1}, BLUE);
+    //     }
+    // }
+
+
     DrawFPS(10,10);
     EndDrawing();
 }
 
 void Start() {
-
+    inner = true;
+    outer = false;
 }
 
 void Update(double deltaTime) {

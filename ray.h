@@ -20,12 +20,12 @@ class Rays {
         // std::vector<Vector2> returnMap() { GameMapE map; return map.wallVectorVec;};
         double lerp(double A, double B, double t);
         Vector4 getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D);
-        void setWallVec(std::vector<Vector2> vec, int arraySize) {wallVector = vec; mapArraySize = arraySize;};
+        void setWallVec(std::vector<Vector2> vec, int arraySize, std::vector<Vector2> outervec, int outerArraySize) {wallVector = vec; mapArraySize = arraySize; outerWallvector = outervec; outerMapArraySize=outerArraySize;};
     private:
         bool calcRayHits(int endRayLoc);
         void castRays();
 
-        std::vector<Vector2> eindRay, wallVector; 
+        std::vector<Vector2> eindRay, wallVector, outerWallvector; 
         std::vector<Vector3> hitCoordVec3; 
         Vector2 startRay;
         Vector3 hitCoordVec;
@@ -33,7 +33,7 @@ class Rays {
         double rayAmount, angle, rayLenght, rayAngle;
         const double raySpread = M_PI*2;
         const double halfRaySpread = raySpread/2;
-        int mapArraySize;
+        int mapArraySize, outerMapArraySize;
 
 };
 
@@ -93,6 +93,27 @@ bool Rays::calcRayHits(int endRayLoc) {
         } else {
             test = getIntersection(startRay, endRay, wallVector[i], wallVector[0]);
         }
+
+        if (test.w == 5) {
+            Vector3 valueVec;
+            // std::cout << valueVec.z << " ";
+            valueVec.x = test.x;
+            valueVec.y = test.y;
+            valueVec.z = test.z;
+            touches.push_back(valueVec); 
+        }
+
+    }
+    for (int i=0; i < outerMapArraySize; i++) {
+        // std::cout << endRay.x << "  " << endRay.y << std::endl;
+        Vector4 test;
+        if (i < outerMapArraySize-1) {
+            test = getIntersection(startRay, endRay, outerWallvector[i], outerWallvector[i+1]);
+            // std::cout  << test.x << " " << test.y << " " << test.z << std::endl;
+        } else {
+            test = getIntersection(startRay, endRay, outerWallvector[i], outerWallvector[0]);
+        }
+        // std::cout << outerWallvector[i].x << "  " << outerWallvector[i].y << std::endl;
 
         if (test.w == 5) {
             Vector3 valueVec;

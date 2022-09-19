@@ -5,7 +5,7 @@
 
 class Car {
     public:
-        Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize);
+        Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize, std::vector<Vector2> outerMap, int outerWallArraySize);
         void update(double deltaTime);
         double accelerate(double dTime, bool forward);
         void castRay();
@@ -30,19 +30,20 @@ class Car {
         Rectangle rectangle;
         bool controlType;
         bool action[4];
-        std::vector<Vector2> polygon, wallVec;
+        std::vector<Vector2> polygon, wallVec, outerWallVec;
         int wallArraySize;
         
 
 
 };
 
-Car::Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize) {
+Car::Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize, std::vector<Vector2> outerMap, int outerWallArraySize) {
     position = newPosition;
     controlType = control;
     alive = true;
     wallVec = map;
-    rays.setWallVec(map, wallArraySize);
+    outerWallVec = outerMap;
+    rays.setWallVec(map, wallArraySize, outerMap, outerWallArraySize);
     wallArraySize = arraySize;
 }
 
@@ -204,6 +205,12 @@ bool Car::checkCollision() {
     for (int i=0; i < wallVec.size(); i++) {
         // std::cout << wallVec.at(0).x;
         if (polyIntersect(polygon, {wallVec.at(i), wallVec.at((i+1)%wallVec.size())})) {
+            return true;
+        }
+    }
+    for (int i=0; i < outerWallVec.size(); i++) {
+        // std::cout << wallVec.at(0).x;
+        if (polyIntersect(polygon, {outerWallVec.at(i), outerWallVec.at((i+1)%outerWallVec.size())})) {
             return true;
         }
     }
