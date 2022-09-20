@@ -5,7 +5,7 @@
 
 class Car {
     public:
-        Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize, std::vector<Vector2> outerMap, int outerWallArraySize);
+        Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize, std::vector<Vector2> outerMap, int outerWallArraySize, double newDirection);
         void update(double deltaTime);
         double accelerate(double dTime, bool forward);
         void castRay();
@@ -37,7 +37,7 @@ class Car {
 
 };
 
-Car::Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize, std::vector<Vector2> outerMap, int outerWallArraySize) {
+Car::Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize, std::vector<Vector2> outerMap, int outerWallArraySize, double newDirection) {
     position = newPosition;
     controlType = control;
     alive = true;
@@ -45,6 +45,8 @@ Car::Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arrayS
     outerWallVec = outerMap;
     rays.setWallVec(map, wallArraySize, outerMap, outerWallArraySize);
     wallArraySize = arraySize;
+    direction = newDirection;
+    angle = (direction / -(180/PI));
 }
 
 void Car::createPolygon() {

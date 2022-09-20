@@ -9,12 +9,13 @@
 
 const int screenWidth = 1980;
 const int screenHeight = 1024;
+double rotation = 0;
 
-bool inner, outer, spawn;
+bool inner, outer, spawn, direction;
 
 bool server = false;
 std::vector<Vector2> innerMap, outerMap;
-Vector2 spawnLocation;
+Vector2 spawnLocation, angle;
 
 void saveMap() {
     nlohmann::json j;
@@ -33,6 +34,9 @@ void saveMap() {
 
     j["spawn"]["x"] = spawnLocation.x;
     j["spawn"]["y"] = spawnLocation.y;
+
+    j["direction"] = rotation;
+
     std::ofstream testfile;
     testfile.open ("example.json");
     testfile << j;
@@ -46,14 +50,22 @@ void Render() {
         inner = true;
         outer = false;
         spawn = false;
+        direction = false;
     } else if (IsKeyDown(KEY_P)) {
         inner = false;
         outer = true;
         spawn = false;
+        direction = false;
     } else if (IsKeyDown(KEY_Q)) {
         inner = false;
         outer = false;
         spawn = true;
+        direction = false;
+    } else if (IsKeyDown(KEY_C)) {
+        inner = false;
+        outer = false;
+        spawn = false;
+        direction = true;
     }
     if (inner) {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
@@ -69,6 +81,19 @@ void Render() {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             spawnLocation = GetMousePosition();
         }
+        if (IsKeyDown(KEY_A)) {
+            rotation -= 0.5;
+        }
+        if (IsKeyDown(KEY_D)) {
+            rotation += 0.5;
+        }
+    } else if (direction) {
+        if (IsKeyDown(KEY_A)) {
+            rotation += 0.1;
+        }
+        if (IsKeyDown(KEY_D)) {
+            rotation -= 0.1;
+        }
     }
      
 
@@ -76,6 +101,9 @@ void Render() {
     ClearBackground(backgroundColor);
 
     DrawCircle(spawnLocation.x, spawnLocation.y, 4, RED);
+    Rectangle rectangle = {spawnLocation.x, spawnLocation.y, 10, 20};
+    DrawRectanglePro(rectangle, {5, 10}, rotation, WHITE);  
+    
     if ( innerMap.size() == 1) {
 
     } else if (innerMap.size() == 2) {

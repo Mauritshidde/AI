@@ -142,7 +142,7 @@ bool Rays::calcRayHits(int endRayLoc) {
 }
 
 void Rays::draw() {
-    for (int i=0; i < 8; i++) {
+    for (int i=0; i < rayAmount; i++) {
         Vector2 start = {startRay.x, startRay.y};
         if (hitCoordVec3.at(i).x == 0 && hitCoordVec3.at(i).y == 0 && hitCoordVec3.at(i).z == 0) {
             Vector2 eind = {eindRay.at(i).x, eindRay.at(i).y};
@@ -172,7 +172,7 @@ void Rays::update(Vector2 newStart, double newAngle) {
     startRay.y = newStart.y;
 
     castRays();
-    for (int i=0; i < 8; i++) {
+    for (int i=0; i < rayAmount; i++) {
         if (calcRayHits(i)) {
             hitCoordVec3.push_back(hitCoordVec);
         } else {
@@ -186,7 +186,7 @@ void Rays::update(Vector2 newStart, double newAngle) {
 }
 
 void Rays::castRays() {
-    for (int i=0; i < 8; i++) {
+    for (int i=0; i < rayAmount; i++) {
         double value;
         if (i != 0) {
             value = i/(rayAmount-1);

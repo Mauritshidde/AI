@@ -46,7 +46,7 @@ void Start() {
 
         // }
 
-        Car car(map.spawn, 1, map.wallVectorVec, map.arraySize, map.outerWall, map.outerSize);
+        Car car(map.spawn, 1, map.wallVectorVec, map.arraySize, map.outerWall, map.outerSize, data["direction"]);
         cars.push_back(car);
     }
 }
