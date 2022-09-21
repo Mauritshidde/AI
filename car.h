@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "ray.h"
+#include "firstAi.h"
 
 class Car {
     public:
@@ -18,7 +19,7 @@ class Car {
     private:
         Rays rays;
         bool alive;
-        void move(double deltaTime);
+        void move(double deltaTime, std::vector<int> outputsbool);
         double friction = 20;
         double acceleration = 50;
         double speed = 0;
@@ -32,6 +33,9 @@ class Car {
         bool action[4];
         std::vector<Vector2> polygon, wallVec, outerWallVec;
         int wallArraySize;
+        std::vector<int> ditistest = {8, 6, 2};
+        NeuralNetwork network = NeuralNetwork(ditistest);
+
         
 
 
@@ -106,7 +110,7 @@ void Car::createPolygon() {
 
 void Car::draw() {
     Rectangle rectangle = {position.x, position.y, size.x, size.y};
-    DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, WHITE);  
+    DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, PINK);  
     rays.draw();
 }
 
@@ -125,21 +129,21 @@ void Car::controls() {
     }
 }
 
-void Car::move(double deltaTime) {
-    action[0] = 0;
-    action[1] = 0;
-    action[2] = 0;
-    action[3] = 0;
-    if (controlType) {
-        controls();
-    } else {
+void Car::move(double deltaTime, std::vector<int> outputsbool) {
+    // action[0] = outputsbool.at(0);
+    // action[1] = outputsbool.at(1);
+    // action[2] = outputsbool.at(2);
+    // action[3] = outputsbool.at(3);
+    // if (controlType) {
+    //     controls();
+    // } else {
 
-    }
+    // }
 
-    if (action[0]){
+    if (outputsbool.at(0) ==1){
         speed += acceleration * deltaTime;
     } 
-    if (action[1]){
+    if (outputsbool.at(1) == 1){
         speed -= acceleration * deltaTime;
     }
     if (speed > maxSpeed) {
@@ -163,16 +167,15 @@ void Car::move(double deltaTime) {
     // } else {
     //     flip = -1;
     // }
-    if (action[2]) {
+    if (outputsbool.at(2) == 1) {
         angle -= 2 * deltaTime;
         direction += (2 * (180/M_PI)) * deltaTime;
     }
-    if (action[3]) {
+    if (outputsbool.at(3) == 1) {
         angle += 2 * deltaTime;
         direction -= (2 * (180/M_PI)) * deltaTime;
     }
     // }
-    
     
     
     position.x -= sin(angle) * speed * deltaTime;
@@ -221,8 +224,30 @@ bool Car::checkCollision() {
 
 void Car::update(double deltaTime) {
     if (alive) {
-        move(deltaTime);
         rays.update({position.x, position.y}, angle);
+        
+        std::vector<Vector3> offsetVec = rays.hitCoordVec3;
+        // int offsets[offsetVec.size()];
+        std::vector<double> offsets;
+        for (int i=0; i < offsetVec.size(); i++) {
+            if (offsetVec.at(i).z == 0) {
+                // offsets[i] = 0;
+                offsets.push_back(0);
+            } else {
+                // offsets[i] = 1 - offsetVec.at(i).z;
+                offsets.push_back(1 - offsetVec.at(i).z);
+            }
+        }
+        std::vector<double> outputs;
+        outputs = network.feedforward(offsets, network);
+        // std::cout << outputs[0] << " " << outputs[1] << " " << outputs[2] << " " << outputs[3] << std::endl;
+        
+        std::vector<int> outputsbool;
+        for (int i=0; i < 4; i++) {
+            outputsbool.push_back(outputs[i]);
+        }
+        move(deltaTime, outputsbool);
+
         createPolygon();
         if(checkCollision()) {
             alive = false;

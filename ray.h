@@ -8,9 +8,6 @@
 
 // GameMapE map2;
 
-
-
-
 class Rays {
     public:
         Rays();
@@ -21,15 +18,15 @@ class Rays {
         double lerp(double A, double B, double t);
         Vector4 getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D);
         void setWallVec(std::vector<Vector2> vec, int arraySize, std::vector<Vector2> outervec, int outerArraySize) {wallVector = vec; mapArraySize = arraySize; outerWallvector = outervec; outerMapArraySize=outerArraySize;};
+        int rayAmountInt;
+        std::vector<Vector3> hitCoordVec3; 
     private:
         bool calcRayHits(int endRayLoc);
         void castRays();
 
         std::vector<Vector2> eindRay, wallVector, outerWallvector; 
-        std::vector<Vector3> hitCoordVec3; 
         Vector2 startRay;
         Vector3 hitCoordVec;
-        
         double rayAmount, angle, rayLenght, rayAngle;
         const double raySpread = M_PI*2;
         const double halfRaySpread = raySpread/2;
@@ -39,6 +36,7 @@ class Rays {
 
 Rays::Rays() {
     rayAmount = 8.0f;
+    rayAmountInt = 8;
     rayLenght = 200;
 }
 
@@ -105,19 +103,15 @@ bool Rays::calcRayHits(int endRayLoc) {
 
     }
     for (int i=0; i < outerMapArraySize; i++) {
-        // std::cout << endRay.x << "  " << endRay.y << std::endl;
         Vector4 test;
         if (i < outerMapArraySize-1) {
             test = getIntersection(startRay, endRay, outerWallvector[i], outerWallvector[i+1]);
-            // std::cout  << test.x << " " << test.y << " " << test.z << std::endl;
         } else {
             test = getIntersection(startRay, endRay, outerWallvector[i], outerWallvector[0]);
         }
-        // std::cout << outerWallvector[i].x << "  " << outerWallvector[i].y << std::endl;
 
         if (test.w == 5) {
             Vector3 valueVec;
-            // std::cout << valueVec.z << " ";
             valueVec.x = test.x;
             valueVec.y = test.y;
             valueVec.z = test.z;
@@ -178,7 +172,6 @@ void Rays::update(Vector2 newStart, double newAngle) {
         } else {
             hitCoordVec3.push_back({});
         }
-        // std::cout << hit.x << std::endl;
         for (int i=0; i < 8; i++) {
             
         }

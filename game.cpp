@@ -40,7 +40,7 @@ void Start() {
 
     map.setMap(data);
 
-    for (int i=0; i < 6; i++) {
+    for (int i=0; i < 200; i++) {
         // for (int i=0; i < map.wallVectorVec.size(); i++) {
         //     std::cout << map.wallVectorVec.at(i).x << " xs " << map.wallVectorVec.at(i).y << "  y ";
 
