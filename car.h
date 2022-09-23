@@ -2,23 +2,26 @@
 #include <vector>
 
 #include "ray.h"
-#include "firstAi.h"
+#include "nn.h"
 
 class Car {
     public:
-        Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize, std::vector<Vector2> outerMap, int outerWallArraySize, double newDirection);
+        Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize, std::vector<Vector2> outerMap, int outerWallArraySize, double newDirection, std::vector<std::vector<Vector2>> newPoints);
+        ~Car();
         void update(double deltaTime);
         double accelerate(double dTime, bool forward);
         void castRay();
         void controls();
-        void draw();
+        void draw(bool best);
         void createPolygon();
         bool checkCollision();
         bool polyIntersect(std::vector<Vector2> poly1, std::vector<Vector2> poly2);
-
+        bool checkPointCollision();
+        int collectedPoints = 0;
+        bool alive;
+        NeuralNetwork network = NeuralNetwork({8, 6, 2});
     private:
         Rays rays;
-        bool alive;
         void move(double deltaTime, std::vector<int> outputsbool);
         double friction = 20;
         double acceleration = 50;
@@ -34,14 +37,14 @@ class Car {
         std::vector<Vector2> polygon, wallVec, outerWallVec;
         int wallArraySize;
         std::vector<int> ditistest = {8, 6, 2};
-        NeuralNetwork network = NeuralNetwork(ditistest);
-
+        int currentPoint = 0;
+        std::vector<std::vector<Vector2>> points;
         
 
 
 };
 
-Car::Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize, std::vector<Vector2> outerMap, int outerWallArraySize, double newDirection) {
+Car::Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize, std::vector<Vector2> outerMap, int outerWallArraySize, double newDirection, std::vector<std::vector<Vector2>> newPoints) {
     position = newPosition;
     controlType = control;
     alive = true;
@@ -51,6 +54,11 @@ Car::Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arrayS
     wallArraySize = arraySize;
     direction = newDirection;
     angle = (direction / -(180/PI));
+    points = newPoints;
+}
+
+Car::~Car() {
+    
 }
 
 void Car::createPolygon() {
@@ -99,16 +107,17 @@ void Car::createPolygon() {
     polygon.push_back({x2,y2});
     polygon.push_back({x3,y3});
     polygon.push_back({x4,y4});
-    DrawLineV(polygon.at(0), polygon.at(1), RED);
-    DrawLineV(polygon.at(1), polygon.at(2), RED);
+    // DrawLineV(polygon.at(0), polygon.at(1), RED);
+    // DrawLineV(polygon.at(1), polygon.at(2), RED);
 
-    DrawLineV(polygon.at(2), polygon.at(3), RED);
-    DrawLineV(polygon.at(3), polygon.at(0), RED);
+    // DrawLineV(polygon.at(2), polygon.at(3), RED);
+    // DrawLineV(polygon.at(3), polygon.at(0), RED);
     // std::cout << points.at(0).x << "x " << points.at(1).x << "x " << points.at(2).x << "x " << points.at(3).x << std::endl;
     // std::cout << points.at(0).y << "y " << points.at(1).y << "y " << points.at(2).y << "y " << points.at(3).y << std::endl;
 }
 
-void Car::draw() {
+void Car::draw(bool best) {
+    if (best) {}
     Rectangle rectangle = {position.x, position.y, size.x, size.y};
     DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, PINK);  
     rays.draw();
@@ -148,6 +157,8 @@ void Car::move(double deltaTime, std::vector<int> outputsbool) {
     }
     if (speed > maxSpeed) {
         speed = maxSpeed;
+    } else if (speed < -maxSpeed/2) {
+        speed = -maxSpeed/2;
     }
     if (speed > 0) {
         speed -= friction * deltaTime;
@@ -190,6 +201,8 @@ double Car::accelerate(double dTime, bool forward) {
     }
     if (speed > maxSpeed) {
         speed = maxSpeed;
+    }if (speed < -maxSpeed/2) {
+        speed = maxSpeed/2;
     }
     return speed;
 }
@@ -222,6 +235,19 @@ bool Car::checkCollision() {
     return false;
 }
 
+bool Car::checkPointCollision() {
+    if (polyIntersect(polygon, {points.at(currentPoint).at(0), points.at(currentPoint).at(1)})) {
+        if (currentPoint == points.size()-1) {
+            currentPoint = 0;
+        } else {
+            currentPoint++;
+        }
+        collectedPoints++;
+        return true;
+    }
+    return false;
+}
+
 void Car::update(double deltaTime) {
     if (alive) {
         rays.update({position.x, position.y}, angle);
@@ -246,6 +272,11 @@ void Car::update(double deltaTime) {
         for (int i=0; i < 4; i++) {
             outputsbool.push_back(outputs[i]);
         }
+        bool test = checkPointCollision();
+        // if (collectedPoints != 0) {
+        // std::cout << collectedPoints << std::endl;
+
+        // }
         move(deltaTime, outputsbool);
 
         createPolygon();

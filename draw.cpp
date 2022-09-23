@@ -11,16 +11,19 @@ const int screenWidth = 1980;
 const int screenHeight = 1024;
 double rotation = 0;
 
-bool inner, outer, spawn, direction;
+bool inner, outer, spawn, point;
 
 bool server = false;
-std::vector<Vector2> innerMap, outerMap;
+std::vector<Vector2> innerMap, outerMap, points2;
+std::vector<std::vector<Vector2>> points;
 Vector2 spawnLocation, angle;
 
 void saveMap() {
     nlohmann::json j;
     j["inner"]["lenght"] = innerMap.size();
     j["outer"]["lenght"] = outerMap.size();
+    j["points"]["lenght"] = points.size();
+
 
     for (int i=0; i < innerMap.size(); i++) {
         j["inner"][std::to_string(i)]["x"] = innerMap.at(i).x;
@@ -30,6 +33,13 @@ void saveMap() {
     for (int i=0; i < outerMap.size(); i++) {
         j["outer"][std::to_string(i)]["x"] = outerMap.at(i).x;
         j["outer"][std::to_string(i)]["y"] = outerMap.at(i).y;
+    }
+
+    for (int i=0; i < points.size(); i++) {
+        j["points"][std::to_string(i)]["start"]["x"] = points.at(i).at(0).x;
+        j["points"][std::to_string(i)]["start"]["y"] = points.at(i).at(0).y;
+        j["points"][std::to_string(i)]["end"]["x"] = points.at(i).at(1).x;
+        j["points"][std::to_string(i)]["end"]["y"] = points.at(i).at(1).y;
     }
 
     j["spawn"]["x"] = spawnLocation.x;
@@ -50,32 +60,38 @@ void Render() {
         inner = true;
         outer = false;
         spawn = false;
-        direction = false;
+        point = false;
     } else if (IsKeyDown(KEY_P)) {
         inner = false;
         outer = true;
         spawn = false;
-        direction = false;
+        point = false;
     } else if (IsKeyDown(KEY_Q)) {
         inner = false;
         outer = false;
         spawn = true;
-        direction = false;
+        point = false;
     } else if (IsKeyDown(KEY_C)) {
         inner = false;
         outer = false;
         spawn = false;
-        direction = true;
+        point = true;
     }
     if (inner) {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             Vector2 innerPosition = GetMousePosition();
             innerMap.push_back(innerPosition);
+        } else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && innerMap.size() != 0) {
+            Vector2 innerPosition = GetMousePosition();
+            innerMap.pop_back();
         }
     } else if (outer) {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             Vector2 outerPosition = GetMousePosition();
             outerMap.push_back(outerPosition);
+        } else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && outerMap.size() != 0) {
+            Vector2 outerPosition = GetMousePosition();
+            outerMap.pop_back();
         }
     } else if (spawn) {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
@@ -87,12 +103,19 @@ void Render() {
         if (IsKeyDown(KEY_D)) {
             rotation += 0.5;
         }
-    } else if (direction) {
-        if (IsKeyDown(KEY_A)) {
-            rotation += 0.1;
-        }
-        if (IsKeyDown(KEY_D)) {
-            rotation -= 0.1;
+    } else if (point) {
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            Vector2 innerPosition = GetMousePosition();
+            points2.push_back(innerPosition);
+            if (points2.size() == 2) {
+                points.push_back(points2);
+                points2.pop_back();
+                points2.pop_back();
+            }
+        } else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && points.size() != 0) {
+            Vector2 innerPosition = GetMousePosition();
+            // if (points)
+            points.pop_back();
         }
     }
      
@@ -131,6 +154,16 @@ void Render() {
             }
         }
     }
+
+    if ( points.size() == 0) {
+
+    } else {
+        for (int i=0; i < points.size(); i++) {
+            DrawLineV(points.at(i).at(0), points.at(i).at(1), YELLOW);
+
+        }
+    }
+
     if (IsKeyDown(KEY_ENTER)) {
         saveMap();
         // nlohmann::json j;

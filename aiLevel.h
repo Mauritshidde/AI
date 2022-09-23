@@ -5,12 +5,11 @@ class Level {
     public:
         Level(int incount, int outcount);
         std::vector<double> feedForward(std::vector<double> givenInputs, Level level);
+        std::vector<double> biases;
+        std::vector<std::vector<double>> weights;
     private:
         void randomize();
         int inputCount, outputCount;
-        std::vector<double> biases;
-        // int weights[][];
-        std::vector<std::vector<double>> weights;
 
 };
 

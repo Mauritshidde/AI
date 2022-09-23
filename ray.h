@@ -27,15 +27,15 @@ class Rays {
         std::vector<Vector2> eindRay, wallVector, outerWallvector; 
         Vector2 startRay;
         Vector3 hitCoordVec;
-        double rayAmount, angle, rayLenght, rayAngle;
+        double angle, rayLenght, rayAngle;
         const double raySpread = M_PI*2;
         const double halfRaySpread = raySpread/2;
-        int mapArraySize, outerMapArraySize;
+        int mapArraySize, outerMapArraySize, rayAmount;
 
 };
 
 Rays::Rays() {
-    rayAmount = 8.0f;
+    rayAmount = 8;
     rayAmountInt = 8;
     rayLenght = 200;
 }
@@ -182,16 +182,16 @@ void Rays::castRays() {
     for (int i=0; i < rayAmount; i++) {
         double value;
         if (i != 0) {
-            value = i/(rayAmount-1);
+            value = i/float(rayAmount-1);
         } else {
-            value = 0;
+            value = 0.5;
         }
 
         double rayAngle = lerp(halfRaySpread, -halfRaySpread, value);
         rayAngle += angle;
 
-        float eindx = (startRay.x + sin(rayAngle) * rayLenght);
-        float eindy = (startRay.y + cos(rayAngle) * rayLenght);
+        float eindx = (startRay.x - sin(rayAngle) * rayLenght);
+        float eindy = (startRay.y - cos(rayAngle) * rayLenght);
 
         Vector2 newEindRay = {eindx, eindy};
 
