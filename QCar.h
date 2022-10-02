@@ -154,7 +154,7 @@ void Car::move(double deltaTime, int action) {
     // if (IsKeyDown(KEY_S)){
     //     action[1] = 1;
     // } 
-    action = 100;
+    // action = 100;
     if (IsKeyDown(KEY_D)) {
         action = 0;
     }
