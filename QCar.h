@@ -2,7 +2,7 @@
 #include <vector>
 
 #include "ray.h"
-#include "nn.h"
+#include "Qlearning.h"
 
 class Car {
     public:
@@ -19,11 +19,11 @@ class Car {
         bool checkPointCollision();
         int collectedPoints = 0;
         bool alive;
-        NeuralNetwork network = NeuralNetwork({8, 6, 4});
         std::vector<int> outputsbool;
+        Qlearning Qtable;
     private:
         Rays rays;
-        void move(double deltaTime, std::vector<int> outputsbool);
+        void move(double deltaTime, int action);
         double friction = 20;
         double acceleration = 50;
         double speed = 0;
@@ -37,7 +37,6 @@ class Car {
         bool action[4];
         std::vector<Vector2> polygon, wallVec, outerWallVec;
         int wallArraySize;
-        std::vector<int> ditistest = {8, 6, 2};
         int currentPoint = 0;
         std::vector<std::vector<Vector2>> points;
         
@@ -139,7 +138,7 @@ void Car::controls() {
     }
 }
 
-void Car::move(double deltaTime, std::vector<int> outputsbool) {
+void Car::move(double deltaTime, int action) {
     // action[0] = outputsbool.at(0);
     // action[1] = outputsbool.at(1);
     // action[2] = outputsbool.at(2);
@@ -149,8 +148,20 @@ void Car::move(double deltaTime, std::vector<int> outputsbool) {
     // } else {
 
     // }
-
-    if (outputsbool.at(0) ==1){
+    // if (IsKeyDown(KEY_W)){
+    //     action[0] = 1;
+    // } 
+    // if (IsKeyDown(KEY_S)){
+    //     action[1] = 1;
+    // } 
+    action = 100;
+    if (IsKeyDown(KEY_D)) {
+        action = 0;
+    }
+    if (IsKeyDown(KEY_A)) {
+        action = 1;
+    }
+    if (action == 2){
         speed += acceleration * deltaTime;
     } 
     // if (outputsbool.at(1) == 1 && speed > 0){
@@ -158,7 +169,7 @@ void Car::move(double deltaTime, std::vector<int> outputsbool) {
     //     if (speed < 0) {
     //         speed = 0;
     //     }
-    if (outputsbool.at(1) == 1){
+    if (action == 3){
         speed -= acceleration * deltaTime;
     }
     if (speed > maxSpeed) {
@@ -184,16 +195,16 @@ void Car::move(double deltaTime, std::vector<int> outputsbool) {
     // } else {
     //     flip = -1;
     // }
-    if (outputsbool.at(2) == 1) {
+    if (action == 0) {
         angle -= 3 * deltaTime;
         direction += (3 * (180/M_PI)) * deltaTime;
     }
-    if (outputsbool.at(3) == 1) {
+    if (action == 1) {
         angle += 3 * deltaTime;
         direction -= (3 * (180/M_PI)) * deltaTime;
     }
     // }
-    
+    speed = maxSpeed;
     
     position.x -= sin(angle) * speed * deltaTime;
     position.y -= cos(angle) * speed * deltaTime;
@@ -271,24 +282,26 @@ void Car::update(double deltaTime) {
             }
         }
         std::vector<double> outputs;
-        outputs = network.feedforward(offsets, network);
         // std::cout << outputs[0] << " " << outputs[1] << " " << outputs[2] << " " << outputs[3] << std::endl;
         
-        outputsbool.clear();
-        for (int i=0; i < 4; i++) {
-            outputsbool.push_back(outputs[i]);
-        }
+        // outputsbool.clear();
+        // for (int i=0; i < 4; i++) {
+        //     outputsbool.push_back(outputs[i]);
+        // }
         bool test = checkPointCollision();
         // if (collectedPoints != 0) {
         // std::cout << collectedPoints << std::endl;
 
-        // }
-        move(deltaTime, outputsbool);
+        int action = Qtable.makeDecision(offsets);
+
+
+        move(deltaTime, action);
 
         createPolygon();
         if(checkCollision()) {
             alive = false;
         } 
+
     }
 
 }

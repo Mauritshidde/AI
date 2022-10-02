@@ -1,5 +1,7 @@
 #include <vector>
 #include <cstdlib>
+#include <string>
+#include <nlohmann/json.hpp>
 
 #include "aiLevel.h"
 
@@ -42,21 +44,21 @@ std::vector<double> NeuralNetwork::feedforward(std::vector<double> givenInputs, 
 }
 
 void NeuralNetwork::mutate(NeuralNetwork network, double amount) {
-    amount = 0.1;
+    // amount = 0.3;
     
     for (int i=0; i < network.levels.size(); i++) {
         // std::cout << network.levels.at(i).biases.size() << "  ";
         for (int j=0; j < network.levels.at(i).biases.size(); j++) {
-            double v1 = rand() % 100;
-            levels.at(i).biases.at(j) = lerp(network.levels.at(i).biases.at(j), (v1/100)*2-1, amount);
+            double v1 = rand() % 1000000000;
+            levels.at(i).biases.at(j) = lerp(network.levels.at(i).biases.at(j), (v1/1000000000)*2-1, amount);
             // double test = lerp(network.levels.at(i).biases.at(j), (v1/100)*2-1, amount);
             // std::cout << test << " ";
         }
 
         for (int j=0; j < network.levels.at(i).weights.size(); j++) {
             for (int k=0; k < network.levels.at(i).weights.at(j).size(); k++) {
-                double v1 = rand() % 100;
-                levels.at(i).weights.at(j).at(k) = lerp(network.levels.at(i).weights.at(j).at(k), (v1/100)*2-1, amount);
+                double v1 = rand() % 1000000000;
+                levels.at(i).weights.at(j).at(k) = lerp(network.levels.at(i).weights.at(j).at(k), (v1/1000000000)*2-1, amount);
             }
         }
     }
@@ -71,7 +73,7 @@ void NeuralNetwork::setNN(NeuralNetwork network) {
 
         for (int j=0; j < network.levels.at(i).weights.size(); j++) {
             for (int k=0; k < network.levels.at(i).weights.at(j).size(); k++) {
-                double v1 = rand() % 100;
+                // double v1 = rand() % 100;
                 levels.at(i).weights.at(j).at(k) = network.levels.at(i).weights.at(j).at(k);
             }
         }
@@ -79,5 +81,28 @@ void NeuralNetwork::setNN(NeuralNetwork network) {
 }
 
 void NeuralNetwork::saveNN() {
-    
+    nlohmann::json jsonfile;
+
+    jsonfile["weights"]["lenght"] = levels.size();
+    jsonfile["biases"]["lenght"] = levels.size();
+
+    for (int i=0; i < levels.size(); i++) {
+        jsonfile["weights"][std::to_string(i)]["lenght"] = levels.at(i).weights.size();
+        for (int j=0; j < levels.at(i).weights.size(); j++) {
+            jsonfile["weights"][std::to_string(i)][std::to_string(j)]["lenght"] = levels.at(i).weights.at(j).size();
+            for (int k=0; k < levels.at(i).weights.at(j).size(); k++) {
+                jsonfile["weights"][std::to_string(i)][std::to_string(j)][std::to_string(k)] = levels.at(i).weights.at(j).at(k);
+                // j["weights"][std::to_string(j)][k][levels.at(i).weights.at(j).at(k)];
+            }
+        }
+        jsonfile["biases"][std::to_string(i)]["lenght"] = levels.at(i).biases.size();
+        for (int j=0; j < levels.at(i).biases.size(); j++) {
+            jsonfile["biases"][std::to_string(i)][std::to_string(j)] = levels.at(i).biases.at(j);
+        }
+    }
+
+    std::ofstream testfile;
+    testfile.open ("NN.json");
+    testfile << jsonfile;
+    testfile.close();
 }
