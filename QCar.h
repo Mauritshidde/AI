@@ -20,6 +20,8 @@ class Car {
         int collectedPoints = 0;
         bool alive;
         std::vector<int> outputsbool;
+        std::vector<double> previousState, previousState1, previousState2, previousState3, previousState4;
+        std::vector<std::vector<double>> previousStates;
         Qlearning Qtable;
     private:
         Rays rays;
@@ -294,6 +296,31 @@ void Car::update(double deltaTime) {
 
         int action = Qtable.makeDecision(offsets);
 
+        previousState4 = previousState3;
+        previousState3 = previousState2;
+        previousState2 = previousState1;
+        previousState1 = previousState;
+        previousState = offsets;
+        previousStates.clear();
+        previousStates.push_back(previousState);
+        previousStates.push_back(previousState1);
+        previousStates.push_back(previousState2);
+        previousStates.push_back(previousState3);
+        previousStates.push_back(previousState4);
+        rays.update({position.x, position.y}, angle);
+        std::vector<Vector3> offsetVec2 = rays.hitCoordVec3;
+        // int offsets[offsetVec.size()];
+        std::vector<double> offsets4;
+        for (int i=0; i < offsetVec2.size(); i++) {
+            if (offsetVec2.at(i).z == 0) {
+                // offsets[i] = 0;
+                offsets4.push_back(0);
+            } else {
+                // offsets[i] = 1 - offsetVec.at(i).z;
+                offsets4.push_back(1 - offsetVec2.at(i).z);
+            }
+        }
+        previousStates.push_back(offsets4);
 
         move(deltaTime, action);
 
@@ -302,6 +329,9 @@ void Car::update(double deltaTime) {
             alive = false;
         } 
 
-    }
+    } 
+    // else {
+    //     Qtable.Reward(false, previousState);
+    // }
 
 }

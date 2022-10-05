@@ -4,6 +4,7 @@
 #include <vector>
 #include <fstream>
 #include <nlohmann/json.hpp>
+#include <string>
 
 #include "raygui.h"
 #include "GameMap.h"
@@ -22,7 +23,8 @@ std::vector<Car> cars;
 
 bool server = false;
 std::vector<double> previousMove;
-
+float epsilon = 1;
+int generation = 0;
 GameMapE map;
 
 std::ifstream f4("example.json");
@@ -56,16 +58,31 @@ void Render() {
 
     map.draw();
     cars.at(1).draw(false);
+    // std::string = std::to_string(generation);
+    DrawText("ja", 600, 540, 10, BLACK);
+    DrawText(TextFormat("%i", generation), 10, 40, 20, WHITE);
+    DrawText(TextFormat("%f", epsilon), 10, 60, 20, WHITE);
 
-    
     DrawFPS(10,10);
     EndDrawing();
 
     if (!cars.at(1).alive) {
         std::ifstream f("example.json");
         nlohmann::json data = nlohmann::json::parse(f);
+        cars.at(1).Qtable.Reward(true, cars.at(1).previousStates);
         cars.at(1).Qtable.saveQtable();
         SetCar(data);
+        generation++;
+        if (generation == 20000) {
+            epsilon -= 0.1;
+            if (epsilon < 0) {
+                epsilon = 0;
+            }
+            cars.at(1).Qtable.SetEpsilon(epsilon);
+            generation = 0;
+        }
+    } else {
+        cars.at(1).Qtable.Reward(false, cars.at(1).previousStates);
     }
 }
 
@@ -84,6 +101,7 @@ void Update(double deltaTime) {
     // for (int i=0; i < cars.size(); i++) {
     //     cars.at(i).update(deltaTime);
     // }
+    cars.at(1).update(deltaTime);
     cars.at(1).update(deltaTime);
     
 }   
