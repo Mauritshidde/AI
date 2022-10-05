@@ -8,8 +8,8 @@
 class Qlearning {
     public:
         Qlearning();
-        int makeDecision(std::vector<double> state);
-        void Reward(bool alive, std::vector<std::vector<double>> previousStates);
+        int makeDecision(std::vector<double> *newState2);
+        void Reward(bool alive, std::vector<std::vector<double>> *previousStates);
         void saveQtable();
         void SetEpsilon(float newepsilon);
         nlohmann::json Qtable;
@@ -27,10 +27,12 @@ Qlearning::Qlearning() {
     Qtable = data;
 }
 
-int Qlearning::makeDecision(std::vector<double> newState) {
+int Qlearning::makeDecision(std::vector<double> *newState2) {
     std::vector<double> state;
-    for (int i=0; i < newState.size(); i++) {
-        double rounded = round(newState.at(i) * 10)/10;
+    // std::vector<double> newState = *newState2;
+    // delete [] newState2;
+    for (int i=0; i < newState2->size(); i++) {
+        double rounded = round(newState2->at(i) * 10)/10;
         // double x = std::setprecision(2) << rounded;
         state.push_back(rounded);
         // std::cout << std::to_string(rounded) << std::endl;
@@ -177,14 +179,14 @@ int Qlearning::makeDecision(std::vector<double> newState) {
     return action;
 }
 
-void Qlearning::Reward(bool alive, std::vector<std::vector<double>> previousStates) {
-    float alpha = 0.5;
-    float gamma = 0.4;
+void Qlearning::Reward(bool alive, std::vector<std::vector<double>> *previousStates) {
+    float alpha = 0.1;
+    float gamma = 0.001;
 
     if (alive) {
         std::vector<double> nextstate;
-        for (int j=0; j < previousStates.size()-1; j++) {
-            std::vector<double> previousMove = previousStates.at(j);
+        for (int j=0; j < previousStates->size()-1; j++) {
+            std::vector<double> previousMove = previousStates->at(j);
             if (previousMove.size() == 8 && j == 0) {
                 // std::cout << " dood ";
                 reward = -100;
@@ -195,13 +197,13 @@ void Qlearning::Reward(bool alive, std::vector<std::vector<double>> previousStat
                     state.push_back(rounded);
                 } 
                 if (j==0) {
-                    for (int i=0; i < previousStates.at(5).size(); i++) {
-                        double rounded5 = round(previousStates.at(5).at(i) * 10)/10;
+                    for (int i=0; i < previousStates->at(5).size(); i++) {
+                        double rounded5 = round(previousStates->at(5).at(i) * 10)/10;
                         nextstate.push_back(rounded5);
                     }
                 } else {
-                    for (int i=0; i < previousStates.at(j-1).size(); i++) {
-                        double rounded5 = round(previousStates.at(5).at(i) * 10)/10;
+                    for (int i=0; i < previousStates->at(j-1).size(); i++) {
+                        double rounded5 = round(previousStates->at(5).at(i) * 10)/10;
                         nextstate.push_back(rounded5);
                     }
                 }
@@ -238,7 +240,7 @@ void Qlearning::Reward(bool alive, std::vector<std::vector<double>> previousStat
         }
     } 
     else if (!alive) {
-        std::vector<double> previousMove = previousStates.at(0);
+        std::vector<double> previousMove = previousStates->at(0);
         if (previousMove.size() == 8) {
             // std::cout << " alive ";
 
@@ -252,8 +254,8 @@ void Qlearning::Reward(bool alive, std::vector<std::vector<double>> previousStat
 
             std::vector<double> nextstate;
             
-            for (int i=0; i < previousStates.at(5).size(); i++) {
-                double rounded5 = round(previousStates.at(5).at(i) * 10)/10;
+            for (int i=0; i < previousStates->at(5).size(); i++) {
+                double rounded5 = round(previousStates->at(5).at(i) * 10)/10;
                 nextstate.push_back(rounded5);
             }
 

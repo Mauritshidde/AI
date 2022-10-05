@@ -12,7 +12,7 @@ class Rays {
     public:
         Rays();
         ~Rays();
-        void update(Vector2 newStart, double newAngle);
+        void update(float *x, float *y, double newAngle);
         void draw();
         // std::vector<Vector2> returnMap() { GameMapE map; return map.wallVectorVec;};
         double lerp(double A, double B, double t);
@@ -157,13 +157,13 @@ void Rays::draw() {
     }
 }
 
-void Rays::update(Vector2 newStart, double newAngle) {
+void Rays::update(float *x, float *y, double newAngle) {
     eindRay = {};
     hitCoordVec3 = {};
     angle = newAngle;
 
-    startRay.x = newStart.x;
-    startRay.y = newStart.y;
+    startRay.x = *x;
+    startRay.y = *y;
 
     castRays();
     for (int i=0; i < rayAmount; i++) {

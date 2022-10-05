@@ -17,6 +17,7 @@ class Car {
         bool checkCollision();
         bool polyIntersect(std::vector<Vector2> poly1, std::vector<Vector2> poly2);
         bool checkPointCollision();
+        std::vector<std::vector<double>> *returnPreviousStates();
         int collectedPoints = 0;
         bool alive;
         std::vector<int> outputsbool;
@@ -269,7 +270,7 @@ bool Car::checkPointCollision() {
 
 void Car::update(double deltaTime) {
     if (alive) {
-        rays.update({position.x, position.y}, angle);
+        rays.update(&position.x, &position.y, angle);
         
         std::vector<Vector3> offsetVec = rays.hitCoordVec3;
         // int offsets[offsetVec.size()];
@@ -294,7 +295,7 @@ void Car::update(double deltaTime) {
         // if (collectedPoints != 0) {
         // std::cout << collectedPoints << std::endl;
 
-        int action = Qtable.makeDecision(offsets);
+        int action = Qtable.makeDecision(&offsets);
 
         previousState4 = previousState3;
         previousState3 = previousState2;
@@ -307,7 +308,7 @@ void Car::update(double deltaTime) {
         previousStates.push_back(previousState2);
         previousStates.push_back(previousState3);
         previousStates.push_back(previousState4);
-        rays.update({position.x, position.y}, angle);
+        rays.update(&position.x, &position.y, angle);
         std::vector<Vector3> offsetVec2 = rays.hitCoordVec3;
         // int offsets[offsetVec.size()];
         std::vector<double> offsets4;
@@ -334,4 +335,8 @@ void Car::update(double deltaTime) {
     //     Qtable.Reward(false, previousState);
     // }
 
+}
+
+std::vector<std::vector<double>> *Car::returnPreviousStates() {
+    return &previousStates;
 }

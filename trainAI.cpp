@@ -69,7 +69,7 @@ void Render() {
     if (!cars.at(1).alive) {
         std::ifstream f("example.json");
         nlohmann::json data = nlohmann::json::parse(f);
-        cars.at(1).Qtable.Reward(true, cars.at(1).previousStates);
+        cars.at(1).Qtable.Reward(true, cars.at(1).returnPreviousStates());
         cars.at(1).Qtable.saveQtable();
         SetCar(data);
         generation++;
@@ -82,7 +82,8 @@ void Render() {
             generation = 0;
         }
     } else {
-        cars.at(1).Qtable.Reward(false, cars.at(1).previousStates);
+        // std::vector<std::vector<double>> *previousStates = cars.at(1).returnPreviousStates();
+        cars.at(1).Qtable.Reward(false, cars.at(1).returnPreviousStates());
     }
 }
 
@@ -101,6 +102,7 @@ void Update(double deltaTime) {
     // for (int i=0; i < cars.size(); i++) {
     //     cars.at(i).update(deltaTime);
     // }
+    cars.at(1).update(deltaTime);
     cars.at(1).update(deltaTime);
     cars.at(1).update(deltaTime);
     
