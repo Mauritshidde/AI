@@ -25,7 +25,8 @@ bool server = false;
 std::vector<double> previousMove;
 float epsilon = 1;
 int generation = 0;
-GameMapE map;
+GameMapE* map = new GameMapE();
+// map = GameMapE
 
 std::ifstream f4("example.json");
 nlohmann::json data4 = nlohmann::json::parse(f4);
@@ -45,7 +46,7 @@ void SetCar(nlohmann::json data) {
     // cars.pop_back();
     // cars.pop_back();
     for (int i=0; i < 2; i++) {
-        Car car(map.spawn, 1, map.wallVectorVec, map.arraySize, map.outerWall, map.outerSize, data["direction"], map.points);
+        Car car(map, data["direction"]);
         cars.push_back(car);
     }
 }
@@ -56,7 +57,7 @@ void Render() {
     BeginDrawing();
     ClearBackground(backgroundColor);
 
-    map.draw();
+    map->draw();
     cars.at(1).draw(false);
     // std::string = std::to_string(generation);
     DrawText("ja", 600, 540, 10, BLACK);
@@ -70,7 +71,7 @@ void Render() {
         std::ifstream f("example.json");
         nlohmann::json data = nlohmann::json::parse(f);
         cars.at(1).Qtable.Reward(true, cars.at(1).returnPreviousStates());
-        cars.at(1).Qtable.saveQtable();
+        // cars.at(1).Qtable.saveQtable();
         SetCar(data);
         generation++;
         if (generation == 20000) {
@@ -91,7 +92,7 @@ void Start() {
     std::ifstream f("example.json");
     nlohmann::json data = nlohmann::json::parse(f);
     // Button2 saveButton = Button2({500,200}, {100, 100});
-    map.setMap(data);
+    map->setMap(data);
     
     SetCar(data);
     // SetCars(data, false);

@@ -6,7 +6,7 @@
 
 class Car {
     public:
-        Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize, std::vector<Vector2> outerMap, int outerWallArraySize, double newDirection, std::vector<std::vector<Vector2>> newPoints);
+        Car(GameMapE *map, double newDirection);
         ~Car();
         void update(double deltaTime);
         double accelerate(double dTime, bool forward);
@@ -47,17 +47,17 @@ class Car {
 
 };
 
-Car::Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize, std::vector<Vector2> outerMap, int outerWallArraySize, double newDirection, std::vector<std::vector<Vector2>> newPoints) {
-    position = newPosition;
-    controlType = control;
+Car::Car(GameMapE *map, double newDirection) {
+    position = map->spawn;
+    controlType = 1;
     alive = true;
-    wallVec = map;
-    outerWallVec = outerMap;
-    rays.setWallVec(map, wallArraySize, outerMap, outerWallArraySize);
-    wallArraySize = arraySize;
+    wallVec = map->wallVectorVec;
+    outerWallVec = map->outerWall;
+    rays.setWallVec(map->wallVectorVec, map->arraySize, map->outerWall, map->outerSize);
+    wallArraySize = map->arraySize;
     direction = newDirection;
     angle = (direction / -(180/PI));
-    points = newPoints;
+    points = map->points;
 }
 
 Car::~Car() {
