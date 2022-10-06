@@ -14,6 +14,9 @@
 const int screenWidth = 1980;
 const int screenHeight = 1024;
 // std::vector<Car> cars;
+
+Car* car;
+
 std::vector<Car> cars;
 // std::vector<std::vector<double>> weights;
 // std::vector<double> biases;
@@ -42,13 +45,14 @@ nlohmann::json data4 = nlohmann::json::parse(f4);
 // }
 
 void SetCar(nlohmann::json data) {
-    cars.clear();
-    // cars.pop_back();
-    // cars.pop_back();
-    for (int i=0; i < 2; i++) {
-        Car car(map, data["direction"]);
-        cars.push_back(car);
-    }
+    car = new Car(map, data["direction"]);
+    // cars.clear();
+    // // cars.pop_back();
+    // // cars.pop_back();
+    // for (int i=0; i < 2; i++) {
+    //     Car car(map, data["direction"]);
+    //     cars.push_back(car);
+    // }
 }
 
 void Render() {
@@ -58,7 +62,8 @@ void Render() {
     ClearBackground(backgroundColor);
 
     map->draw();
-    cars.at(1).draw(false);
+    // cars.at(1).draw(false);
+    car->draw(false);
     // std::string = std::to_string(generation);
     DrawText("ja", 600, 540, 10, BLACK);
     DrawText(TextFormat("%i", generation), 10, 40, 20, WHITE);
@@ -67,11 +72,13 @@ void Render() {
     DrawFPS(10,10);
     EndDrawing();
 
-    if (!cars.at(1).alive) {
+    if (!car->alive) {
         std::ifstream f("example.json");
         nlohmann::json data = nlohmann::json::parse(f);
-        cars.at(1).Qtable.Reward(true, cars.at(1).returnPreviousStates());
+        // cars.at(1).Qtable.Reward(true, cars.at(1).returnPreviousStates());
+        car->Qtable.Reward(true, car->returnPreviousStates());
         // cars.at(1).Qtable.saveQtable();
+        car->Qtable.saveQtable();
         SetCar(data);
         generation++;
         if (generation == 20000) {
@@ -79,12 +86,14 @@ void Render() {
             if (epsilon < 0) {
                 epsilon = 0;
             }
-            cars.at(1).Qtable.SetEpsilon(epsilon);
+            // cars.at(1).Qtable.SetEpsilon(epsilon);
+            car->Qtable.SetEpsilon(epsilon);
             generation = 0;
         }
     } else {
         // std::vector<std::vector<double>> *previousStates = cars.at(1).returnPreviousStates();
-        cars.at(1).Qtable.Reward(false, cars.at(1).returnPreviousStates());
+        // cars.at(1).Qtable.Reward(false, cars.at(1).returnPreviousStates());
+        car->Qtable.Reward(true, car->returnPreviousStates());
     }
 }
 
@@ -103,10 +112,16 @@ void Update(double deltaTime) {
     // for (int i=0; i < cars.size(); i++) {
     //     cars.at(i).update(deltaTime);
     // }
-    cars.at(1).update(deltaTime);
-    cars.at(1).update(deltaTime);
-    cars.at(1).update(deltaTime);
-    
+    // cars.at(1).update(deltaTime);
+    // cars.at(1).update(deltaTime);
+    // cars.at(1).update(deltaTime);
+    car->update(deltaTime);
+    car->update(deltaTime);
+    car->update(deltaTime);
+    car->update(deltaTime);
+    car->update(deltaTime);
+    car->update(deltaTime);
+
 }   
 
 int main() {

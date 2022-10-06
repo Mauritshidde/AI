@@ -67,6 +67,7 @@
         "iomanip": "cpp",
         "ranges": "cpp",
         "span": "cpp",
-        "qlearning": "cpp"
+        "qlearning": "cpp",
+        "chrono": "cpp"
     }
 }

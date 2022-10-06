@@ -17,13 +17,14 @@ class Rays {
         // std::vector<Vector2> returnMap() { GameMapE map; return map.wallVectorVec;};
         double lerp(double A, double B, double t);
         Vector4 getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D);
-        void setWallVec(std::vector<Vector2> vec, int arraySize, std::vector<Vector2> outervec, int outerArraySize) {wallVector = vec; mapArraySize = arraySize; outerWallvector = outervec; outerMapArraySize=outerArraySize;};
+        void setWallVec(GameMapE* m) {map = m;};
         int rayAmountInt;
         std::vector<Vector3> hitCoordVec3; 
     private:
         bool calcRayHits(int endRayLoc);
         void castRays();
 
+        GameMapE* map;
         std::vector<Vector2> eindRay, wallVector, outerWallvector; 
         Vector2 startRay;
         Vector3 hitCoordVec;
@@ -82,14 +83,14 @@ bool Rays::calcRayHits(int endRayLoc) {
     // Vector2 test[6];
     // test = map.returnWalls();
     // std::cout << map.wallVector;
-    for (int i=0; i < mapArraySize; i++) {
+    for (int i=0; i < map->arraySize; i++) {
         // std::cout << endRay.x << "  " << endRay.y << std::endl;
         Vector4 test;
-        if (i < mapArraySize-1) {
-            test = getIntersection(startRay, endRay, wallVector[i], wallVector[i+1]);
+        if (i < map->arraySize-1) {
+            test = getIntersection(startRay, endRay, map->wallVectorVec[i], map->wallVectorVec[i+1]);
             // std::cout  << test.x << " " << test.y << " " << test.z << std::endl;
         } else {
-            test = getIntersection(startRay, endRay, wallVector[i], wallVector[0]);
+            test = getIntersection(startRay, endRay, map->wallVectorVec[i], map->wallVectorVec[0]);
         }
 
         if (test.w == 5) {
@@ -102,12 +103,12 @@ bool Rays::calcRayHits(int endRayLoc) {
         }
 
     }
-    for (int i=0; i < outerMapArraySize; i++) {
+    for (int i=0; i < map->outerSize; i++) {
         Vector4 test;
-        if (i < outerMapArraySize-1) {
-            test = getIntersection(startRay, endRay, outerWallvector[i], outerWallvector[i+1]);
+        if (i < map->outerSize-1) {
+            test = getIntersection(startRay, endRay, map->outerWall[i], map->outerWall[i+1]);
         } else {
-            test = getIntersection(startRay, endRay, outerWallvector[i], outerWallvector[0]);
+            test = getIntersection(startRay, endRay, map->outerWall[i], map->outerWall[0]);
         }
 
         if (test.w == 5) {
