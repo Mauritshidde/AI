@@ -31,7 +31,7 @@ class Car {
         Qlearning Qtable;
     private:
         GameMapE* map;
-        Vector2* positionN = new Vector2();
+        // Vector2* positionN = new Vector2();
         Rays rays;
         void move(double deltaTime, int action);
         double friction = 20;
@@ -72,6 +72,7 @@ Car::Car(GameMapE *m, double newDirection) {
 }
 
 Car::~Car() {
+    map = NULL;
     delete map;
 }
 
@@ -304,7 +305,9 @@ bool Car::checkPointCollision() {
 
 void Car::update(double deltaTime) {
     if (alive) {
-        rays.update(&position.x, &position.y, angle);
+        float* x = new float(position.x);
+        float* y = new float(position.y);
+        rays.update(x, y, angle);
         
         std::vector<Vector3> offsetVec = rays.hitCoordVec3;
         // int offsets[offsetVec.size()];
@@ -363,7 +366,10 @@ void Car::update(double deltaTime) {
         } 
         // std::cout<<position.x<<"  "<<previousPosition.x<<"\n";
         previousPosition = position;
-        rays.update(&position.x, &position.y, angle);
+
+        float* x2 = new float(position.x);
+        float* y2 = new float(position.y);
+        rays.update(x2, y2, angle);
 
 
     } 

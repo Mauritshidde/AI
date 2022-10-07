@@ -48,6 +48,7 @@ nlohmann::json data4 = nlohmann::json::parse(f4);
 void SetCar(nlohmann::json data) {
     // std::unique_ptr<Car> car(new Car(map, data["direction"]));
     // delete car;
+    car->~Car();
     car.release();
     car.reset(new Car(map, data["direction"]));
     // car = new Car(map, data["direction"]);
@@ -123,35 +124,17 @@ void Update(double deltaTime) {
     // cars.at(1).update(deltaTime);
     // cars.at(1).update(deltaTime);
     // cars.at(1).update(deltaTime);
-    car->update(deltaTime);
-    car->update(deltaTime);
-    car->update(deltaTime);
-    car->update(deltaTime);
-    car->update(deltaTime);
-    car->update(deltaTime);
-    car->update(deltaTime);
-    car->update(deltaTime);
-    car->update(deltaTime);
-    car->update(deltaTime);
-    car->update(deltaTime);
-    car->update(deltaTime);
-    car->update(deltaTime);
-    car->update(deltaTime);
-    car->update(deltaTime);
-    car->update(deltaTime);
-    car->update(deltaTime);
-
-    // car->update(deltaTime);
-    // car->update(deltaTime);
-    // car->update(deltaTime);
-    // car->update(deltaTime);
-    // car->update(deltaTime);
+    for(int i=0; i < 20; i++) {
+        car->update(1.0f/60.0f);
+        
+    }
 
 }   
 
 int main() {
     InitWindow(screenWidth, screenHeight, "car");
-    SetWindowState(FLAG_VSYNC_HINT);
+    // SetWindowState(FLAG_VSYNC_HINT);
+    SetTargetFPS(60);
 
     Start();
     while (!WindowShouldClose()){

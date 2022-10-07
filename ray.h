@@ -164,7 +164,7 @@ void Rays::draw() {
     }
 }
 
-void Rays::update(float *x, float *y, double newAngle) {
+void Rays::update(float* x, float* y, double newAngle) {
     eindRay = {};
     hitCoordVec3 = {};
     angle = newAngle;
@@ -183,6 +183,8 @@ void Rays::update(float *x, float *y, double newAngle) {
             
         }
     }
+    delete x;
+    delete y;
 }
 
 void Rays::castRays() {
