@@ -18,12 +18,14 @@ class Rays {
         double lerp(double A, double B, double t);
         Vector4 getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D);
         void setWallVec(GameMapE* m) {map = m;};
+        void SetSpawn(Vector2* ps);
         int rayAmountInt;
         std::vector<Vector3> hitCoordVec3; 
     private:
         bool calcRayHits(int endRayLoc);
         void castRays();
 
+        Vector2 position;
         GameMapE* map;
         std::vector<Vector2> eindRay, wallVector, outerWallvector; 
         Vector2 startRay;
@@ -42,6 +44,10 @@ Rays::Rays() {
 }
 
 Rays::~Rays() {}
+
+void Rays::SetSpawn(Vector2* ps) {
+    position = *ps;
+}
 
 
 double Rays::lerp(double A, double B, double t) {

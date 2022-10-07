@@ -15,7 +15,7 @@ const int screenWidth = 1980;
 const int screenHeight = 1024;
 // std::vector<Car> cars;
 
-Car* car;
+// Car* car;
 
 std::vector<Car> cars;
 // std::vector<std::vector<double>> weights;
@@ -29,6 +29,7 @@ std::vector<double> previousMove;
 float epsilon = 1;
 int generation = 0;
 GameMapE* map = new GameMapE();
+std::unique_ptr<Car> car(new Car(map, 3));
 // map = GameMapE
 
 std::ifstream f4("example.json");
@@ -45,7 +46,13 @@ nlohmann::json data4 = nlohmann::json::parse(f4);
 // }
 
 void SetCar(nlohmann::json data) {
-    car = new Car(map, data["direction"]);
+    // std::unique_ptr<Car> car(new Car(map, data["direction"]));
+    // delete car;
+    car.release();
+    car.reset(new Car(map, data["direction"]));
+    // car = new Car(map, data["direction"]);
+    
+    // car->setSpawn(map->spawn, data["direction"]);
     // cars.clear();
     // // cars.pop_back();
     // // cars.pop_back();
@@ -102,6 +109,7 @@ void Start() {
     nlohmann::json data = nlohmann::json::parse(f);
     // Button2 saveButton = Button2({500,200}, {100, 100});
     map->setMap(data);
+    // car = new Car(map, data["direction"]);
     
     SetCar(data);
     // SetCars(data, false);
@@ -121,6 +129,23 @@ void Update(double deltaTime) {
     car->update(deltaTime);
     car->update(deltaTime);
     car->update(deltaTime);
+    car->update(deltaTime);
+    car->update(deltaTime);
+    car->update(deltaTime);
+    car->update(deltaTime);
+    car->update(deltaTime);
+    car->update(deltaTime);
+    car->update(deltaTime);
+    car->update(deltaTime);
+    car->update(deltaTime);
+    car->update(deltaTime);
+    car->update(deltaTime);
+
+    // car->update(deltaTime);
+    // car->update(deltaTime);
+    // car->update(deltaTime);
+    // car->update(deltaTime);
+    // car->update(deltaTime);
 
 }   
 

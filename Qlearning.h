@@ -94,7 +94,7 @@ int Qlearning::makeDecision(std::vector<double> *newState2) {
     double randomdouble = randval/100;
     // saveQtable();
     // std::cout << " ja nee kaas" << std::endl;
-    float test = Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))][std::to_string(state.at(4))][std::to_string(state.at(5))][std::to_string(state.at(6))][std::to_string(state.at(7))]["0"].get<float>();
+    // float test = Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))][std::to_string(state.at(4))][std::to_string(state.at(5))][std::to_string(state.at(6))][std::to_string(state.at(7))]["0"].get<float>();
     // std::cout << test <<  "avs ????????? "<< std::endl;
     // std::cout << " ja nee kaas" << std::endl;
 
@@ -151,7 +151,7 @@ void Qlearning::Reward(bool alive, std::vector<std::vector<double>> *previousSta
             std::vector<double> previousMove = previousStates->at(j);
             if (previousMove.size() == 8 && j == 0) {
                 // std::cout << " dood ";
-                reward = -100;
+                reward = -1;
 
                 std::vector<double> state;
                 for (int i=0; i < previousMove.size(); i++) {
@@ -190,11 +190,13 @@ void Qlearning::Reward(bool alive, std::vector<std::vector<double>> *previousSta
                 // * (reward + 0.5 * (reward + 0.5 * 25 - Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))]
                 // [std::to_string(state.at(4))][std::to_string(state.at(5))][std::to_string(state.at(6))][std::to_string(state.at(7))][std::to_string(action)].get<float>())) << std::endl;
                 // std::cout << action << std::endl;
-                Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))]
-                [std::to_string(state.at(4))][std::to_string(state.at(5))][std::to_string(state.at(6))][std::to_string(state.at(7))][std::to_string(previousActions.at(0))] 
-                = Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))][std::to_string(state.at(4))]
+                float uncalc = Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))][std::to_string(state.at(4))]
                 [std::to_string(state.at(5))][std::to_string(state.at(6))][std::to_string(state.at(7))][std::to_string(previousActions.at(0))].get<float>() + alpha 
                 * (reward -5);
+                float calc = round(uncalc * 1000)/1000;
+                Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))]
+                [std::to_string(state.at(4))][std::to_string(state.at(5))][std::to_string(state.at(6))][std::to_string(state.at(7))][std::to_string(previousActions.at(0))] 
+                = calc;
                 // std::cout << "ja";
             } else {
                 // std::cout << "nijoda";
@@ -206,7 +208,7 @@ void Qlearning::Reward(bool alive, std::vector<std::vector<double>> *previousSta
         if (previousMove.size() == 8) {
             // std::cout << " alive ";
 
-            reward = 5;
+            reward = 0.05;
 
             std::vector<double> state;
             for (int i=0; i < previousMove.size(); i++) {
@@ -231,14 +233,16 @@ void Qlearning::Reward(bool alive, std::vector<std::vector<double>> *previousSta
             // [std::to_string(state.at(4))][std::to_string(state.at(5))][std::to_string(state.at(6))][std::to_string(state.at(7))][std::to_string(action)].get<float>() + 0.5 
             // * (reward + 0.5 * (reward + 0.5 * 25 - Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))]
             // [std::to_string(state.at(4))][std::to_string(state.at(5))][std::to_string(state.at(6))][std::to_string(state.at(7))][std::to_string(action)].get<float>()));
-            Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))]
-            [std::to_string(state.at(4))][std::to_string(state.at(5))][std::to_string(state.at(6))][std::to_string(state.at(7))][std::to_string(previousActions.at(0))] 
-            = Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))][std::to_string(state.at(4))]
+            float uncalc = Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))][std::to_string(state.at(4))]
             [std::to_string(state.at(5))][std::to_string(state.at(6))][std::to_string(state.at(7))][std::to_string(previousActions.at(0))].get<float>() + alpha 
             * (reward + gamma * Qtable[std::to_string(nextstate.at(0))][std::to_string(nextstate.at(1))][std::to_string(nextstate.at(2))][std::to_string(nextstate.at(3))]
             [std::to_string(nextstate.at(4))][std::to_string(nextstate.at(5))][std::to_string(nextstate.at(6))][std::to_string(nextstate.at(7))][std::to_string(previousActions.at(0))].get<float>()
             -Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))][std::to_string(state.at(4))]
             [std::to_string(state.at(5))][std::to_string(state.at(6))][std::to_string(state.at(7))][std::to_string(previousActions.at(0))].get<float>());
+            float calc = round(uncalc * 1000)/1000;
+            Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))]
+            [std::to_string(state.at(4))][std::to_string(state.at(5))][std::to_string(state.at(6))][std::to_string(state.at(7))][std::to_string(previousActions.at(0))] 
+            = calc;
         } else {
             // std::cout << "nijoda";
         }
@@ -254,5 +258,4 @@ void Qlearning::saveQtable() {
 
 void Qlearning::SetEpsilon(float newepsilon) {
     epsilon = newepsilon;
-    std::cout << epsilon;
 }

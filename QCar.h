@@ -19,6 +19,9 @@ class Car {
         bool checkCollision();
         bool polyIntersect(std::vector<Vector2> poly1, std::vector<Vector2> poly2);
         bool checkPointCollision();
+
+        void setSpawn(Vector2 spawn, double newDirection);
+
         std::vector<std::vector<double>> *returnPreviousStates();
         int collectedPoints = 0;
         bool alive;
@@ -28,6 +31,7 @@ class Car {
         Qlearning Qtable;
     private:
         GameMapE* map;
+        Vector2* positionN = new Vector2();
         Rays rays;
         void move(double deltaTime, int action);
         double friction = 20;
@@ -68,8 +72,17 @@ Car::Car(GameMapE *m, double newDirection) {
 }
 
 Car::~Car() {
-    
+    delete map;
 }
+
+void Car::setSpawn(Vector2 spawn, double newDirection) {
+    position = spawn;
+    direction = newDirection;
+    angle = (direction / -(180/PI));
+
+    previousStates.clear();
+}
+
 
 void Car::createPolygon() {
     polygon = {};
@@ -255,7 +268,6 @@ bool Car::checkCollision() {
 
         Vector4 test = rays.getIntersection(previousPosition, position, map->wallVectorVec[i], map->wallVectorVec[0]);
         if (test.w == 5) {
-            std::cout << "ja";
             return true;
         }
 
@@ -330,7 +342,6 @@ void Car::update(double deltaTime) {
         previousStates.push_back(previousState2);
         previousStates.push_back(previousState3);
         previousStates.push_back(previousState4);
-        rays.update(&position.x, &position.y, angle);
         std::vector<Vector3> offsetVec2 = rays.hitCoordVec3;
         // int offsets[offsetVec.size()];
         std::vector<double> offsets4;
@@ -352,6 +363,8 @@ void Car::update(double deltaTime) {
         } 
         // std::cout<<position.x<<"  "<<previousPosition.x<<"\n";
         previousPosition = position;
+        rays.update(&position.x, &position.y, angle);
+
 
     } 
     // else {
