@@ -8,7 +8,7 @@
 
 class Car {
     public:
-        Car(GameMapE *m, double newDirection);
+        Car(GameMapE *m, double newDirection, Vector2 newPosition);
         ~Car();
         void update(double deltaTime);
         double accelerate(double dTime, bool forward);
@@ -52,7 +52,7 @@ class Car {
         Vector2 previousPosition;
 };
 
-Car::Car(GameMapE *m, double newDirection) {
+Car::Car(GameMapE* m, double newDirection, Vector2 newPosition) {
     map = m;
     controlType = 1;
     alive = true;
@@ -62,13 +62,16 @@ Car::Car(GameMapE *m, double newDirection) {
     // wallArraySize = map->arraySize;
     direction = newDirection;
     angle = (direction / -(180/PI));
-    points = map->points;
+    // points = map->points;
 
     speed = 0;
     acceleration = 0;
-    position = map->spawn;
+    // position = map->spawns.at(0);
+    position = newPosition;
+    // position = newSpawn;
     previousPosition = position;
-
+    m = NULL;
+    delete m;
 }
 
 Car::~Car() {
@@ -291,8 +294,8 @@ bool Car::checkCollision() {
 }
 
 bool Car::checkPointCollision() {
-    if (polyIntersect(polygon, {points.at(currentPoint).at(0), points.at(currentPoint).at(1)})) {
-        if (currentPoint == points.size()-1) {
+    if (polyIntersect(polygon, {map->points.at(currentPoint).at(0), map->points.at(currentPoint).at(1)})) {
+        if (currentPoint == map->points.size()-1) {
             currentPoint = 0;
         } else {
             currentPoint++;

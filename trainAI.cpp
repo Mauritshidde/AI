@@ -29,7 +29,7 @@ std::vector<double> previousMove;
 float epsilon = 1;
 int generation = 0;
 GameMapE* map = new GameMapE();
-std::unique_ptr<Car> car(new Car(map, 3));
+std::unique_ptr<Car> car(new Car(map, 3, {200, 200}));
 // map = GameMapE
 
 std::ifstream f4("example.json");
@@ -50,7 +50,12 @@ void SetCar(nlohmann::json data) {
     // delete car;
     car->~Car();
     car.release();
-    car.reset(new Car(map, data["direction"]));
+    int value2 = data["spawn"]["lenght"].get<int>();
+    int value = rand() % value2;
+    // float val = data["spawn"][std::to_string(value)].get<float>();
+    // float val = data["spawn"][std::to_string(value)].get<float>();
+    // std::cout << value << std::endl;
+    car.reset(new Car(map, data["direction"][std::to_string(value)].get<float>(), map->spawns.at(value)));
     // car = new Car(map, data["direction"]);
     
     // car->setSpawn(map->spawn, data["direction"]);
@@ -143,6 +148,9 @@ int main() {
         Render();
     }
 
+    map = NULL;
+    delete map;
+    
     CloseWindow();
     return 0;
 }

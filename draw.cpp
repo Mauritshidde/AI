@@ -17,6 +17,8 @@ bool server = false;
 std::vector<Vector2> innerMap, outerMap, points2;
 std::vector<std::vector<Vector2>> points;
 Vector2 spawnLocation, angle;
+std::vector<Vector2> spawnLocations;
+std::vector<double> rotations;
 
 void saveMap() {
     nlohmann::json j;
@@ -41,11 +43,13 @@ void saveMap() {
         j["points"][std::to_string(i)]["end"]["x"] = points.at(i).at(1).x;
         j["points"][std::to_string(i)]["end"]["y"] = points.at(i).at(1).y;
     }
+    j["spawn"]["lenght"] = spawnLocations.size();
+    for (int i=0; i < spawnLocations.size(); i++) {
+        j["spawn"][std::to_string(i)]["x"] = spawnLocations.at(i).x;
+        j["spawn"][std::to_string(i)]["y"] = spawnLocations.at(i).y;
+        j["direction"][std::to_string(i)] = rotations.at(i);
+    }
 
-    j["spawn"]["x"] = spawnLocation.x;
-    j["spawn"]["y"] = spawnLocation.y;
-
-    j["direction"] = rotation;
 
     std::ofstream testfile;
     testfile.open ("example.json");
@@ -103,6 +107,10 @@ void Render() {
         if (IsKeyDown(KEY_D)) {
             rotation += 0.5;
         }
+        if (IsKeyPressed(KEY_LEFT_SHIFT)) {
+            spawnLocations.push_back(spawnLocation);
+            rotations.push_back(rotation);
+        }
     } else if (point) {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             Vector2 innerPosition = GetMousePosition();
@@ -118,14 +126,18 @@ void Render() {
             points.pop_back();
         }
     }
-     
-
-    BeginDrawing();
-    ClearBackground(backgroundColor);
 
     DrawCircle(spawnLocation.x, spawnLocation.y, 4, RED);
     Rectangle rectangle = {spawnLocation.x, spawnLocation.y, 10, 20};
     DrawRectanglePro(rectangle, {5, 10}, rotation, WHITE);  
+
+    BeginDrawing();
+    ClearBackground(backgroundColor);
+    for (int i=0; i < spawnLocations.size(); i++) {
+        DrawCircle(spawnLocations.at(i).x, spawnLocations.at(i).y, 4, RED);
+        Rectangle rectangle = {spawnLocations.at(i).x, spawnLocations.at(i).y, 10, 20};
+        DrawRectanglePro(rectangle, {5, 10}, rotations.at(i), WHITE);  
+    }
     
     if ( innerMap.size() == 1) {
 
