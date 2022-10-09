@@ -12,21 +12,21 @@ class Rays {
     public:
         Rays();
         ~Rays();
-        void update(float *x, float *y, double newAngle);
+        void update(float *x, float *y, double newAngle, GameMapE* map);
         void draw();
         // std::vector<Vector2> returnMap() { GameMapE map; return map.wallVectorVec;};
         double lerp(double A, double B, double t);
         Vector4 getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D);
-        void setWallVec(GameMapE* m) {map = m;};
+        void setWallVec();
         void SetSpawn(Vector2* ps);
         int rayAmountInt;
         std::vector<Vector3> hitCoordVec3; 
     private:
-        bool calcRayHits(int endRayLoc);
+        bool calcRayHits(int endRayLoc, GameMapE* map);
         void castRays();
 
         Vector2 position;
-        GameMapE* map;
+        // GameMapE* map;
         std::vector<Vector2> eindRay, wallVector, outerWallvector; 
         Vector2 startRay;
         Vector3 hitCoordVec;
@@ -43,16 +43,27 @@ Rays::Rays() {
     rayLenght = 200;
 }
 
-Rays::~Rays() {}
+Rays::~Rays() {
+    // map = NULL;
+    // delete map;
+}
 
 void Rays::SetSpawn(Vector2* ps) {
     position = *ps;
+    // ps = NULL;
+    delete ps;
 }
 
 
 double Rays::lerp(double A, double B, double t) {
     double value = A + (B-A) *t;
     return value;
+}
+
+void Rays::setWallVec() {
+    // map = m;
+    // m = NULL;
+    // delete m;
 }
 
 Vector4 Rays::getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
@@ -83,7 +94,7 @@ Vector4 Rays::getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
 
 
 
-bool Rays::calcRayHits(int endRayLoc) {
+bool Rays::calcRayHits(int endRayLoc, GameMapE* map) {
     std::vector<Vector3> touches;
     Vector2 endRay = eindRay.at(endRayLoc);
     // Vector2 test[6];
@@ -139,6 +150,9 @@ bool Rays::calcRayHits(int endRayLoc) {
         hitCoordVec = touches.at(minOffsetLocation);
         return true;
     }
+
+    // map = NULL;
+    // delete map;
     return false;
 }
 
@@ -164,7 +178,7 @@ void Rays::draw() {
     }
 }
 
-void Rays::update(float* x, float* y, double newAngle) {
+void Rays::update(float* x, float* y, double newAngle, GameMapE* map) {
     eindRay = {};
     hitCoordVec3 = {};
     angle = newAngle;
@@ -174,7 +188,7 @@ void Rays::update(float* x, float* y, double newAngle) {
 
     castRays();
     for (int i=0; i < rayAmount; i++) {
-        if (calcRayHits(i)) {
+        if (calcRayHits(i, map)) {
             hitCoordVec3.push_back(hitCoordVec);
         } else {
             hitCoordVec3.push_back({});
@@ -183,8 +197,13 @@ void Rays::update(float* x, float* y, double newAngle) {
             
         }
     }
-    delete x;
-    delete y;
+    // x = NULL;
+    // y = NULL;
+    // map = NULL;
+    // delete x;
+    // delete y;
+    // delete map;
+
 }
 
 void Rays::castRays() {

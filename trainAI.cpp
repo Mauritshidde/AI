@@ -29,7 +29,8 @@ std::vector<double> previousMove;
 float epsilon = 1;
 int generation = 0;
 GameMapE* map = new GameMapE();
-std::unique_ptr<Car> car(new Car(map, 3, {200, 200}));
+// std::unique_ptr<Car> car(new Car(map, 3, {200, 200}));
+Car* car = new Car(map, 3, {200, 200});
 // map = GameMapE
 
 std::ifstream f4("example.json");
@@ -48,14 +49,17 @@ nlohmann::json data4 = nlohmann::json::parse(f4);
 void SetCar(nlohmann::json data) {
     // std::unique_ptr<Car> car(new Car(map, data["direction"]));
     // delete car;
-    car->~Car();
-    car.release();
+    // car->~Car();
+    // car.release();
+    delete car;
+    car = NULL;
     int value2 = data["spawn"]["lenght"].get<int>();
     int value = rand() % value2;
+    car = new Car(map, data["direction"][std::to_string(value)].get<float>(), map->spawns.at(value));
     // float val = data["spawn"][std::to_string(value)].get<float>();
     // float val = data["spawn"][std::to_string(value)].get<float>();
     // std::cout << value << std::endl;
-    car.reset(new Car(map, data["direction"][std::to_string(value)].get<float>(), map->spawns.at(value)));
+    // car.reset(new Car(map, data["direction"][std::to_string(value)].get<float>(), map->spawns.at(value)));
     // car = new Car(map, data["direction"]);
     
     // car->setSpawn(map->spawn, data["direction"]);
@@ -68,23 +72,7 @@ void SetCar(nlohmann::json data) {
     // }
 }
 
-void Render() {
-    const Color backgroundColor = BLACK;
-
-    BeginDrawing();
-    ClearBackground(backgroundColor);
-
-    map->draw();
-    // cars.at(1).draw(false);
-    car->draw(false);
-    // std::string = std::to_string(generation);
-    DrawText("ja", 600, 540, 10, BLACK);
-    DrawText(TextFormat("%i", generation), 10, 40, 20, WHITE);
-    DrawText(TextFormat("%f", epsilon), 10, 60, 20, WHITE);
-
-    DrawFPS(10,10);
-    EndDrawing();
-
+void CheckCar() {
     if (!car->alive) {
         std::ifstream f("example.json");
         nlohmann::json data = nlohmann::json::parse(f);
@@ -106,8 +94,29 @@ void Render() {
     } else {
         // std::vector<std::vector<double>> *previousStates = cars.at(1).returnPreviousStates();
         // cars.at(1).Qtable.Reward(false, cars.at(1).returnPreviousStates());
-        car->Qtable.Reward(true, car->returnPreviousStates());
+        car->Qtable.Reward(false, car->returnPreviousStates());
     }
+}
+
+void Render() {
+    const Color backgroundColor = BLACK;
+
+    BeginDrawing();
+    ClearBackground(backgroundColor);
+
+    map->draw();
+    // cars.at(1).draw(false);
+    car->draw(false);
+    // std::string = std::to_string(generation);
+    DrawText("ja", 600, 540, 10, BLACK);
+    DrawText(TextFormat("%i", generation), 10, 40, 20, WHITE);
+    DrawText(TextFormat("%f", epsilon), 10, 60, 20, WHITE);
+
+    DrawFPS(10,10);
+    EndDrawing();
+
+    CheckCar();
+    
 }
 
 void Start() {
@@ -130,7 +139,10 @@ void Update(double deltaTime) {
     // cars.at(1).update(deltaTime);
     // cars.at(1).update(deltaTime);
     for(int i=0; i < 20; i++) {
-        car->update(1.0f/60.0f);
+        car->update(1.0f/60.0f, map);
+        // std::vector<std::vector<double>> test = {{0}};
+        car->Qtable.Reward(false, car->returnPreviousStates());
+        // CheckCar();
         
     }
 
@@ -148,7 +160,7 @@ int main() {
         Render();
     }
 
-    map = NULL;
+    // map = NULL;
     delete map;
     
     CloseWindow();

@@ -33,6 +33,7 @@ void Qlearning::UpdateQtable(std::vector<float> *state) {
         Qtable[std::to_string(state->at(0))][std::to_string(state->at(1))][std::to_string(state->at(2))][std::to_string(state->at(3))]
         [std::to_string(state->at(4))][std::to_string(state->at(5))][std::to_string(state->at(6))][std::to_string(state->at(7))][std::to_string(i)] = 0;
     }
+    delete state;
 }
 
 int Qlearning::makeDecision(std::vector<double> *newState2) {
@@ -47,6 +48,7 @@ int Qlearning::makeDecision(std::vector<double> *newState2) {
     }
     std::vector<int> actions;
     int val = 0;
+    std::vector<float>* stateP = new std::vector<float>(state);
     if (!Qtable.contains(std::to_string(state.at(0)))) {
         // nlohmann::json q = Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))]
         // [std::to_string(state.at(4))][std::to_string(state.at(5))][std::to_string(state.at(6))][std::to_string(state.at(7))];
@@ -54,21 +56,23 @@ int Qlearning::makeDecision(std::vector<double> *newState2) {
         // q["1"] = val;
         // q["2"] = val;
         // q["3"] = val;
-        UpdateQtable(&state);
+        UpdateQtable(stateP);
     } else if (!Qtable[std::to_string(state.at(0))].contains(std::to_string(state.at(1)))) {
-        UpdateQtable(&state);
+        UpdateQtable(stateP);
     } else if (!Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))].contains(std::to_string(state.at(2)))) {
-        UpdateQtable(&state);
+        UpdateQtable(stateP);
     } else if (!Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))].contains(std::to_string(state.at(3)))) {
-        UpdateQtable(&state);
+        UpdateQtable(stateP);
     } else if (!Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))].contains(std::to_string(state.at(4)))) {
-        UpdateQtable(&state);
+        UpdateQtable(stateP);
     } else if (!Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))][std::to_string(state.at(4))].contains(std::to_string(state.at(5)))) {
-        UpdateQtable(&state);
+        UpdateQtable(stateP);
     } else if (!Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))][std::to_string(state.at(4))][std::to_string(state.at(5))].contains(std::to_string(state.at(6)))) {
-        UpdateQtable(&state);
+        UpdateQtable(stateP);
     } else if (!Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))][std::to_string(state.at(4))][std::to_string(state.at(5))][std::to_string(state.at(6))].contains(std::to_string(state.at(7)))) {
-        UpdateQtable(&state);
+        UpdateQtable(stateP);
+    } else {
+        delete stateP;
     }
     
     // if (Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))]
@@ -133,7 +137,7 @@ int Qlearning::makeDecision(std::vector<double> *newState2) {
     previousActions.push_back(action3);
     previousActions.push_back(action4);
 
-
+    delete newState2;
     return action;
 }
 
@@ -243,6 +247,7 @@ void Qlearning::Reward(bool alive, std::vector<std::vector<double>> *previousSta
             // std::cout << "nijoda";
         }
     }
+    delete previousStates;
 }
 
 void Qlearning::saveQtable() {

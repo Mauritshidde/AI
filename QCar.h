@@ -8,17 +8,17 @@
 
 class Car {
     public:
-        Car(GameMapE *m, double newDirection, Vector2 newPosition);
+        Car(GameMapE* map, double newDirection, Vector2 newPosition);
         ~Car();
-        void update(double deltaTime);
+        void update(double deltaTime, GameMapE* map);
         double accelerate(double dTime, bool forward);
         void castRay();
         void controls();
         void draw(bool best);
         void createPolygon();
-        bool checkCollision();
+        bool checkCollision(GameMapE* map);
         bool polyIntersect(std::vector<Vector2> poly1, std::vector<Vector2> poly2);
-        bool checkPointCollision();
+        bool checkPointCollision(GameMapE* map);
 
         void setSpawn(Vector2 spawn, double newDirection);
 
@@ -30,7 +30,7 @@ class Car {
         std::vector<std::vector<double>> previousStates;
         Qlearning Qtable;
     private:
-        GameMapE* map;
+        // GameMapE* map;
         // Vector2* positionN = new Vector2();
         Rays rays;
         void move(double deltaTime, int action);
@@ -52,13 +52,13 @@ class Car {
         Vector2 previousPosition;
 };
 
-Car::Car(GameMapE* m, double newDirection, Vector2 newPosition) {
-    map = m;
+Car::Car(GameMapE* map, double newDirection, Vector2 newPosition) {
+    // map = m;
     controlType = 1;
     alive = true;
     // wallVec = map->wallVectorVec;
     // outerWallVec = map->outerWall;
-    rays.setWallVec(map);
+    rays.setWallVec();
     // wallArraySize = map->arraySize;
     direction = newDirection;
     angle = (direction / -(180/PI));
@@ -70,13 +70,14 @@ Car::Car(GameMapE* m, double newDirection, Vector2 newPosition) {
     position = newPosition;
     // position = newSpawn;
     previousPosition = position;
-    m = NULL;
-    delete m;
+    // map = NULL;
+    // delete map;
 }
 
 Car::~Car() {
-    map = NULL;
-    delete map;
+    // map = NULL;
+    // delete map;
+    // rays.~Rays();
 }
 
 void Car::setSpawn(Vector2 spawn, double newDirection) {
@@ -263,7 +264,7 @@ bool Car::polyIntersect(std::vector<Vector2> poly1, std::vector<Vector2> poly2) 
     return false;
 }
 
-bool Car::checkCollision() {
+bool Car::checkCollision(GameMapE* map) {
     // if (rays.getIntersection(previousPosition, position)) {
     //     return true;
     // }
@@ -290,10 +291,13 @@ bool Car::checkCollision() {
             return true;
         }
     }
+
+    // map = NULL;
+    // delete map;
     return false;
 }
 
-bool Car::checkPointCollision() {
+bool Car::checkPointCollision(GameMapE* map) {
     if (polyIntersect(polygon, {map->points.at(currentPoint).at(0), map->points.at(currentPoint).at(1)})) {
         if (currentPoint == map->points.size()-1) {
             currentPoint = 0;
@@ -303,14 +307,23 @@ bool Car::checkPointCollision() {
         collectedPoints++;
         return true;
     }
+
+    // map = NULL;
+    // delete map;
     return false;
 }
 
-void Car::update(double deltaTime) {
+void Car::update(double deltaTime, GameMapE* map) {
     if (alive) {
         float* x = new float(position.x);
         float* y = new float(position.y);
-        rays.update(x, y, angle);
+        rays.update(x, y, angle, map);
+        // x = NULL;
+        // y = NULL;
+        // std::cout << "ja " << "kaas" <<  "nee" << std::endl;
+        delete x;
+        delete y;
+        // std::cout << "ja " << "nee" << std::endl;
         
         std::vector<Vector3> offsetVec = rays.hitCoordVec3;
         // int offsets[offsetVec.size()];
@@ -331,11 +344,11 @@ void Car::update(double deltaTime) {
         // for (int i=0; i < 4; i++) {
         //     outputsbool.push_back(outputs[i]);
         // }
-        bool test = checkPointCollision();
+        bool test = checkPointCollision(map);
         // if (collectedPoints != 0) {
         // std::cout << collectedPoints << std::endl;
-
-        int action = Qtable.makeDecision(&offsets);
+        std::vector<double>* offsettsp = new std::vector<double>(offsets);
+        int action = Qtable.makeDecision(offsettsp);
 
         previousState4 = previousState3;
         previousState3 = previousState2;
@@ -364,7 +377,7 @@ void Car::update(double deltaTime) {
 
         move(deltaTime, action);
         createPolygon();
-        if(checkCollision()) {
+        if(checkCollision(map)) {
             alive = false;
         } 
         // std::cout<<position.x<<"  "<<previousPosition.x<<"\n";
@@ -372,16 +385,25 @@ void Car::update(double deltaTime) {
 
         float* x2 = new float(position.x);
         float* y2 = new float(position.y);
-        rays.update(x2, y2, angle);
-
+        rays.update(x2, y2, angle, map);
+        
+        // x2 = NULL;
+        // y2 = NULL;
+        // std::cout << "ja " << "kaas2" <<  "nee" << std::endl;
+        delete x2;
+        delete y2;
+        // std::cout << "ja " <<  "nee" << std::endl;
+        
 
     } 
     // else {
     //     Qtable.Reward(false, &previousStates);
     // }
-
+    // map = NULL;
+    // delete map;
 }
 
-std::vector<std::vector<double>> *Car::returnPreviousStates() {
-    return &previousStates;
+std::vector<std::vector<double>>* Car::returnPreviousStates() {
+    std::vector<std::vector<double>>* previousStatesP = new std::vector<std::vector<double>>(previousStates);
+    return previousStatesP;
 }
