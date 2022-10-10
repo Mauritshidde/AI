@@ -15,7 +15,7 @@ class Qlearning {
         void UpdateQtable(std::vector<float> *state);
         nlohmann::json Qtable;
     private:
-        double epsilon = 0.9;
+        double epsilon = 1;
         float reward;
         int action = 0;
         int action1, action2, action3, action4;
@@ -24,8 +24,12 @@ class Qlearning {
 
 Qlearning::Qlearning() {
     std::ifstream f("Qtable.json");
-    nlohmann::json data = nlohmann::json::parse(f);
-    Qtable = data;
+    nlohmann::json* data = new nlohmann::json(nlohmann::json::parse(f));
+    f.close();
+    Qtable = *data;
+    delete data;
+    data = NULL;
+    
 }
 
 void Qlearning::UpdateQtable(std::vector<float> *state) {
@@ -33,7 +37,7 @@ void Qlearning::UpdateQtable(std::vector<float> *state) {
         Qtable[std::to_string(state->at(0))][std::to_string(state->at(1))][std::to_string(state->at(2))][std::to_string(state->at(3))]
         [std::to_string(state->at(4))][std::to_string(state->at(5))][std::to_string(state->at(6))][std::to_string(state->at(7))][std::to_string(i)] = 0;
     }
-    delete state;
+    // delete state;
 }
 
 int Qlearning::makeDecision(std::vector<double> *newState2) {
@@ -71,9 +75,9 @@ int Qlearning::makeDecision(std::vector<double> *newState2) {
         UpdateQtable(stateP);
     } else if (!Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))][std::to_string(state.at(4))][std::to_string(state.at(5))][std::to_string(state.at(6))].contains(std::to_string(state.at(7)))) {
         UpdateQtable(stateP);
-    } else {
-        delete stateP;
     }
+    delete stateP;
+    stateP = NULL;
     
     // if (Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))]
     //     [std::to_string(state.at(4))][std::to_string(state.at(5))][std::to_string(state.at(6))][std::to_string(state.at(7))]) {
@@ -138,6 +142,7 @@ int Qlearning::makeDecision(std::vector<double> *newState2) {
     previousActions.push_back(action4);
 
     delete newState2;
+    newState2 = NULL;
     return action;
 }
 
@@ -248,11 +253,12 @@ void Qlearning::Reward(bool alive, std::vector<std::vector<double>> *previousSta
         }
     }
     delete previousStates;
+    previousStates = NULL;
 }
 
 void Qlearning::saveQtable() {
     std::ofstream testfile;
-    testfile.open ("Qtable.json");
+    testfile.open("Qtable.json");
     testfile << Qtable;
     testfile.close();
 }   

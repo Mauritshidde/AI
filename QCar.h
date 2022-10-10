@@ -322,7 +322,9 @@ void Car::update(double deltaTime, GameMapE* map) {
         // y = NULL;
         // std::cout << "ja " << "kaas" <<  "nee" << std::endl;
         delete x;
+        x = NULL;
         delete y;
+        y = nullptr;
         // std::cout << "ja " << "nee" << std::endl;
         
         std::vector<Vector3> offsetVec = rays.hitCoordVec3;
@@ -391,7 +393,9 @@ void Car::update(double deltaTime, GameMapE* map) {
         // y2 = NULL;
         // std::cout << "ja " << "kaas2" <<  "nee" << std::endl;
         delete x2;
+        x2 = NULL;
         delete y2;
+        y2 = NULL;
         // std::cout << "ja " <<  "nee" << std::endl;
         
 

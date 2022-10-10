@@ -52,6 +52,7 @@ void Rays::SetSpawn(Vector2* ps) {
     position = *ps;
     // ps = NULL;
     delete ps;
+    ps = NULL;
 }
 
 

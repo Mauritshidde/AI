@@ -35,6 +35,7 @@ Car* car = new Car(map, 3, {200, 200});
 
 std::ifstream f4("example.json");
 nlohmann::json data4 = nlohmann::json::parse(f4);
+
 // Car car(Vector2{screenWidth/2, screenHeight/2});
 
 
@@ -76,6 +77,7 @@ void CheckCar() {
     if (!car->alive) {
         std::ifstream f("example.json");
         nlohmann::json data = nlohmann::json::parse(f);
+        f.close();
         // cars.at(1).Qtable.Reward(true, cars.at(1).returnPreviousStates());
         car->Qtable.Reward(true, car->returnPreviousStates());
         // cars.at(1).Qtable.saveQtable();
@@ -122,6 +124,7 @@ void Render() {
 void Start() {
     std::ifstream f("example.json");
     nlohmann::json data = nlohmann::json::parse(f);
+    f.close();
     // Button2 saveButton = Button2({500,200}, {100, 100});
     map->setMap(data);
     // car = new Car(map, data["direction"]);
@@ -162,6 +165,7 @@ int main() {
 
     // map = NULL;
     delete map;
+    map = NULL;
     
     CloseWindow();
     return 0;
