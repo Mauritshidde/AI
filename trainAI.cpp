@@ -10,7 +10,6 @@
 #include "GameMap.h"
 #include "QCar.h"
 
-
 const int screenWidth = 1980;
 const int screenHeight = 1024;
 // std::vector<Car> cars;
@@ -148,7 +147,6 @@ void Update(double deltaTime) {
         // CheckCar();
         
     }
-
 }   
 
 int main() {

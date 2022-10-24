@@ -5,6 +5,7 @@
 
 #include "ray.h"
 #include "Qlearning.h"
+#include "DeepQLearning.h"
 
 class Car {
     public:
@@ -29,6 +30,7 @@ class Car {
         std::vector<double> previousState, previousState1, previousState2, previousState3, previousState4;
         std::vector<std::vector<double>> previousStates;
         Qlearning Qtable;
+        DeepQLearning DeepQnn;
     private:
         // GameMapE* map;
         // Vector2* positionN = new Vector2();

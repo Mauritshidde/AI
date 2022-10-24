@@ -74,6 +74,10 @@ Vector4 Rays::getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
     double retVal[3];
     // std::cout << bottom << " " << t;
     Vector4 test;
+    test.x = 0;
+    test.y = 0;
+    test.z = 0;
+    test.w = 0;
     if (bottom != 0) {
         double t = tTop/bottom;
         double u = uTop/bottom;

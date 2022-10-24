@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <iomanip>
 
+#include <malloc.h>
+
 class Qlearning {
     public:
         Qlearning();
@@ -24,18 +26,19 @@ class Qlearning {
 
 Qlearning::Qlearning() {
     std::ifstream f("Qtable.json");
-    nlohmann::json* data = new nlohmann::json(nlohmann::json::parse(f));
+    nlohmann::json data = nlohmann::json::parse(f);
     f.close();
-    Qtable = *data;
-    delete data;
-    data = NULL;
+    Qtable = data;
+    // malloc_trim(0);
+    // delete data;
+    // data = NULL;
     
 }
 
-void Qlearning::UpdateQtable(std::vector<float> *state) {
+void Qlearning::UpdateQtable(std::vector<float>* state) {
     for (int i=0; i < 4; i++) {
-        Qtable[std::to_string(state->at(0))][std::to_string(state->at(1))][std::to_string(state->at(2))][std::to_string(state->at(3))]
-        [std::to_string(state->at(4))][std::to_string(state->at(5))][std::to_string(state->at(6))][std::to_string(state->at(7))][std::to_string(i)] = 0;
+        // std::cout << std::to_string(state->at(0)) << "  " << state->at(0) << std::endl;
+        Qtable[std::to_string(state->at(0))][std::to_string(state->at(1))][std::to_string(state->at(2))][std::to_string(state->at(3))][std::to_string(state->at(4))][std::to_string(state->at(5))][std::to_string(state->at(6))][std::to_string(state->at(7))][std::to_string(i)] = 0;
     }
     // delete state;
 }
@@ -76,8 +79,12 @@ int Qlearning::makeDecision(std::vector<double> *newState2) {
     } else if (!Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))][std::to_string(state.at(4))][std::to_string(state.at(5))][std::to_string(state.at(6))].contains(std::to_string(state.at(7)))) {
         UpdateQtable(stateP);
     }
+    // std::cout << sizeof(stateP) <<"ja"<< std::endl;
     delete stateP;
-    stateP = NULL;
+    // std::cout << sizeof(stateP) << "nee" << std::endl;
+    // stateP = NULL;
+    // std::cout << stateP->size() << "nee2" << std::endl;
+    // std::cout << stateP->size() << std::endl;
     
     // if (Qtable[std::to_string(state.at(0))][std::to_string(state.at(1))][std::to_string(state.at(2))][std::to_string(state.at(3))]
     //     [std::to_string(state.at(4))][std::to_string(state.at(5))][std::to_string(state.at(6))][std::to_string(state.at(7))]) {
