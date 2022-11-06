@@ -55,7 +55,7 @@ void SetCar(nlohmann::json data) {
     car = NULL;
     int value2 = data["spawn"]["lenght"].get<int>();
     int value = rand() % value2;
-    car = new Car(map, data["direction"][std::to_string(value)].get<float>(), map->spawns.at(value));
+    car = new Car(map, data["direction"][std::to_string(value)].get<float>(), map->spawns.at(0));
     // float val = data["spawn"][std::to_string(value)].get<float>();
     // float val = data["spawn"][std::to_string(value)].get<float>();
     // std::cout << value << std::endl;

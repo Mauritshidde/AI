@@ -16,9 +16,9 @@ void checkIfvalueIn(std::string value) {
     std::vector<std::string>::iterator it = find(QtableIndex.begin(), QtableIndex.end(), value);
 
     if (it == QtableIndex.end()) {
-        std::cout << "Flower was not found!" << std::endl;
+        std::cout << "Flower was not found!" << "\n";
     } else {
-        std::cout<< "Flower found at index: " << it - QtableIndex.begin() << std::endl;
+        std::cout<< "Flower found at index: " << it - QtableIndex.begin() << "\n";
     }
     
 }
@@ -32,7 +32,7 @@ void intToString(std::vector<int> v) {
     std::string testja = ss.str().substr(0, 2*v.size() - 1);
     std::vector<double> newVec = {0, 0, 0, 0};
     Qtable.push_back(newVec);
-    std::cout << testja << "  " << Qtable.size() << std::endl;
+    std::cout << testja << "  " << Qtable.size() << "\n";
     QtableIndex.push_back(testja);
 }
 
@@ -41,15 +41,15 @@ bool bactrack(int currentRay) {
     while (door) {
         if (currentRay == 7) {
             for (int i=0; i < 11; i++) {
-                // std::cout << i <<std::endl;
+                // std::cout << i <<"\n";
                 current.push_back(i);
-                // std::cout << current.size() << std::endl;
+                // std::cout << current.size() << "\n";
                 intToString(current);
                 current.pop_back();
             }
             currentRay--;
         } else {
-            // std::cout << " ja " << std::endl;
+            // std::cout << " ja " << "\n";
             if (current.size()-1 == currentRay) {
                 int value = current.at(currentRay);
                 if (value == maxValue) {
@@ -65,7 +65,7 @@ bool bactrack(int currentRay) {
                     currentRay++;
                 }
             } else {
-                // std::cout << " ja " << std::endl;
+                // std::cout << " ja " << "\n";
 
                 current.push_back(0);
                 currentRay++;

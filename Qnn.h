@@ -13,11 +13,15 @@ double lerp(double A, double B, double t) {
 class NeuralNetwork {
     public:
         NeuralNetwork(std::vector<int> neuronCounts);
-        std::vector<double> feedforward(std::vector<double> givenInputs, NeuralNetwork network);
+        std::vector<double> feedforward(std::vector<double> givenInputs);
+        void Qselection();
+        void crossover();
         void saveNN();
+        void changeEpsilon(double newEpsilon);
         void setNN(NeuralNetwork network);
         std::vector<Level> levels;
     private:
+        double epsilon = 1;
 };
 
 NeuralNetwork::NeuralNetwork(std::vector<int> neuronCounts) {
@@ -31,7 +35,19 @@ NeuralNetwork::NeuralNetwork(std::vector<int> neuronCounts) {
     }
 }
 
-std::vector<double> NeuralNetwork::feedforward(std::vector<double> givenInputs, NeuralNetwork network) {
+void NeuralNetwork::Qselection() {
+    // phi = state
+    double choice = rand() % 100;
+    choice = choice / 100;
+    if (epsilon > choice) {
+        // do random
+    } else {
+        std::vector<double> givenInputs;
+        feedforward(givenInputs);
+    }
+}
+
+std::vector<double> NeuralNetwork::feedforward(std::vector<double> givenInputs) {
     std::vector<double> outputs;
     // std::cout << givenInputs.at(1) << " we1" << std::endl;
     outputs = levels.at(0).feedForward(givenInputs, levels.at(0));
@@ -55,6 +71,15 @@ void NeuralNetwork::setNN(NeuralNetwork network) {
             }
         }
     }
+}
+
+void NeuralNetwork::crossover() {
+    int network, network2;
+
+}
+
+void NeuralNetwork::changeEpsilon(double newEpsilon) {
+    epsilon = newEpsilon;
 }
 
 void NeuralNetwork::saveNN() {
