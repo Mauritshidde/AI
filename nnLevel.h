@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <stdlib.h>
+#include <time.h>
 
 
 class NNLevel {
@@ -21,14 +23,26 @@ NNLevel::NNLevel(int inputCount, int outpuCount) {
     for (int i=0; i < outpuCount; i++) {
         std::vector<double> neuronWeights;
         for (int j=0; j < inputCount; j++) {
-            neuronWeights.push_back(0.5);
+            double randval = rand() % 100;
+            double randomdouble = randval/100;
+            int negativeOrPositive = rand() % 2;
+            if (negativeOrPositive == 0){
+                neuronWeights.push_back(randomdouble);
+            } else {
+                randomdouble = -randomdouble;
+                neuronWeights.push_back(randomdouble);
+            }
+            // neuronWeights.push_back(randomdouble);
         }
         weights.push_back(neuronWeights);
+        double randval = rand() % 100;
+        double randomdouble = randval/100;
         biases.push_back(0.7);
     }
 }
 
 std::vector<double> NNLevel::feedForward(std::vector<double> neuralNetworkInputValues) {
+    srand(time(NULL));
     levelNeuronOutputValue.clear();
     networkNetValues.clear();
     for (int i=0; i < levelOutputCount; i++) {
@@ -52,7 +66,7 @@ double NNLevel::sigmoid(double x) {
 class NeuralNetwork {
     public:
         NeuralNetwork(std::vector<int> neuralNetworkLevels);
-        void feedForward(std::vector<double> networkInputValues);
+        std::vector<double> feedForward(std::vector<double> networkInputValues);
         void GradientError(std::vector<double> target);
         std::vector<double> propagate(std::vector<double> inputs, std::vector<double> outputValues, std::vector<double> targets, NNLevel* level, double learningRate);
         void backPropogation(std::vector<double> newTargets, std::vector<double> input);
@@ -71,12 +85,13 @@ NeuralNetwork::NeuralNetwork(std::vector<int> neuralNetworkLevels) {
     }
 }
 
-void NeuralNetwork::feedForward(std::vector<double> networkInputValues) {
+std::vector<double> NeuralNetwork::feedForward(std::vector<double> networkInputValues) {
     std::vector<double> neuralNetworkInputValues = networkInputValues;
     for (int i=0; i < levels.size(); i++) {
         neuralNetworkInputValues = levels.at(i).feedForward(neuralNetworkInputValues);
     }
     networkOutput = neuralNetworkInputValues;
+    return networkOutput;
 }
 
 void NeuralNetwork::GradientError(std::vector<double> target) {
@@ -134,10 +149,12 @@ std::vector<double> NeuralNetwork::propagate(std::vector<double> inputs, std::ve
         std::vector<double> weightGradient;
         for (int j=0; j < level->weights.at(i).size(); j++) {
             double a = inputs.at(j);
-            double Aj = 2 * (level->levelNeuronOutputValue.at(i) - targets.at(i));
+            // double Aj = 2 * (level->levelNeuronOutputValue.at(i) - targets.at(i));
+            double Aj = 2 * (inputs.at(j) - targets.at(i));
 
             double costOverWeightRatio = a * Aj * dATOdZ;
             weightGradient.push_back(costOverWeightRatio);
+            // std::cout << costOverWeightRatio << std::endl;
         }
         weightGradients.push_back(weightGradient);
     }
@@ -193,12 +210,13 @@ std::vector<double> NeuralNetwork::propagate(std::vector<double> inputs, std::ve
     // change weights and biases by learning rate
     for (int i=0; i < outputValues.size(); i++) {
         for (int j=0; j < level->weights.at(i).size(); j++) {
-            double newWeight = level->weights.at(i).at(j) + learningRate * weightGradients.at(i).at(j);
-            level->weights.at(i).at(j) = newWeight;
+            // std::cout << level->weights.at(i).at(j) << " " << weightGradients.at(i).at(j) << " ";
+            double newWeight = level->weights.at(i).at(j) + (learningRate * weightGradients.at(i).at(j));
             // std::cout << newWeight << " " << level->weights.at(i).at(j) << std::endl;
+            level->weights.at(i).at(j) = newWeight;
         }
 
-        double newBias = level->biases.at(i) + learningRate * biasGradients.at(i);
+        double newBias = level->biases.at(i) + (learningRate * biasGradients.at(i));
         level->biases.at(i) = newBias;
     }
     
@@ -216,8 +234,11 @@ std::vector<double> NeuralNetwork::propagate(std::vector<double> inputs, std::ve
 }
 
 void NeuralNetwork::backPropogation(std::vector<double> newTargets, std::vector<double> input) {
-    std::vector<double> targets = newTargets;
-    double learningRate = 0.5;
+    std::vector<double> targets;
+    for (int i=0; i < newTargets.size(); i++) {
+        targets.push_back(1 - newTargets.at(i));
+    }
+    double learningRate = 0.1;
     for (int i=levels.size()-1; 0 <= i; i--) { // loop backwards trough te levels for backpropagation
         // std::cout << targets.at(0) << " in" << std::endl;
         if (i == 0) {
@@ -240,26 +261,28 @@ void NeuralNetwork::backPropogation(std::vector<double> newTargets, std::vector<
     // std::cout << std::endl;
 }
 
-int main() {
-    NeuralNetwork nn({4, 9, 12, 4});
-    std::vector<double> input = {0.5, 0.6, 0.5, 0.9};
+// int main() {
+//     // srand(time(NULL));
+//     NeuralNetwork nn({4, 9, 4});
+//     std::vector<double> input = {1, 0.6, 0.5, 0.1};
 
-    nn.feedForward(input);
-    for (int j=0; j < nn.networkOutput.size(); j++) {
-        std::cout << nn.networkOutput.at(j) << " ";
-    }
-    std::cout << std::endl;
-    for (int i=0; i < 20000; i++) {
-        nn.feedForward(input);
-        nn.backPropogation({1, 1, 1, 1}, input);
-    }
-    for (int j=0; j < nn.networkOutput.size(); j++) {
-        std::cout << nn.networkOutput.at(j) << " ";
-    }
-    std::cout << std::endl;
+//     nn.feedForward(input);
+//     for (int j=0; j < nn.networkOutput.size(); j++) {
+//         std::cout << nn.networkOutput.at(j) << " ";
+//     }
+//     std::cout << std::endl;
+//     for (int i=0; i < 1000000; i++) {
+//         nn.feedForward(input);
+//         nn.backPropogation({1, 0, 0, 0.5}, input);
+//         // std::cout << nn.levels.at(0).weights.at(0).at(0) << std::endl;
+//     }
+//     for (int j=0; j < nn.networkOutput.size(); j++) {
+//         std::cout << nn.networkOutput.at(j) << " ";
+//     }
+//     std::cout << std::endl;
 
 
 
 
-    return 0;
-}
+//     return 0;
+// }

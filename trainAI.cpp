@@ -51,11 +51,12 @@ void SetCar(nlohmann::json data) {
     // delete car;
     // car->~Car();
     // car.release();
-    delete car;
-    car = NULL;
+    // delete car;
+    // car = NULL;
     int value2 = data["spawn"]["lenght"].get<int>();
     int value = rand() % value2;
-    car = new Car(map, data["direction"][std::to_string(value)].get<float>(), map->spawns.at(0));
+    // car = new Car(map, data["direction"][std::to_string(0)].get<float>(), map->spawns.at(0));
+    car->restartLocation(data["direction"][std::to_string(0)].get<float>(), map->spawns.at(0));
     // float val = data["spawn"][std::to_string(value)].get<float>();
     // float val = data["spawn"][std::to_string(value)].get<float>();
     // std::cout << value << std::endl;
@@ -78,24 +79,24 @@ void CheckCar() {
         nlohmann::json data = nlohmann::json::parse(f);
         f.close();
         // cars.at(1).Qtable.Reward(true, cars.at(1).returnPreviousStates());
-        car->Qtable.Reward(true, car->returnPreviousStates());
+        // car->Qtable.Reward(true, car->returnPreviousStates());
         // cars.at(1).Qtable.saveQtable();
-        car->Qtable.saveQtable();
+        // car->Qtable.saveQtable();
         SetCar(data);
         generation++;
-        if (generation == 20000) {
+        if (generation == 2000) {
             epsilon -= 0.1;
             if (epsilon < 0) {
                 epsilon = 0;
             }
             // cars.at(1).Qtable.SetEpsilon(epsilon);
-            car->Qtable.SetEpsilon(epsilon);
+            // car->Qtable.SetEpsilon(epsilon);
             generation = 0;
         }
     } else {
         // std::vector<std::vector<double>> *previousStates = cars.at(1).returnPreviousStates();
         // cars.at(1).Qtable.Reward(false, cars.at(1).returnPreviousStates());
-        car->Qtable.Reward(false, car->returnPreviousStates());
+        // car->Qtable.Reward(false, car->returnPreviousStates());
     }
 }
 
@@ -143,7 +144,7 @@ void Update(double deltaTime) {
     for(int i=0; i < 20; i++) {
         car->update(1.0f/60.0f, map);
         // std::vector<std::vector<double>> test = {{0}};
-        car->Qtable.Reward(false, car->returnPreviousStates());
+        // car->Qtable.Reward(false, car->returnPreviousStates());
         // CheckCar();
         
     }

@@ -4,9 +4,10 @@
 #include <ostream>
 
 #include "ray.h"
-#include "Qlearning.h"
+// #include "Qlearning.h"
 // #include "DeepQLearning.h"
-#include "Qnn.h"
+// #include "Qnn.h"
+#include "nnLevel.h"
 
 class Car {
     public:
@@ -21,7 +22,7 @@ class Car {
         bool checkCollision(GameMapE* map);
         bool polyIntersect(std::vector<Vector2> poly1, std::vector<Vector2> poly2);
         bool checkPointCollision(GameMapE* map);
-
+        void restartLocation(double newDirection, Vector2 newPosition);
         void setSpawn(Vector2 spawn, double newDirection);
 
         std::vector<std::vector<double>> *returnPreviousStates();
@@ -30,10 +31,10 @@ class Car {
         std::vector<int> outputsbool;
         std::vector<double> previousState, previousState1, previousState2, previousState3, previousState4;
         std::vector<std::vector<double>> previousStates;
-        Qlearning Qtable;
+        // Qlearning Qtable;
         // DeepQLearning DeepQnn;
-        std::vector<int> neuroncounts = {8,19,11, 4};
-        NeuralNetwork NN = NeuralNetwork({8,19,11, 4});
+        std::vector<int> neuroncounts = {8, 255, 122, 16, 4};
+        NeuralNetwork neuralNetwork = NeuralNetwork({8, 12, 9, 4});
     private:
         // GameMapE* map;
         // Vector2* positionN = new Vector2();
@@ -86,6 +87,17 @@ Car::~Car() {
     // map = NULL;
     // delete map;
     // rays.~Rays();
+}
+
+void Car::restartLocation(double newDirection, Vector2 newPosition) {
+    alive = true;
+    speed = 0;
+    position = newPosition;
+    previousPosition = position;
+    direction = newDirection;
+    angle = (direction / -(180/PI));
+    timeSinceLastPoint = 0;
+    controlType = 1;
 }
 
 void Car::setSpawn(Vector2 spawn, double newDirection) {
@@ -256,11 +268,11 @@ void Car::move2(double deltaTime, std::vector<double> actions) {
         // std::cout << deltaTime << std::endl << std::endl;
         // speed = 100;
     }
-    if (actions.at(1) == 1){
+    if (actions.at(2) >= 0.5){
         speed += acceleration * deltaTime;
     } 
 
-    if (actions.at(3) == 1){
+    if (actions.at(3) >= 0.5){
         speed -= acceleration * deltaTime;
     }
     if (speed > maxSpeed) {
@@ -274,11 +286,11 @@ void Car::move2(double deltaTime, std::vector<double> actions) {
         speed += friction * deltaTime;
     }
 
-    if (actions.at(0) == 1) {
+    if (actions.at(0) >= 0.5) {
         angle -= 3 * deltaTime;
         direction += (3 * (180/M_PI)) * deltaTime;
     }
-    if (actions.at(1) == 1) {
+    if (actions.at(1) >= 0.5) {
         angle += 3 * deltaTime;
         direction -= (3 * (180/M_PI)) * deltaTime;
     }
@@ -414,8 +426,13 @@ void Car::update(double deltaTime, GameMapE* map) {
         // if (collectedPoints != 0) {
         // std::cout << collectedPoints << std::endl;
         std::vector<double>* offsettsp = new std::vector<double>(offsets);
-        int action = Qtable.makeDecision(offsettsp);
-        std::vector<double> actions = NN.feedforward(offsets);
+        // int action = Qtable.makeDecision(offsettsp);
+        std::vector<double> actions = neuralNetwork.feedForward(offsets);
+        neuralNetwork.backPropogation({-1, 1, 1, -1}, offsets);
+        for (int i=0; i < actions.size(); i++) {
+            std::cout << actions.at(i) << " ";
+        }
+        std::cout << std::endl;
         move2(deltaTime, actions);
         previousState4 = previousState3;
         previousState3 = previousState2;
