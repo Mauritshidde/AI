@@ -40,7 +40,7 @@ class Car {
         // Vector2* positionN = new Vector2();
         Rays rays;
         void move(double deltaTime, int action);
-        void move2(double deltaTime, std::vector<double> actions);
+        void move2(double deltaTime, std::vector<double> actions, std::vector<double> offsets);
         double friction = 20;
         double acceleration = 50;
         double speed = 0;
@@ -57,7 +57,7 @@ class Car {
         int currentPoint = 0;
         std::vector<std::vector<Vector2>> points;
         Vector2 previousPosition;
-        double timeSinceLastPoint;
+        double timeSinceLastPoint = 0;
 };
 
 Car::Car(GameMapE* map, double newDirection, Vector2 newPosition) {
@@ -98,6 +98,7 @@ void Car::restartLocation(double newDirection, Vector2 newPosition) {
     angle = (direction / -(180/PI));
     timeSinceLastPoint = 0;
     controlType = 1;
+    currentPoint = 0;
 }
 
 void Car::setSpawn(Vector2 spawn, double newDirection) {
@@ -258,23 +259,72 @@ void Car::move(double deltaTime, int action) {
     speed = maxSpeed;
 }
 
-void Car::move2(double deltaTime, std::vector<double> actions) {
+void Car::move2(double deltaTime, std::vector<double> actions, std::vector<double> offsets) {
     // if (IsKeyDown(KEY_D)) {
     //     action = 0;
     // }
+    std::vector<double> target;
+    double w,s,a,d;
+    w = 0;
+    s = 0;
+    a = 0;
+    d = 0;
     if (IsKeyDown(KEY_W)) {
         speed += acceleration * deltaTime;
+        w = 10;
+        s = -10;
+    }
+    if (IsKeyDown(KEY_S)) {
+        speed -= acceleration * deltaTime;
+        s = 10;
+    }
+    if (IsKeyDown(KEY_A)) {
+        angle += 3 * deltaTime;
+        direction -= (3 * (180/M_PI)) * deltaTime;
+        a = 10;
+    }
+    if (IsKeyDown(KEY_D)) {
+        angle -= 3 * deltaTime;
+        direction += (3 * (180/M_PI)) * deltaTime;
+        d = 10;
+    }
+
+    target.push_back(d);
+    target.push_back(a);
+    target.push_back(w);
+    target.push_back(s);
+    
+    // for (int i=0; i < target.size(); i++) {
+    //     std::cout << target.at(i) << " ";
+    // }
+    // std::cout << std::endl;
+    
+    std::vector<double> nactions = neuralNetwork.feedForward(offsets);
+    neuralNetwork.backPropogation(target, offsets);
+    
         // std::cout << speed << " " << acceleration  << std::endl;
         // std::cout << deltaTime << std::endl << std::endl;
         // speed = 100;
-    }
-    if (actions.at(2) >= 0.5){
+    
+    if (IsKeyDown(KEY_ENTER)) {
+        if (actions.at(2) >= 0.5){
         speed += acceleration * deltaTime;
-    } 
+        } 
 
-    if (actions.at(3) >= 0.5){
-        speed -= acceleration * deltaTime;
+        if (actions.at(3) >= 0.5){
+            speed -= acceleration * deltaTime;
+        }
+
+        if (actions.at(0) >= 0.5) {
+        angle -= 3 * deltaTime;
+        direction += (3 * (180/M_PI)) * deltaTime;
+        }
+        if (actions.at(1) >= 0.5) {
+            angle += 3 * deltaTime;
+            direction -= (3 * (180/M_PI)) * deltaTime;
+        }
     }
+    
     if (speed > maxSpeed) {
         speed = maxSpeed;
     } else if (speed < -maxSpeed/2) {
@@ -284,15 +334,6 @@ void Car::move2(double deltaTime, std::vector<double> actions) {
         speed -= friction * deltaTime;
     } else if (speed < 0) {
         speed += friction * deltaTime;
-    }
-
-    if (actions.at(0) >= 0.5) {
-        angle -= 3 * deltaTime;
-        direction += (3 * (180/M_PI)) * deltaTime;
-    }
-    if (actions.at(1) >= 0.5) {
-        angle += 3 * deltaTime;
-        direction -= (3 * (180/M_PI)) * deltaTime;
     }
     
     position.x -= sin(angle) * speed * deltaTime;
@@ -365,9 +406,9 @@ bool Car::checkPointCollision(GameMapE* map) {
             currentPoint = 0;
         } else {
             currentPoint++;
-            timeSinceLastPoint = 0;
         }
         collectedPoints++;
+        // std::cout << collectedPoints << " " << timeSinceLastPoint << std::endl;
         return true;
     }
 
@@ -409,7 +450,9 @@ void Car::update(double deltaTime, GameMapE* map) {
         // for (int i=0; i < 4; i++) {
         //     outputsbool.push_back(outputs[i]);
         // }
-        bool test = checkPointCollision(map);
+        if (checkPointCollision(map)) {
+            timeSinceLastPoint = 0;
+        }
         // if (test) {
         // }
         timeSinceLastPoint += deltaTime;
@@ -419,6 +462,7 @@ void Car::update(double deltaTime, GameMapE* map) {
             timeSinceLastPoint = 0;
             // std::cout << "ja"<< std::endl;
         } 
+        // std::cout << timeSinceLastPoint << std::endl;
         // if (timeSinceLastPoint > 1) {
         //     std::cout << timeSinceLastPoint << std::endl;
         // }
@@ -427,13 +471,18 @@ void Car::update(double deltaTime, GameMapE* map) {
         // std::cout << collectedPoints << std::endl;
         std::vector<double>* offsettsp = new std::vector<double>(offsets);
         // int action = Qtable.makeDecision(offsettsp);
+        
+        
+        
         std::vector<double> actions = neuralNetwork.feedForward(offsets);
-        neuralNetwork.backPropogation({-1, 1, 1, -1}, offsets);
+        // neuralNetwork.backPropogation({-1, 0.3, 1, -1}, offsets);
+
+        
         for (int i=0; i < actions.size(); i++) {
             std::cout << actions.at(i) << " ";
         }
         std::cout << std::endl;
-        move2(deltaTime, actions);
+        move2(deltaTime, actions, offsets);
         previousState4 = previousState3;
         previousState3 = previousState2;
         previousState2 = previousState1;

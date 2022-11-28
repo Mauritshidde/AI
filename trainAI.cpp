@@ -141,7 +141,7 @@ void Update(double deltaTime) {
     // cars.at(1).update(deltaTime);
     // cars.at(1).update(deltaTime);
     // cars.at(1).update(deltaTime);
-    for(int i=0; i < 20; i++) {
+    for(int i=0; i < 1; i++) {
         car->update(1.0f/60.0f, map);
         // std::vector<std::vector<double>> test = {{0}};
         // car->Qtable.Reward(false, car->returnPreviousStates());
