@@ -3,7 +3,7 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 
-#include "nnLevel.h"
+#include "nnLevel2.h"
 
 int main() {
     std::vector<std::vector<std::vector<double>>> images;
@@ -15,7 +15,7 @@ int main() {
     f.close();
     trainingData = data;
     // std::cout << data["0"]["data"]["0"]["0"].get<double>();
-    for (int i=0; i < 1000; i++) {
+    for (int i=0; i < 10000; i++) {
         std::vector<std::vector<double>> image;
         for (int j=0; j < 28; j++) {
             std::vector<double> rows;
@@ -37,9 +37,9 @@ int main() {
     // }
 
     srand(time(NULL));
-    NeuralNetwork nn({784, 64, 32, 17, 10});
+    NeuralNetwork nn({784, 600, 600, 10});
     // std::vector<double> input;
-    for (int z=0; z < 1000; z++) {
+    for (int z=0; z < 9980; z++) {
         std::vector<double> input;
         for (int i=0; i < 28; i++) {
             for (int j=0; j < 28; j++) {
@@ -74,7 +74,7 @@ int main() {
         //     std::cout << nn.networkOutput.at(j) << " ";
         // }
     }
-    for (int z=990; z < 1000; z++) { 
+    for (int z=9980; z < 10000; z++) { 
         std::vector<double> input;
         for (int i=0; i < 28; i++) {
             for (int j=0; j < 28; j++) {

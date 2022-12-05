@@ -17,7 +17,7 @@ import json
 dataset = {}
 rowarray_list = []
 images = {}
-for i in range(1000):
+for i in range(10000):
     # image = {
     #     'pixels': {
     #         },
