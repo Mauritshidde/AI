@@ -56,7 +56,7 @@ void SetCar(nlohmann::json data, double epsilon) {
     int value2 = data["spawn"]["lenght"].get<int>();
     int value = rand() % value2;
     // car = new Car(map, data["direction"][std::to_string(0)].get<float>(), map->spawns.at(0));
-    car->restartLocation(data["direction"][std::to_string(value)].get<float>(), data["spawn"][std::to_string(value)]["firstcheckpoint"].get<float>(), map->spawns.at(value), epsilon);
+    car->restartLocation(data["direction"][std::to_string(0)].get<float>(), map->spawns.at(0), epsilon);
     // float val = data["spawn"][std::to_string(value)].get<float>();
     // float val = data["spawn"][std::to_string(value)].get<float>();
     // std::cout << value << std::endl;
@@ -84,7 +84,7 @@ void CheckCar() {
         // car->Qtable.saveQtable();
         SetCar(data, epsilon);
         generation++;
-        if (generation == 20) {
+        if (generation == 1000) {
             epsilon -= 0.1;
             if (epsilon < 0) {
                 epsilon = 0;
@@ -113,7 +113,6 @@ void Render() {
     DrawText("ja", 600, 540, 10, BLACK);
     DrawText(TextFormat("%i", generation), 10, 40, 20, WHITE);
     DrawText(TextFormat("%f", epsilon), 10, 60, 20, WHITE);
-    DrawText(TextFormat("%i", car->currentPoints), 10, 80, 20, WHITE);
 
     DrawFPS(10,10);
     EndDrawing();

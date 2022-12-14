@@ -3,7 +3,7 @@
 #include <iostream>
 #include <ostream>
 
-#include "ray.h"
+#include "ray2.h"
 // #include "Qlearning.h"
 // #include "DeepQLearning.h"
 // #include "Qnn.h"
@@ -22,12 +22,11 @@ class Car {
         bool checkCollision(GameMapE* map);
         bool polyIntersect(std::vector<Vector2> poly1, std::vector<Vector2> poly2);
         bool checkPointCollision(GameMapE* map);
-        void restartLocation(double newDirection, double firstcheckpoint, Vector2 newPosition, double newEpsilon);
+        void restartLocation(double newDirection, Vector2 newPosition, double newEpsilon);
         void setSpawn(Vector2 spawn, double newDirection);
 
         std::vector<std::vector<double>> *returnPreviousStates();
         int collectedPoints = 0;
-        int currentPoints;
         bool alive;
         std::vector<int> outputsbool;
         std::vector<double> previousState, previousState1, previousState2, previousState3, previousState4;
@@ -72,7 +71,6 @@ Car::Car(GameMapE* map, double newDirection, Vector2 newPosition) {
     timeSinceLastPoint = 0;
     controlType = 1;
     alive = true;
-    currentPoints = 0;
     // wallVec = map->wallVectorVec;
     // outerWallVec = map->outerWall;
     rays.setWallVec();
@@ -97,7 +95,7 @@ Car::~Car() {
     // rays.~Rays();
 }
 
-void Car::restartLocation(double newDirection, double firstcheckpoint, Vector2 newPosition, double newEpsilon) {
+void Car::restartLocation(double newDirection, Vector2 newPosition, double newEpsilon) {
     alive = true;
     speed = 0;
     neuralNetworkUpdate = neuralNetworkUpdate;
@@ -107,9 +105,8 @@ void Car::restartLocation(double newDirection, double firstcheckpoint, Vector2 n
     angle = (direction / -(180/PI));
     timeSinceLastPoint = 0;
     controlType = 1;
-    currentPoint = firstcheckpoint;
+    currentPoint = 0;
     epsilon = newEpsilon;
-    currentPoints = 0;
 }
 
 void Car::setSpawn(Vector2 spawn, double newDirection) {
@@ -179,23 +176,12 @@ void Car::createPolygon() {
 void Car::draw(bool best) {
     // if (best) {}
     Rectangle rectangle = {position.x, position.y, size.x, size.y};
-    DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, WHITE);  
+    // DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, WHITE);  
     rays.draw();
 }
 
 void Car::controls() {
-    if (IsKeyDown(KEY_W)){
-        action[0] = 1;
-    } 
-    if (IsKeyDown(KEY_S)){
-        action[1] = 1;
-    } 
-    if (IsKeyDown(KEY_D)) {
-        action[2] = 1;
-    }
-    if (IsKeyDown(KEY_A)) {
-        action[3] = 1;
-    }
+    
 }
 
 void Car::move(double deltaTime, int action) {
@@ -215,12 +201,7 @@ void Car::move(double deltaTime, int action) {
     //     action[1] = 1;
     // } 
     // action = 100;
-    if (IsKeyDown(KEY_D)) {
-        action = 0;
-    }
-    if (IsKeyDown(KEY_A)) {
-        action = 1;
-    }
+    
     if (action == 2){
         speed += acceleration * deltaTime;
     } 
@@ -352,25 +333,8 @@ void Car::move2(double deltaTime, std::vector<double> actions, std::vector<doubl
     s = 0;
     a = 0;
     d = 0;
-    if (IsKeyDown(KEY_W)) {
-        speed += acceleration * deltaTime;
-        w = 10;
-        s = -10;
-    }
-    if (IsKeyDown(KEY_S)) {
-        speed -= acceleration * deltaTime;
-        s = 10;
-    }
-    if (IsKeyDown(KEY_A)) {
-        angle += 3 * deltaTime;
-        direction -= (3 * (180/M_PI)) * deltaTime;
-        a = 10;
-    }
-    if (IsKeyDown(KEY_D)) {
-        angle -= 3 * deltaTime;
-        direction += (3 * (180/M_PI)) * deltaTime;
-        d = 10;
-    }
+   
+   
 
     // // target.push_back(d);
     // // target.push_back(a);
@@ -567,8 +531,7 @@ void Car::update(double deltaTime, GameMapE* map) {
             timeSinceLastPoint = 0;
             neuralNetwork = neuralNetworkUpdate;
             neuralNetworkUpdate2 = neuralNetworkUpdate;
-            // std::cout << "ja" << std::endl;
-            currentPoints++;
+            std::cout << "ja" << std::endl;
             // std::vector<double> target = neuralNetwork.feedForward(offsets);
             // std::vector<double> nactions = neuralNetwork.feedForward(offsets);
             // neuralNetwork.backPropogation({1,0,1,0}, offsets);

@@ -7,8 +7,8 @@
 #include <string>
 
 #include "raygui.h"
-#include "GameMap.h"
-#include "QCar.h"
+#include "GameMap2.h"
+#include "QCar2.h"
 
 const int screenWidth = 1980;
 const int screenHeight = 1024;
@@ -56,7 +56,7 @@ void SetCar(nlohmann::json data, double epsilon) {
     int value2 = data["spawn"]["lenght"].get<int>();
     int value = rand() % value2;
     // car = new Car(map, data["direction"][std::to_string(0)].get<float>(), map->spawns.at(0));
-    car->restartLocation(data["direction"][std::to_string(value)].get<float>(), data["spawn"][std::to_string(value)]["firstcheckpoint"].get<float>(), map->spawns.at(value), epsilon);
+    car->restartLocation(data["direction"][std::to_string(0)].get<float>(), map->spawns.at(0), epsilon);
     // float val = data["spawn"][std::to_string(value)].get<float>();
     // float val = data["spawn"][std::to_string(value)].get<float>();
     // std::cout << value << std::endl;
@@ -84,7 +84,7 @@ void CheckCar() {
         // car->Qtable.saveQtable();
         SetCar(data, epsilon);
         generation++;
-        if (generation == 20) {
+        if (generation == 120) {
             epsilon -= 0.1;
             if (epsilon < 0) {
                 epsilon = 0;
@@ -98,28 +98,6 @@ void CheckCar() {
         // cars.at(1).Qtable.Reward(false, cars.at(1).returnPreviousStates());
         // car->Qtable.Reward(false, car->returnPreviousStates());
     }
-}
-
-void Render() {
-    const Color backgroundColor = BLACK;
-
-    BeginDrawing();
-    ClearBackground(backgroundColor);
-
-    map->draw();
-    // cars.at(1).draw(false);
-    car->draw(false);
-    // std::string = std::to_string(generation);
-    DrawText("ja", 600, 540, 10, BLACK);
-    DrawText(TextFormat("%i", generation), 10, 40, 20, WHITE);
-    DrawText(TextFormat("%f", epsilon), 10, 60, 20, WHITE);
-    DrawText(TextFormat("%i", car->currentPoints), 10, 80, 20, WHITE);
-
-    DrawFPS(10,10);
-    EndDrawing();
-
-    CheckCar();
-    
 }
 
 void Start() {
@@ -142,39 +120,30 @@ void Update(double deltaTime) {
     // cars.at(1).update(deltaTime);
     // cars.at(1).update(deltaTime);
     // cars.at(1).update(deltaTime);
-    if (IsKeyDown(KEY_H)) {
+    for(int i=0; i < 60; i++) {
         car->update(1.0f/60.0f, map);
-    } else if (IsKeyDown(KEY_J)) {
-        for(int i=0; i < 20; i++) {
-            car->update(1.0f/60.0f, map);
-        }
-    } else {
-        for(int i=0; i < 60; i++) {
-            car->update(1.0f/60.0f, map);
-            // std::vector<std::vector<double>> test = {{0}};
-            // car->Qtable.Reward(false, car->returnPreviousStates());
-            // CheckCar();
-        }
+        // std::vector<std::vector<double>> test = {{0}};
+        // car->Qtable.Reward(false, car->returnPreviousStates());
+        // CheckCar();
     }
+
 }   
 
 int main() {
     srand(time(NULL));
-    InitWindow(screenWidth, screenHeight, "car");
     // SetWindowState(FLAG_VSYNC_HINT);
-    SetTargetFPS(60);
 
     Start();
-    while (!WindowShouldClose()){
+    bool door = true;
+    while (door){
         // double deltaTime = GetFrameTime();
         Update(float(1.0/30.0));
-        Render();
+        CheckCar();
     }
 
     // map = NULL;
     delete map;
     map = NULL;
     
-    CloseWindow();
     return 0;
 }

@@ -11,14 +11,66 @@ const int screenWidth = 1980;
 const int screenHeight = 1024;
 double rotation = 0;
 
-bool inner, outer, spawn, point;
+bool inner, outer, spawn, point, selectpoint;
 
 bool server = false;
+std::vector<bool> pointcolor;
 std::vector<Vector2> innerMap, outerMap, points2;
 std::vector<std::vector<Vector2>> points;
 Vector2 spawnLocation, angle;
 std::vector<Vector2> spawnLocations;
 std::vector<double> rotations;
+std::vector<int> firstCheckPoints;
+
+class CheckPoints {
+    public:
+        CheckPoints();
+        void addCheckPoint();
+
+};
+
+bool clickOnLine(Vector2 location, int i) {
+    Vector2 startCoords = points.at(i).at(0);
+    Vector2 endCoords = points.at(i).at(1);
+    double factor = ((endCoords.y - startCoords.y)/(endCoords.x - startCoords.x));
+    double b = startCoords.y - startCoords.x * factor;
+
+    if (endCoords.x - startCoords.x < 20 && endCoords.x - startCoords.x > -20) {
+        if (location.x >= startCoords.x-10 && location.x <= startCoords.x+10) {
+            if (startCoords.y > endCoords.y) {
+                if (location.y <= startCoords.y+10 && location.y >= endCoords.y-10) {
+                    return true;
+                }
+            } else {
+                if (location.y >= startCoords.y-10 && location.y <= endCoords.y+10) {
+                    return true;
+                }
+            }
+        }
+    }
+    if (endCoords.x > startCoords.x) {
+        if (location.x >= startCoords.x-10 && location.x <= endCoords.x+10) {
+            if (location.x * factor + b >= location.y-10 && location.x * factor + b <= location.y+10) {
+                return true;
+            }
+        } else if (location.x >= startCoords.x-10 && location.x <= endCoords.x+10) {
+            if (location.x * factor + b <= location.y+10 && location.x * factor + b >= location.y-10) {
+                return true;
+            }
+        }
+    } else {
+        if (location.x <= startCoords.x+10 && location.x >= endCoords.x-10) {
+            if (location.x * factor + b >= location.y-10 && location.x * factor + b <= location.y+10) {
+                return true;
+            }
+        } else if (location.x >= startCoords.x-10 && location.x <= endCoords.x+10) {
+            if (location.x * factor + b <= location.y+10 && location.x * factor + b >= location.y-10) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 void saveMap() {
     nlohmann::json j;
@@ -47,6 +99,7 @@ void saveMap() {
     for (int i=0; i < spawnLocations.size(); i++) {
         j["spawn"][std::to_string(i)]["x"] = spawnLocations.at(i).x;
         j["spawn"][std::to_string(i)]["y"] = spawnLocations.at(i).y;
+        j["spawn"][std::to_string(i)]["firstcheckpoint"] = firstCheckPoints.at(i);
         j["direction"][std::to_string(i)] = rotations.at(i);
     }
 
@@ -65,21 +118,31 @@ void Render() {
         outer = false;
         spawn = false;
         point = false;
+        selectpoint = false;
     } else if (IsKeyDown(KEY_P)) {
         inner = false;
         outer = true;
         spawn = false;
         point = false;
+        selectpoint = false;
     } else if (IsKeyDown(KEY_Q)) {
         inner = false;
         outer = false;
         spawn = true;
         point = false;
+        selectpoint = false;
     } else if (IsKeyDown(KEY_C)) {
         inner = false;
         outer = false;
         spawn = false;
         point = true;
+        selectpoint = false;
+    } else if (IsKeyDown(KEY_X)) {
+        inner = false;
+        outer = false;
+        spawn = false;
+        point = false;
+        selectpoint = true;
     }
     if (inner) {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
@@ -119,11 +182,35 @@ void Render() {
                 points.push_back(points2);
                 points2.pop_back();
                 points2.pop_back();
+                pointcolor.push_back(0);
             }
         } else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && points.size() != 0) {
             Vector2 innerPosition = GetMousePosition();
             // if (points)
             points.pop_back();
+            pointcolor.pop_back();
+            if (points2.size() != 0) {
+                points2.pop_back();
+            }
+        }
+    } else if (selectpoint) {
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+            Vector2 innerPosition = GetMousePosition();
+            
+            for (int i=0; i < points.size(); i++) {
+                if (clickOnLine(innerPosition, i)) {
+                    for (int j=0; j < pointcolor.size(); j++) {
+                        pointcolor.at(j) = 0;
+                    }
+                    pointcolor.at(i) = 1;
+                    firstCheckPoints.push_back(i);
+                }
+            }
+        } else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+            for (int j=0; j < pointcolor.size(); j++) {
+                pointcolor.at(j) = 0;
+                firstCheckPoints.pop_back();
+            }
         }
     }
 
@@ -171,11 +258,26 @@ void Render() {
 
     } else {
         for (int i=0; i < points.size(); i++) {
-            DrawLineV(points.at(i).at(0), points.at(i).at(1), YELLOW);
+            if (pointcolor.at(i)) {
+                DrawLineV(points.at(i).at(0), points.at(i).at(1), BLUE);
+            } else {
+                DrawLineV(points.at(i).at(0), points.at(i).at(1), YELLOW);
+            }
+            for (int j=0; j < firstCheckPoints.size(); j++) {
+                if (firstCheckPoints.at(j) == i) {
+                    DrawLineV(points.at(i).at(0), points.at(i).at(1), ORANGE);
+                }
+            }
+            if (pointcolor.at(i)) {
+                DrawLineV(points.at(i).at(0), points.at(i).at(1), BLUE);
+            }
 
         }
     }
-
+    // for (int i=0; i < firstCheckPoints.size(); i++) { 
+    //     std::cout << firstCheckPoints.at(i);
+    // }
+    // std::cout << std::endl;
     if (IsKeyDown(KEY_ENTER)) {
         saveMap();
         // nlohmann::json j;

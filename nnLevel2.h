@@ -18,6 +18,7 @@ class NNLevel {
 };
 
 NNLevel::NNLevel(int inputCount, int outpuCount) {
+    srand(time(NULL));
     levelInputCount = inputCount;
     levelOutputCount = outpuCount;
     for (int i=0; i < outpuCount; i++) {
@@ -386,11 +387,11 @@ void NeuralNetwork::backPropogation(std::vector<double> newTargets, std::vector<
     newWeightsUpdate.clear();
     newBiasesUpdate.clear();
     for (int i=0; i < newTargets.size(); i++) {
-        targets.push_back(1 - newTargets.at(i));
-        // targets.push_back(newTargets.at(i));
+        // targets.push_back(1 - newTargets.at(i));
+        targets.push_back(newTargets.at(i));
     }
     feedForward(input);
-    double learningRate = 0.01;
+    double learningRate = 0.0001;
     for (int i=levels.size()-1; -1 < i; i--) { // loop backwards trough te levels for backpropagation
         // std::cout << targets.at(0) << " in" << std::endl;
         // if (i == 0) {
