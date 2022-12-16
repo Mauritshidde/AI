@@ -5,18 +5,6 @@
 
 #include "nnLevel2.h"
 
-int correct, notcorrect;
-
-int argmax(std::vector<double> val){
-    int highest = 0;
-    for (int i=0; i < val.size(); i++) {
-        if (val.at(i) > val.at(highest)) {
-            highest = i;
-        }
-    }
-    return highest;
-}
-
 int main() {
     std::vector<std::vector<std::vector<double>>> images;
     std::vector<int> imageValue;
@@ -83,12 +71,6 @@ int main() {
         for (int i=0; i < 1; i++) {
             nn.backPropogation(targetPtr, inputPtr);
             nn.feedForward(input);
-            int gues = argmax(nn.networkOutput);
-            if (target.at(gues) == 1) {
-                correct++;
-            } else {
-                notcorrect++;
-            }
             // std::cout << nn.levels.at(0).weights.at(0).at(0) << std::endl;
         }
         delete targetPtr;
@@ -97,9 +79,6 @@ int main() {
         //     std::cout << nn.networkOutput.at(j) << " ";
         // }
     }
-    std::cout << correct << " correct " << notcorrect << " notcorrect " << correct/1000 << " procent correct" << std::endl;
-    correct = 0;
-    notcorrect = 0;
     for (int z=9980; z < 10000; z++) { 
         std::vector<double> input;
         for (int i=0; i < 28; i++) {
@@ -128,13 +107,7 @@ int main() {
         for (int i=0; i < 1; i++) {
             nn.backPropogation(targetPtr, inputPtr);
             nn.feedForward(input);
-            int gues = argmax(nn.networkOutput);
-            if (target.at(gues) == 1) {
-                correct++;
-            } else {
-                notcorrect++;
-            }
-        
+            // std::cout << nn.levels.at(0).weights.at(0).at(0) << std::endl;
         }
         delete targetPtr;
         delete inputPtr;
@@ -145,8 +118,6 @@ int main() {
         std::cout << std::endl;
         std::cout << std::endl;
     }
-    std::cout << correct << " correct " << notcorrect << " notcorrect " << correct/1000 << " procent correct" << std::endl;
-
     // std::cout << std::endl;
 
     // for (int i=0; i < imageValue.size(); i++) {

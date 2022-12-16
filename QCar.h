@@ -444,9 +444,18 @@ void Car::move2(double deltaTime, std::vector<double> actions, std::vector<doubl
     std::vector<double> nactions = neuralNetworkUpdate.feedForward(offsets);
     std::vector<double> nactions2 = neuralNetworkUpdate2.feedForward(offsets);
 
-    neuralNetworkUpdate.backPropogation(target, offsets);
-    neuralNetworkUpdate2.backPropogation({1-target.at(0), 1-target.at(1), 1-target.at(2), 1-target.at(3)}, offsets);
+    std::vector<double>* targetPtr = new std::vector<double>(target);
+    std::vector<double>* offsetsPtr = new std::vector<double>(offsets);
 
+    std::vector<double> newvector = {1-target.at(0), 1-target.at(1), 1-target.at(2), 1-target.at(3)};
+    std::vector<double>* newvectorPtr = new std::vector<double>(newvector);
+    
+    neuralNetworkUpdate.backPropogation(targetPtr, offsetsPtr);
+    neuralNetworkUpdate2.backPropogation(newvectorPtr, offsetsPtr);
+
+    delete targetPtr;
+    delete offsetsPtr;
+    delete newvectorPtr;
     // if (checkPointCollision(map)) {
     //     std::cout << "ja" << std::endl;
     //     timeSinceLastPoint = 0;
@@ -541,7 +550,7 @@ void Car::update(double deltaTime, GameMapE* map) {
         delete x;
         delete y;
         x = NULL;
-        y = nullptr;
+        y = NULL;
         // std::cout << "ja " << "nee" << std::endl;
         // double epsilon = 1;
         std::vector<Vector3> offsetVec = rays.hitCoordVec3;
