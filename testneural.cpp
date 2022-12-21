@@ -84,7 +84,7 @@ void CheckCar() {
         // car->Qtable.saveQtable();
         SetCar(data, epsilon);
         generation++;
-        if (generation == 200) {
+        if (generation >= 200) {
             epsilon -= 0.1;
             if (epsilon < 0) {
                 epsilon = 0;
@@ -201,11 +201,15 @@ void Update(double deltaTime) {
     // cars.at(1).update(deltaTime);
     std::ifstream f("NN.json");
     nlohmann::json networkData = nlohmann::json::parse(f);
-    if (IsKeyDown(KEY_LEFT_CONTROL)) {
+    if (IsKeyPressed(KEY_LEFT_CONTROL)) {
         car->neuralNetwork.saveNeuralNetwork();
     }
-    if (IsKeyDown(KEY_RIGHT_CONTROL)) {
+    if (IsKeyPressed(KEY_RIGHT_CONTROL)) {
         car->neuralNetwork.loadNeuralNetwork(networkData);
+        std::ifstream f("example.json");
+        nlohmann::json data = nlohmann::json::parse(f);
+        f.close();
+        SetCar(data, epsilon);
     }
     
     car->update(1.0f/60.0f, map);
@@ -216,7 +220,7 @@ int main() {
     srand(time(NULL));
     InitWindow(screenWidth, screenHeight, "car");
     // SetWindowState(FLAG_VSYNC_HINT);
-    SetTargetFPS(60);
+    // SetTargetFPS(60);
 
     Start();
     while (!WindowShouldClose()){

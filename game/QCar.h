@@ -35,7 +35,7 @@ class Car {
         // Qlearning Qtable;
         // DeepQLearning DeepQnn;
         std::vector<int> neuroncounts = {8, 255, 122, 16, 4};
-        NeuralNetwork neuralNetwork = NeuralNetwork({8, 6,6,6, 4});
+        NeuralNetwork neuralNetwork = NeuralNetwork({16, 6, 6, 6, 6, 6, 6,6 ,6 ,6, 6,6 ,6,6 , 4});
     private:
         // GameMapE* map;
         // Vector2* positionN = new Vector2();
@@ -60,8 +60,8 @@ class Car {
         Vector2 previousPosition;
         double timeSinceLastPoint = 0;
         double epsilon;
-        NeuralNetwork neuralNetworkUpdate = NeuralNetwork({8, 6,6,6, 4});
-        NeuralNetwork neuralNetworkUpdate2 = NeuralNetwork({8, 6,6,6, 4});
+        NeuralNetwork neuralNetworkUpdate = NeuralNetwork({16, 6, 6, 6, 6, 6, 6,6 ,6 ,6, 6,6 ,6,6 , 4});
+        NeuralNetwork neuralNetworkUpdate2 = NeuralNetwork({16, 6, 6, 6, 6, 6, 6,6 ,6 ,6, 6,6 ,6,6 , 4});
 };
 
 Car::Car(GameMapE* map, double newDirection, Vector2 newPosition) {

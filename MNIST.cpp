@@ -49,7 +49,7 @@ int main() {
     // }
 
     srand(time(NULL));
-    NeuralNetwork nn({784, 200, 64, 32, 32, 10});
+    NeuralNetwork nn({784, 16, 16, 16, 16, 10});
     // std::vector<double> input;
     for (int z=0; z < 9980; z++) {
         std::vector<double> input;
