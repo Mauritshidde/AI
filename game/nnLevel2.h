@@ -518,7 +518,7 @@ void NeuralNetwork::saveNeuralNetwork() {
     }
 
     std::ofstream testfile;
-    testfile.open ("NN.json");
+    testfile.open ("NeuralNetworks/NN.json");
     testfile << jsonfile;
     testfile.close();
 }

@@ -7,13 +7,12 @@
 #include <string>
 
 
-const int screenWidth = 1980;
-const int screenHeight = 1024;
+const int screenWidthDraw = 1980;
+const int screenHeightDraw = 1024;
 double rotation = 0;
 
 bool inner, outer, spawn, point, selectpoint;
 
-bool server = false;
 std::vector<bool> pointcolor;
 std::vector<Vector2> innerMap, outerMap, points2;
 std::vector<std::vector<Vector2>> points;
@@ -105,12 +104,12 @@ void saveMap() {
 
 
     std::ofstream testfile;
-    testfile.open ("example.json");
+    testfile.open ("maps/example.json");
     testfile << j;
     testfile.close();
 }
 
-void Render() {
+void RenderDraw() {
     const Color backgroundColor = BLACK;
     
     if (IsKeyDown(KEY_O)) {
@@ -186,7 +185,6 @@ void Render() {
             }
         } else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT) && points.size() != 0) {
             Vector2 innerPosition = GetMousePosition();
-            // if (points)
             points.pop_back();
             pointcolor.pop_back();
             if (points2.size() != 0) {
@@ -274,82 +272,33 @@ void Render() {
 
         }
     }
-    // for (int i=0; i < firstCheckPoints.size(); i++) { 
-    //     std::cout << firstCheckPoints.at(i);
-    // }
-    // std::cout << std::endl;
+
     if (IsKeyDown(KEY_ENTER)) {
         saveMap();
-        // nlohmann::json j;
-        // j["lenght"] = map.size();
-
-        // for (int i=0; i < map.size(); i++) {
-        //     std::cout << i << std::endl;
-        //     j[std::to_string(i)]["x"] = map.at(i).x;
-        //     j[std::to_string(i)]["y"] = map.at(i).y;
-
-        //     std::ofstream testfile;
-        //     testfile.open ("example.json");
-        //     testfile << j;
-        //     testfile.close();
-        // }
-
-        // std::ofstream myfile;
-        // myfile.open ("example.txt");
-        // for (int i=0; i < map.size(); i++) {
-        //     myfile << map.at(i).x << "," << map.at(i).y << std::endl;
-        // }
-        // myfile.close();
     }
-    // int a;
-    // std::ifstream myfile;
-    // myfile.open("example.txt");
-    // bool door = true;
-    
-    
-
-    // auto j3 = nlohmann::json::parse(R"({"happy": true, "pi": 3.141})");
-
-    
-
-    // write to a stream, or the same file
-    // std::cout << j << std::endl; // print the json
-
-    
-
-    // std::ifstream f("example.json");
-    // nlohmann::json data = nlohmann::json::parse(f);
-    // std::cout << data << std::endl;
-    
-    // for (int i=0; i < screenWidth; i++) {
-    //     for (int j=0; i < screenHeight; i++) {
-    //         DrawLineV({i,i},{i+1, i+1}, BLUE);
-    //     }
-    // }
-
 
     DrawFPS(10,10);
     EndDrawing();
 }
 
-void Start() {
+void StartDraw() {
     inner = true;
     outer = false;
 }
 
-void Update(double deltaTime) {
+void UpdateDraw(double deltaTime) {
 
 }   
 
-int main() {
-    InitWindow(screenWidth, screenHeight, "car");
+int drawMap() {
+    InitWindow(screenWidthDraw, screenHeightDraw, "car");
     SetWindowState(FLAG_VSYNC_HINT);
 
-    Start();
+    StartDraw();
     while (!WindowShouldClose()){
         double deltaTime = GetFrameTime();
-        Update(deltaTime);
-        Render();
+        UpdateDraw(deltaTime);
+        RenderDraw();
     }
 
     CloseWindow();

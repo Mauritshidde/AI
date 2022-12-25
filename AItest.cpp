@@ -21,7 +21,7 @@ int main() {
     
     // nn.backPropogation({1, 0.4, 0.3, 0.9, 0}, {0,0,1});
     srand(time(NULL));
-    NeuralNetwork nn({8, 16,16,16, 4});
+    NeuralNetwork nn({8, 30,30,15, 6, 4});
     for (int i=0; i < nn.levels.at(nn.levels.size()-1).weights.size(); i++) {
         // std::cout << nn.levels.at(nn.levels.size()-1).weights.at(i).at(0) << " Ww " << nn.levels.at(nn.levels.size()-1).weights.at(i).at(1) << " " << nn.levels.at(nn.levels.size()-1).weights.at(i).at(2) << " " << std::endl;
     }
