@@ -102,7 +102,7 @@ int trainAI() {
     srand(time(NULL));
     
     InitWindow(screenWidth, screenHeight, "train Ai");
-
+    SetTargetFPS(300);
     Start();
     while (!WindowShouldClose()){
         Update(float(1.0/60.0));

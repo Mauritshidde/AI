@@ -8,15 +8,11 @@ class GameMapE2 {
         GameMapE2();
         void draw();
         void setMap(nlohmann::json mapJson);
-        // Vector2 * returnWalls();
-        // Vector2 *wallVector;
-        // Vector2 *outerWallarr;
         int arraySize = 10;
         int outerSize = 10;
         Vector2 spawn;
         std::vector<Vector2> wallVectorVec, innerWall, outerWall, spawns;
         std::vector<std::vector<Vector2>> points;
-        // std::vector<Vector2> wallVectorVec;
 };
 
 GameMapE2::GameMapE2() {
@@ -51,32 +47,21 @@ void GameMapE2::setMap(nlohmann::json mapJson) {
         spawns.push_back({mapJson["spawn"][std::to_string(i)]["x"].get<float>(), mapJson["spawn"][std::to_string(i)]["y"].get<float>()});
         std::cout << spawns.at(i).x << "  " << spawns.at(i).y << "\n";
     }
-    // spawn.x = mapJson["spawn"]["0"]["x"];
-    // spawn.y = mapJson["spawn"]["0"]["y"];
+
     int size = mapJson["inner"]["lenght"].get<int>();
     int size2 = mapJson["outer"]["lenght"].get<int>();
     int pointsSize = mapJson["points"]["lenght"].get<int>();
     
-    // std::cout << "ja " <<  size << " ja";
-
-    // wallVector = new Vector2[size];
-    // outerWallarr = new Vector2[size2];
-
-    // std::cout << outerSize << std::endl;
     arraySize = size;
     outerSize = size2;
 
     for (int i=0; i < size; i++) {
-        // wallVector[i].x = mapJson["inner"][std::to_string(i)]["x"].get<double>();
-        // wallVector[i].y = mapJson["inner"][std::to_string(i)]["y"].get<double>();
         float x = mapJson["inner"][std::to_string(i)]["x"].get<float>();
         float y =  mapJson["inner"][std::to_string(i)]["y"].get<float>();
         wallVectorVec.push_back({x, y});
     }
 
     for (int i=0; i < outerSize; i++) {
-        // outerWallarr[i].x = mapJson["outer"][std::to_string(i)]["x"].get<double>();
-        // outerWallarr[i].y = mapJson["outer"][std::to_string(i)]["y"].get<double>();
         float x = mapJson["outer"][std::to_string(i)]["x"].get<float>();
         float y =  mapJson["outer"][std::to_string(i)]["y"].get<float>();
         outerWall.push_back({x, y});
@@ -93,6 +78,3 @@ void GameMapE2::setMap(nlohmann::json mapJson) {
     }
 
 }
-// Vector2 * GameMap::returnWalls() {
-//     return wallVector;
-// }

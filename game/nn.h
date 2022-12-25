@@ -35,7 +35,6 @@ GeneticNeuralNetwork::GeneticNeuralNetwork(std::vector<int> neuronCounts) {
 
 std::vector<double> GeneticNeuralNetwork::feedforward(std::vector<double> givenInputs, GeneticNeuralNetwork network) {
     std::vector<double> outputs;
-    // std::cout << givenInputs.at(1) << " we1" << std::endl;
     outputs = levels.at(0).feedForward(givenInputs, levels.at(0));
     for (int i=1; i < levels.size(); i++) {
         outputs = levels.at(0).feedForward(outputs, levels.at(i));
@@ -44,15 +43,10 @@ std::vector<double> GeneticNeuralNetwork::feedforward(std::vector<double> givenI
 }
 
 void GeneticNeuralNetwork::mutate(GeneticNeuralNetwork network, double amount) {
-    // amount = 0.3;
-    
     for (int i=0; i < network.levels.size(); i++) {
-        // std::cout << network.levels.at(i).biases.size() << "  ";
         for (int j=0; j < network.levels.at(i).biases.size(); j++) {
             double v1 = rand() % 1000000000;
             levels.at(i).biases.at(j) = lerp(network.levels.at(i).biases.at(j), (v1/1000000000)*2-1, amount);
-            // double test = lerp(network.levels.at(i).biases.at(j), (v1/100)*2-1, amount);
-            // std::cout << test << " ";
         }
 
         for (int j=0; j < network.levels.at(i).weights.size(); j++) {
@@ -92,7 +86,6 @@ void GeneticNeuralNetwork::saveNN() {
             jsonfile["weights"][std::to_string(i)][std::to_string(j)]["lenght"] = levels.at(i).weights.at(j).size();
             for (int k=0; k < levels.at(i).weights.at(j).size(); k++) {
                 jsonfile["weights"][std::to_string(i)][std::to_string(j)][std::to_string(k)] = levels.at(i).weights.at(j).at(k);
-                // j["weights"][std::to_string(j)][k][levels.at(i).weights.at(j).at(k)];
             }
         }
         jsonfile["biases"][std::to_string(i)]["lenght"] = levels.at(i).biases.size();
@@ -102,7 +95,7 @@ void GeneticNeuralNetwork::saveNN() {
     }
 
     std::ofstream testfile;
-    testfile.open ("NN.json");
+    testfile.open ("NeuralNetworks/NN.json");
     testfile << jsonfile;
     testfile.close();
 }
