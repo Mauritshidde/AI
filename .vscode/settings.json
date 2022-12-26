@@ -72,6 +72,7 @@
         "variant": "cpp",
         "source_location": "cpp",
         "shared_mutex": "cpp",
-        "cfenv": "cpp"
+        "cfenv": "cpp",
+        "hash_map": "cpp"
     }
 }

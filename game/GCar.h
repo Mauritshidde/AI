@@ -2,9 +2,10 @@
 #include <vector>
 #include <iostream>
 #include <ostream>
+#include <time.h>
 
 #include "ray2.h"
-#include "nn.h"
+#include "nn2.h"
 
 class GCar {
     public:
@@ -30,11 +31,10 @@ class GCar {
         std::vector<double> previousState, previousState1, previousState2, previousState3, previousState4;
         std::vector<std::vector<double>> previousStates;
         std::vector<int> neuroncounts = {8, 255, 122, 16, 4};
-        GeneticNeuralNetwork network = GeneticNeuralNetwork({16, 32, 14, 8, 4});
+        GeneticNeuralNetwork network;
     private:
         GRays rays;
         void move(double deltaTime, int action);
-        void move2(double deltaTime, std::vector<double> actions, std::vector<double> offsets, GameMapE2* map, double newEpsilon);
         double friction = 20;
         double acceleration = 50;
         double speed = 0;
@@ -54,6 +54,7 @@ class GCar {
 };
 
 GCar::GCar(GameMapE2 map, double newDirection, Vector2 newPosition) {
+    network = GeneticNeuralNetwork({16, 6, 6, 6, 4});
     epsilon = 1;
     timeSinceLastPoint = 0;
     alive = true;
@@ -169,7 +170,6 @@ void GCar::move(double deltaTime, int action) {
 
     position.x -= sin(angle) * speed * deltaTime;
     position.y -= cos(angle) * speed * deltaTime;
-    speed = maxSpeed;
 }
 
 double GCar::accelerate(double dTime, bool forward) {
@@ -248,7 +248,7 @@ void GCar::update(double deltaTime, GameMapE2* map) {
             }
         }
         std::vector<double> outputs;
-        outputs = network.feedforward(offsets, network);
+        outputs = network.feedforward(offsets);
         outputsbool.clear();
 
         for (int i=0; i < 4; i++) {
@@ -257,13 +257,37 @@ void GCar::update(double deltaTime, GameMapE2* map) {
         bool test = checkPointCollision(map);
         int bestindex = 0;
 
-        for (int i=0; i < outputsbool.size(); i++) {
-            if (outputsbool.at(i) == 1) {
-                bestindex = i;
+        // int highest = 0;
+        // for (int i=0; i < outputs.size(); i++) {
+        //     if (outputs.at(i) >= outputs.at(highest)) {
+        //         highest = i;
+        //     }
+        // }
+        // std::vector<double> actions2 = neuralNetwork.feedForward(offsets);
+        // actions.clear();
+        // for (int i=0; i < actions2.size(); i++) {
+        //     if (actions2.at(i) > actions2.at(highest)) {
+        //         highest = i;
+        //     }
+        // }
+        // for (int i=0; i < actions2.size(); i++) {
+        //     if (i == highest) {
+        //         actions.push_back(1);
+        //     } else {
+        //         actions.push_back(0);
+        //     }
+        // }
+        std::vector<double> actions2 = network.feedforward(offsets);
+        int highest = 0;
+        // actions.clear();
+        for (int i=0; i < actions2.size(); i++) {
+            if (actions2.at(i) > actions2.at(highest)) {
+                highest = i;
             }
         }
 
-        move(deltaTime, bestindex);
+        move(deltaTime, highest);
+        rays.update(&position.x, &position.y, direction ,map);
 
         createPolygon();
         if(checkCollision(map)) {

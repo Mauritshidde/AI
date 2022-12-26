@@ -11,6 +11,7 @@ class NNLevel {
         NNLevel(int inputCount, int outpuCount);
         std::vector<double> FeedForward(std::vector<double> neuralNetworkInputValues);
         double sigmoid(double x);
+        double relu(double x);
         std::vector<std::vector<double>> weights;
         std::vector<double> biases;
         std::vector<double> levelNeuronOutputValue, networkNetValues;
@@ -53,7 +54,7 @@ std::vector<double> NNLevel::FeedForward(std::vector<double> neuralNetworkInputV
             neuronValue += weights.at(i).at(j) * neuralNetworkInputValues.at(j);
         }
         networkNetValues.push_back(neuronValue - biases.at(i));
-        neuronValueSigmoid = sigmoid(neuronValue - biases.at(i));
+        neuronValueSigmoid = relu(neuronValue - biases.at(i));
         levelNeuronOutputValue.push_back(neuronValueSigmoid);
     }
     return levelNeuronOutputValue;
@@ -65,6 +66,15 @@ double NNLevel::sigmoid(double x) {
     return value;
 }
 
+double NNLevel::relu(double x) {
+    if (x > 0) {
+        return x;
+    } else {
+        // return 0.001*x;
+        return 0;
+    }
+}
+
 class NeuralNetwork {
     public:
         NeuralNetwork(std::vector<int> neuralNetworkLevels);
@@ -73,6 +83,7 @@ class NeuralNetwork {
         std::vector<double> propagate(std::vector<double>* inputs, std::vector<double>* outputValues, std::vector<double>* targets, NNLevel* level, double* learningRate);
         std::vector<double> propagate2(std::vector<double>* inputs, std::vector<double>* outputValues, std::vector<double>* targets, NNLevel* level, double* learningRate);
         void backPropogation(std::vector<double>* newTargets, std::vector<double>* input);
+        double derivativeRelu(double x);
         void saveNeuralNetwork();
         void loadNeuralNetwork(nlohmann::json networkData);
         std::vector<NNLevel> levels;
@@ -106,7 +117,7 @@ std::vector<double> NeuralNetwork::feedForward(std::vector<double> networkInputV
 void NeuralNetwork::GradientError(std::vector<double> target) {
     errorSum = 0;
     for (int i=0; i < networkOutput.size(); i++) {
-        double error = 0.5 * (target.at(i) - networkOutput.at(i));
+        double error = 0.5 * pow((target.at(i) - networkOutput.at(i)), 2);
         networkError.push_back(error);
         errorSum += error;
     }
@@ -119,6 +130,15 @@ double derivativeSigmoid(double Zj) {
     sigmoidDerivative = sigmoid1 * sigmoid2;
     return sigmoidDerivative;
 }
+
+double NeuralNetwork::derivativeRelu(double x) {
+    if (x > 0) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
 
 std::vector<double> NeuralNetwork::propagate(std::vector<double>* inputs, std::vector<double>* outputValues, std::vector<double>* targets, NNLevel* level, double* learningRate) {
     std::vector<std::vector<double>> newWeightValues;
@@ -175,7 +195,7 @@ std::vector<double> NeuralNetwork::propagate(std::vector<double>* inputs, std::v
 
     std::vector<double> biasGradients;
     for (int i=0; i < outputValues->size(); i++) {
-        double dATOdZ = derivativeSigmoid(Zj.at(i)); // derivative A / derivative Z
+        double dATOdZ = derivativeRelu(Zj.at(i)); // derivative A / derivative Z
         double Aj = (level->levelNeuronOutputValue.at(i) - targets->at(i));
 
         double costOverWeightRatio = 1 * Aj * dATOdZ;
@@ -228,7 +248,7 @@ std::vector<double> NeuralNetwork::propagate(std::vector<double>* inputs, std::v
         double derivative;
         for (int j=0; j < outputValues->size(); j++) {
             double w = level->weights.at(j).at(i);
-            double a  = derivativeSigmoid(Zj.at(j));
+            double a  = derivativeRelu(Zj.at(j));
             double Co = (outputValues->at(j) - targets->at(j));
             double v = w * a * Co;
             derivative += v;
@@ -288,7 +308,7 @@ std::vector<double> NeuralNetwork::propagate2(std::vector<double>* inputs, std::
     for (int i=0; i < outputValues->size(); i++) {
         // std::cout << targets.size() << " t " << outputValues.size() << std::endl;
         double Aj = targets->at(i);
-        double dATOdZ = derivativeSigmoid(Zj.at(i)); // derivative A / derivative Z
+        double dATOdZ = derivativeRelu(Zj.at(i)); // derivative A / derivative Z
 
         std::vector<double> weightGradient;
         for (int j=0; j < level->weights.at(i).size(); j++) {
@@ -304,7 +324,7 @@ std::vector<double> NeuralNetwork::propagate2(std::vector<double>* inputs, std::
     newWeightsUpdate.insert(newWeightsUpdate.begin(), weightGradients);
     std::vector<double> biasGradients;
     for (int i=0; i < outputValues->size(); i++) {
-        double dATOdZ = derivativeSigmoid(Zj.at(i)); // derivative A / derivative Z
+        double dATOdZ = derivativeRelu(Zj.at(i)); // derivative A / derivative Z
         // double Aj = 2 * (level->levelNeuronOutputValue.at(i) - targets.at(i));
         double Aj = targets->at(i);
 
@@ -335,7 +355,7 @@ std::vector<double> NeuralNetwork::propagate2(std::vector<double>* inputs, std::
         double derivative;
         for (int j=0; j < outputValues->size(); j++) {
             double w = level->weights.at(j).at(i);
-            double a  = derivativeSigmoid(Zj.at(j));
+            double a  = derivativeRelu(Zj.at(j));
             double Co = targets->at(j);
             double v = w * a * Co;
             derivative += v;
@@ -396,7 +416,7 @@ void NeuralNetwork::backPropogation(std::vector<double>* newTargets, std::vector
         targets.push_back(newTargets->at(i));
     }
     feedForward(*input);
-    double learningRate = 0.0001;
+    double learningRate = 0.01;
     for (int i=levels.size()-1; -1 < i; i--) { // loop backwards trough te levels for backpropagation
         // std::cout << targets.at(0) << " in" << std::endl;
         // if (i == 0) {
@@ -542,29 +562,3 @@ void NeuralNetwork::loadNeuralNetwork(nlohmann::json networkData) {
         }
     }
 }
-
-// int main() {
-//     // srand(time(NULL));
-//     NeuralNetwork nn({4, 9, 4});
-//     std::vector<double> input = {1, 0.6, 0.5, 0.1};
-
-//     nn.feedForward(input);
-//     for (int j=0; j < nn.networkOutput.size(); j++) {
-//         std::cout << nn.networkOutput.at(j) << " ";
-//     }
-//     std::cout << std::endl;
-//     for (int i=0; i < 1000000; i++) {
-//         nn.feedForward(input);
-//         nn.backPropogation({1, 0, 0, 0.5}, input);
-//         // std::cout << nn.levels.at(0).weights.at(0).at(0) << std::endl;
-//     }
-//     for (int j=0; j < nn.networkOutput.size(); j++) {
-//         std::cout << nn.networkOutput.at(j) << " ";
-//     }
-//     std::cout << std::endl;
-
-
-
-
-//     return 0;
-// }
