@@ -77,14 +77,6 @@ void Start() {
     map->setMap(data);
     
     SetCar(data, epsilon);
-    // std::vector<double> *t = new std::vector<double>({0, 1, 0, 0});
-    // std::vector<double> *t2 = new std::vector<double>({0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5});
-
-    // for (int i=0; i < 1000; i++) {
-    //     car->neuralNetwork.backPropogation(t, t2);
-
-    // }
-    
 }
 
 void Update(double deltaTime) {
@@ -102,7 +94,6 @@ void Update(double deltaTime) {
     }
     
     car->update(1.0f/60.0f, map);
-
 }   
 
 int trainAI() {

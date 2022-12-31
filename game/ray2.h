@@ -3,18 +3,12 @@
 #include <vector>
 #include <iostream>
 
-// #include "GameMap.h"
-// #include "utils.h"
-
-// GameMapE2 map2;
-
 class GRays {
     public:
         GRays();
         ~GRays();
         void update(float *x, float *y, double newAngle, GameMapE2* map);
         void draw();
-        // std::vector<Vector2> returnMap() { GameMapE2 map; return map.wallVectorVec;};
         double lerp(double A, double B, double t);
         Vector4 getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D);
         void setWallVec();
@@ -26,7 +20,6 @@ class GRays {
         void castRays();
 
         Vector2 position;
-        // GameMapE2* map;
         std::vector<Vector2> eindRay, wallVector, outerWallvector; 
         Vector2 startRay;
         Vector3 hitCoordVec;
@@ -44,13 +37,11 @@ GRays::GRays() {
 }
 
 GRays::~GRays() {
-    // map = NULL;
-    // delete map;
+
 }
 
 void GRays::SetSpawn(Vector2* ps) {
     position = *ps;
-    // ps = NULL;
     delete ps;
     ps = NULL;
 }
@@ -62,9 +53,7 @@ double GRays::lerp(double A, double B, double t) {
 }
 
 void GRays::setWallVec() {
-    // map = m;
-    // m = NULL;
-    // delete m;
+
 }
 
 Vector4 GRays::getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
@@ -72,7 +61,6 @@ Vector4 GRays::getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
     double uTop = (C.y-A.y) * (A.x-B.x) - (C.x-A.x) * (A.y-B.y);
     double bottom = (D.y-C.y) * (B.x-A.x) - (D.x-C.x) * (B.y-A.y);
     double retVal[3];
-    // std::cout << bottom << " " << t;
     Vector4 test;
     test.x = 0;
     test.y = 0;
@@ -82,15 +70,10 @@ Vector4 GRays::getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
         double t = tTop/bottom;
         double u = uTop/bottom;
         if (t >= 0 && t <= 1 && u >= 0 && u <= 1) {
-            // retVal[0] = lerp(A.x, B.x, t);
-            // retVal[1] = lerp(A.y, B.y, t);
-            // retVal[2] = t;
             test.x = lerp(A.x, B.x, t);
             test.y = lerp(A.y, B.y, t);
             test.z = t;
             test.w = 5;
-            // std::cout << std::endl << "test  " << retVal[2] << std::endl;
-            // std::cout << lerp(A.x, B.x, t) << std::endl;
             return test;
         }
     }
@@ -102,22 +85,16 @@ Vector4 GRays::getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
 bool GRays::calcRayHits(int endRayLoc, GameMapE2* map) {
     std::vector<Vector3> touches;
     Vector2 endRay = eindRay.at(endRayLoc);
-    // Vector2 test[6];
-    // test = map.returnWalls();
-    // std::cout << map.wallVector;
     for (int i=0; i < map->arraySize; i++) {
-        // std::cout << endRay.x << "  " << endRay.y << std::endl;
         Vector4 test;
         if (i < map->arraySize-1) {
             test = getIntersection(startRay, endRay, map->wallVectorVec[i], map->wallVectorVec[i+1]);
-            // std::cout  << test.x << " " << test.y << " " << test.z << std::endl;
         } else {
             test = getIntersection(startRay, endRay, map->wallVectorVec[i], map->wallVectorVec[0]);
         }
 
         if (test.w == 5) {
             Vector3 valueVec;
-            // std::cout << valueVec.z << " ";
             valueVec.x = test.x;
             valueVec.y = test.y;
             valueVec.z = test.z;
@@ -156,8 +133,6 @@ bool GRays::calcRayHits(int endRayLoc, GameMapE2* map) {
         return true;
     }
 
-    // map = NULL;
-    // delete map;
     return false;
 }
 
@@ -169,17 +144,8 @@ void GRays::draw() {
             DrawLineV(start, eind, WHITE);
         } else {
             Vector2 eind = {hitCoordVec3.at(i).x, hitCoordVec3.at(i).y};
-            // if (eind.x == 0) {
-
-            // } else {
-
-            // }
             DrawLineV(start, eind, RED);
-            // std::cout << hitCoordVec3.at(i).z << std::endl;
         }
-        // Vector2 eind = {eindRay.at(i).x, eindRay.at(i).y};
-        // DrawLineV(start, eind, WHITE);
-
     }
 }
 
@@ -202,13 +168,6 @@ void GRays::update(float* x, float* y, double newAngle, GameMapE2* map) {
             
         }
     }
-    // x = NULL;
-    // y = NULL;
-    // map = NULL;
-    // delete x;
-    // delete y;
-    // delete map;
-
 }
 
 void GRays::castRays() {
