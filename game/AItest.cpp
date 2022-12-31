@@ -3,7 +3,7 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 
-#include "nnLevel2.h"
+#include "networkcode/nnLevel2.h"
 
 int main() {
     srand(time(NULL));
@@ -15,7 +15,7 @@ int main() {
     }
     std::cout << std::endl;
     
-    for (int i=0; i < 1000000; i++) {
+    for (int i=0; i < 10000; i++) {
         std::vector<double> m = {0, 1, 0, 0};
         std::vector<double> n = {1, 0.5,1, 0.5,1, 0.5,1, 0.1};
         std::vector<double>* mn = new std::vector<double>(m);

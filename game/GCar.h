@@ -3,9 +3,10 @@
 #include <iostream>
 #include <ostream>
 #include <time.h>
+#include <cstdlib>
 
 #include "ray2.h"
-#include "nn2.h"
+#include "networkcode/nn2.h"
 
 class GCar {
     public:
@@ -120,7 +121,11 @@ void GCar::createPolygon() {
 
 void GCar::draw(bool best) {
     Rectangle rectangle = {position.x, position.y, size.x, size.y};
-    DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, WHITE);  
+    if (alive) {
+        DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, WHITE);  
+    } else {
+        DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, RED);
+    }
     rays.draw();
 }
 
@@ -199,12 +204,12 @@ bool GCar::polyIntersect(std::vector<Vector2> poly1, std::vector<Vector2> poly2)
 }
 
 bool GCar::checkCollision(GameMapE2* map) {
-    for (int i=0; i < map->wallVectorVec.size(); i++) {
-        Vector4 test = rays.getIntersection(previousPosition, position, map->wallVectorVec[i], map->wallVectorVec[0]);
-        if (test.w == 5) {
-            return true;
-        }
-    }
+    // for (int i=0; i < map->wallVectorVec.size(); i++) {
+    //     Vector4 test = rays.getIntersection(previousPosition, position, map->wallVectorVec[i], map->wallVectorVec[0]);
+    //     if (test.w == 5) {
+    //         return true;
+    //     }
+    // }
 
     for (int i=0; i < map->wallVectorVec.size(); i++) {
         if (polyIntersect(polygon, {map->wallVectorVec.at(i), map->wallVectorVec.at((i+1)%map->wallVectorVec.size())})) {
@@ -256,6 +261,15 @@ void GCar::update(double deltaTime, GameMapE2* map) {
         }
         bool test = checkPointCollision(map);
         int bestindex = 0;
+        if (checkPointCollision(map)) {
+            collectedPoints++;
+            currentPoints++;
+            timeSinceLastPoint = 0;
+        }
+        timeSinceLastPoint += deltaTime;
+        if (timeSinceLastPoint > 20) {
+            alive = false;
+        }
 
         // int highest = 0;
         // for (int i=0; i < outputs.size(); i++) {

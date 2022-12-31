@@ -7,7 +7,7 @@
 // #include "Qlearning.h"
 // #include "DeepQLearning.h"
 // #include "Qnn.h"
-#include "nnLevel2.h"
+#include "networkcode/nnLevel2.h"
 
 class Car {
     public:
@@ -433,12 +433,12 @@ void Car::move2(double deltaTime, std::vector<double> actions, std::vector<doubl
     if (actions.at(0) == 1) {
         angle -= 3 * deltaTime;
         direction += (3 * (180/M_PI)) * deltaTime;
-        d = 0;
+        d = 1;
     }
     if (actions.at(1) == 1) {
         angle += 3 * deltaTime;
         direction -= (3 * (180/M_PI)) * deltaTime;
-        a = 0;
+        a = 1;
     }
     
     target.push_back(d);
@@ -521,26 +521,29 @@ bool Car::checkCollision(GameMapE* map) {
     // if (rays.getIntersection(previousPosition, position)) {
     //     return true;
     // }
-    for (int i=0; i < map->wallVectorVec.size(); i++) {
-        // std::cout << wallVec.at(0).x;
+    // for (int i=0; i < map->wallVectorVec.size(); i++) {
+    //     // std::cout << wallVec.at(0).x;
 
-        Vector4 test = rays.getIntersection(previousPosition, position, map->wallVectorVec[i], map->wallVectorVec[0]);
-        if (test.w == 5) {
-            return true;
-        }
+    //     Vector4 test = rays.getIntersection(previousPosition, position, map->wallVectorVec[i], map->wallVectorVec[0]);
+    //     if (test.w == 5) {
+    //         std::cout << "ja" << std::endl;
+    //         return true;
+    //     }
 
-    }
+    // }
 
     for (int i=0; i < map->wallVectorVec.size(); i++) {
         // std::cout << wallVec.at(0).x;
 
         if (polyIntersect(polygon, {map->wallVectorVec.at(i), map->wallVectorVec.at((i+1)%map->wallVectorVec.size())})) {
+            std::cout << "ja2" << std::endl;
             return true;
         }
     }
     for (int i=0; i < map->outerWall.size(); i++) {
         // std::cout << wallVec.at(0).x;
         if (polyIntersect(polygon, {map->outerWall.at(i), map->outerWall.at((i+1)%map->outerWall.size())})) {
+            std::cout << "ja3" << std::endl;
             return true;
         }
     }
@@ -635,10 +638,10 @@ void Car::update(double deltaTime, GameMapE* map) {
         std::vector<double> actions = neuralNetwork.feedForward(offsets);
         // neuralNetwork.backPropogation({-1, 0.3, 1, -1}, offsets);
         
-        // for (int i=0; i < actions.size(); i++) {
-        //     std::cout << actions.at(i) << " ";
-        // }
-        // std::cout << "\n";
+        for (int i=0; i < actions.size(); i++) {
+            std::cout << actions.at(i) << " ";
+        }
+        std::cout << "\n";
         move2(deltaTime, actions, offsets, map, epsilon);
         previousState4 = previousState3;
         previousState3 = previousState2;

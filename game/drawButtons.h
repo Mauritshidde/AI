@@ -2,9 +2,9 @@
 #include <raylib.h>
 #include <string>
 
-class GeneticButton {
+class DrawButton {
     public:
-        GeneticButton(std::vector<Vector2> newCorners, char const newMenuBoxText[], int newTextSize);
+        DrawButton(std::vector<Vector2> newCorners, char const newMenuBoxText[], int newTextSize);
         bool checkCollisionButton(Vector2 coordM);
         void Draw();
         std::vector<Vector2> corners;
@@ -13,13 +13,13 @@ class GeneticButton {
 
 };
 
-GeneticButton::GeneticButton(std::vector<Vector2> newCorners, char const newMenuBoxText[], int newTextSize) {
+DrawButton::DrawButton(std::vector<Vector2> newCorners, char const newMenuBoxText[], int newTextSize) {
     corners = newCorners;
     menuBoxText = newMenuBoxText;
     textSize = newTextSize;
 }
 
-bool GeneticButton::checkCollisionButton(Vector2 coordM) {
+bool DrawButton::checkCollisionButton(Vector2 coordM) {
     Vector2 AM = {coordM.x-corners.at(0).x, coordM.y-corners.at(0).y};
     Vector2 AB = {corners.at(1).x-corners.at(0).x, corners.at(1).y-corners.at(0).y};
     Vector2 AD = {corners.at(3).x-corners.at(0).x, corners.at(3).y-corners.at(0).y};
@@ -37,7 +37,7 @@ bool GeneticButton::checkCollisionButton(Vector2 coordM) {
     return false;
 }
 
-void GeneticButton::Draw() {
+void DrawButton::Draw() {
     for (int i=0; i < corners.size(); i++) {
         if (i == corners.size()-1) {
             DrawLineV(corners.at(i), corners.at(0), WHITE);
@@ -48,28 +48,26 @@ void GeneticButton::Draw() {
     DrawText(TextFormat(menuBoxText), corners.at(0).x + textSize, (corners.at(0).y+corners.at(3).y)/2-textSize, textSize, WHITE);
 }
 
-
-
-class GeneticMenu {
+class DrawMenu {
     public:
-        GeneticMenu(std::vector<Vector2> newMenuCorners = {{0,0}});
+        DrawMenu(std::vector<Vector2> newMenuCorners = {{0,0}});
         void addButton(std::vector<Vector2> newCorners, char const newMenuBoxText[], int newTextSize);
         void Draw();
 
-        std::vector<GeneticButton> buttons;
+        std::vector<DrawButton> buttons;
         std::vector<Vector2> menuCorners;
 };
 
-GeneticMenu::GeneticMenu(std::vector<Vector2> newMenuCorners) {
+DrawMenu::DrawMenu(std::vector<Vector2> newMenuCorners) {
     menuCorners =  newMenuCorners;
 }
 
-void GeneticMenu::addButton(std::vector<Vector2> corners, char const boxText[], int textSize) {
-    GeneticButton newButton = GeneticButton(corners, boxText, textSize);
+void DrawMenu::addButton(std::vector<Vector2> corners, char const boxText[], int textSize) {
+    DrawButton newButton = DrawButton(corners, boxText, textSize);
     buttons.push_back(newButton);
 }
 
-void GeneticMenu::Draw() {
+void DrawMenu::Draw() {
     for (int i=0; i < menuCorners.size(); i++) {
         if (i == menuCorners.size()-1) {
             DrawLineV(menuCorners.at(i), menuCorners.at(0), WHITE);

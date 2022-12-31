@@ -17,7 +17,7 @@ std::vector<Car> cars;
 
 bool server = false;
 std::vector<double> previousMove;
-float epsilon = 0;
+float epsilon = 1;
 int generation = 0;
 GameMapE* map = new GameMapE();
 Car* car = new Car(map, 3, {200, 200});
@@ -77,6 +77,13 @@ void Start() {
     map->setMap(data);
     
     SetCar(data, epsilon);
+    // std::vector<double> *t = new std::vector<double>({0, 1, 0, 0});
+    // std::vector<double> *t2 = new std::vector<double>({0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5});
+
+    // for (int i=0; i < 1000; i++) {
+    //     car->neuralNetwork.backPropogation(t, t2);
+
+    // }
     
 }
 

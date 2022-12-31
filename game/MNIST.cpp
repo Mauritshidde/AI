@@ -3,7 +3,7 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 
-#include "nnLevel2.h"
+#include "networkcode/nnLevel2.h"
 
 int correct, notcorrect;
 

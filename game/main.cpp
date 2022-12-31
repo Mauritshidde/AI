@@ -80,7 +80,8 @@ int main() {
     CloseWindow();
     
     if (choice == 0) {
-        drawMap();
+        Drawer draw;
+        draw.run();
     } else if (choice == 1) {
         trainAI();
     } else if (choice == 2) {

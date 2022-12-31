@@ -6,29 +6,48 @@
 #include <fstream>
 #include <string>
 
+#include "drawButtons.h"
 
-const int screenWidthDraw = 1980;
-const int screenHeightDraw = 1024;
-double rotation = 0;
-
-bool inner, outer, spawn, point, selectpoint;
-
-std::vector<bool> pointcolor;
-std::vector<Vector2> innerMap, outerMap, points2;
-std::vector<std::vector<Vector2>> points;
-Vector2 spawnLocation, angle;
-std::vector<Vector2> spawnLocations;
-std::vector<double> rotations;
-std::vector<int> firstCheckPoints;
-
-class CheckPoints {
+class Drawer {
     public:
-        CheckPoints();
-        void addCheckPoint();
+        Drawer();
+        bool clickOnLine(Vector2 location, int i);
+        void saveMap();
+        void Render();
+        void Start();
+        void Update(double deltaTime);
+        void run();
 
+    const int screenWidth = 1980;
+    const int screenHeight = 1024;
+    double rotation = 0;
+
+    bool inner, outer, spawn, point, selectpoint;
+
+    std::vector<bool> pointcolor;
+    std::vector<Vector2> innerMap, outerMap, points2;
+    std::vector<std::vector<Vector2>> points;
+    Vector2 spawnLocation, angle;
+    std::vector<Vector2> spawnLocations;
+    std::vector<double> rotations;
+    std::vector<int> firstCheckPoints;
+
+    DrawMenu menu;
 };
 
-bool clickOnLine(Vector2 location, int i) {
+Drawer::Drawer() {
+    float screenWidthf, screenHeightf;
+    screenWidthf = float(screenWidth);
+    screenHeightf = float(screenHeight);
+    menu = DrawMenu({{screenWidthf-200, 0}, {screenWidthf, 0}, {screenWidthf, screenHeightf}, {screenWidthf-200, screenHeightf}});
+    // menu = DrawMenu({{0, screenHeightf-150}, {screenWidthf, screenHeightf-150}, {screenWidthf, screenHeightf}, {0, screenHeightf}});
+    // menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 220}, {screenWidthf-180, 220}}}, "space = save", 10);
+    menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 80}, {screenWidthf-180, 80}}}, "save map", 15);
+    menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 80}, {screenWidthf-180, 80}}}, "place checkpoints", 10);
+    menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 80}, {screenWidthf-180, 80}}}, "save map", 15);
+}
+
+bool Drawer::clickOnLine(Vector2 location, int i) {
     Vector2 startCoords = points.at(i).at(0);
     Vector2 endCoords = points.at(i).at(1);
     double factor = ((endCoords.y - startCoords.y)/(endCoords.x - startCoords.x));
@@ -71,7 +90,7 @@ bool clickOnLine(Vector2 location, int i) {
     return false;
 }
 
-void saveMap() {
+void Drawer::saveMap() {
     nlohmann::json j;
     j["inner"]["lenght"] = innerMap.size();
     j["outer"]["lenght"] = outerMap.size();
@@ -102,16 +121,88 @@ void saveMap() {
         j["direction"][std::to_string(i)] = rotations.at(i);
     }
 
-
     std::ofstream testfile;
     testfile.open ("maps/example.json");
     testfile << j;
     testfile.close();
 }
 
-void RenderDraw() {
+void Drawer::Render() {
     const Color backgroundColor = BLACK;
+
+    DrawCircle(spawnLocation.x, spawnLocation.y, 4, RED);
+    Rectangle rectangle = {spawnLocation.x, spawnLocation.y, 10, 20};
+    DrawRectanglePro(rectangle, {5, 10}, rotation, WHITE);  
+
+    BeginDrawing();
+    ClearBackground(backgroundColor);
+    for (int i=0; i < spawnLocations.size(); i++) {
+        DrawCircle(spawnLocations.at(i).x, spawnLocations.at(i).y, 4, RED);
+        Rectangle rectangle = {spawnLocations.at(i).x, spawnLocations.at(i).y, 10, 20};
+        DrawRectanglePro(rectangle, {5, 10}, rotations.at(i), WHITE);  
+    }
     
+    if ( innerMap.size() == 1) {
+
+    } else if (innerMap.size() == 2) {
+        DrawLineV(innerMap.at(0), innerMap.at(1), RED);
+    } else {
+        for (int i=0; i < innerMap.size(); i++) {
+            if (i == innerMap.size()-1) {
+                DrawLineV(innerMap.at(i), innerMap.at(0), RED);
+            } else {
+                DrawLineV(innerMap.at(i), innerMap.at(i+1), RED);
+            }
+        }
+    }
+
+    if ( outerMap.size() == 1) {
+
+    } else if (outerMap.size() == 2) {
+        DrawLineV(outerMap.at(0), outerMap.at(1), RED);
+    } else {
+        for (int i=0; i < outerMap.size(); i++) {
+            if (i == outerMap.size()-1) {
+                DrawLineV(outerMap.at(i), outerMap.at(0), RED);
+            } else {
+                DrawLineV(outerMap.at(i), outerMap.at(i+1), RED);
+            }
+        }
+    }
+
+    if ( points.size() == 0) {
+
+    } else {
+        for (int i=0; i < points.size(); i++) {
+            if (pointcolor.at(i)) {
+                DrawLineV(points.at(i).at(0), points.at(i).at(1), BLUE);
+            } else {
+                DrawLineV(points.at(i).at(0), points.at(i).at(1), YELLOW);
+            }
+            for (int j=0; j < firstCheckPoints.size(); j++) {
+                if (firstCheckPoints.at(j) == i) {
+                    DrawLineV(points.at(i).at(0), points.at(i).at(1), ORANGE);
+                }
+            }
+            if (pointcolor.at(i)) {
+                DrawLineV(points.at(i).at(0), points.at(i).at(1), BLUE);
+            }
+
+        }
+    }
+
+    menu.Draw();
+
+    DrawFPS(10,10);
+    EndDrawing();
+}
+
+void Drawer::Start() {
+    inner = true;
+    outer = false;
+}
+
+void Drawer::Update(double deltaTime) {
     if (IsKeyDown(KEY_O)) {
         inner = true;
         outer = false;
@@ -212,95 +303,21 @@ void RenderDraw() {
         }
     }
 
-    DrawCircle(spawnLocation.x, spawnLocation.y, 4, RED);
-    Rectangle rectangle = {spawnLocation.x, spawnLocation.y, 10, 20};
-    DrawRectanglePro(rectangle, {5, 10}, rotation, WHITE);  
-
-    BeginDrawing();
-    ClearBackground(backgroundColor);
-    for (int i=0; i < spawnLocations.size(); i++) {
-        DrawCircle(spawnLocations.at(i).x, spawnLocations.at(i).y, 4, RED);
-        Rectangle rectangle = {spawnLocations.at(i).x, spawnLocations.at(i).y, 10, 20};
-        DrawRectanglePro(rectangle, {5, 10}, rotations.at(i), WHITE);  
-    }
-    
-    if ( innerMap.size() == 1) {
-
-    } else if (innerMap.size() == 2) {
-        DrawLineV(innerMap.at(0), innerMap.at(1), RED);
-    } else {
-        for (int i=0; i < innerMap.size(); i++) {
-            if (i == innerMap.size()-1) {
-                DrawLineV(innerMap.at(i), innerMap.at(0), RED);
-            } else {
-                DrawLineV(innerMap.at(i), innerMap.at(i+1), RED);
-            }
-        }
-    }
-
-    if ( outerMap.size() == 1) {
-
-    } else if (outerMap.size() == 2) {
-        DrawLineV(outerMap.at(0), outerMap.at(1), RED);
-    } else {
-        for (int i=0; i < outerMap.size(); i++) {
-            if (i == outerMap.size()-1) {
-                DrawLineV(outerMap.at(i), outerMap.at(0), RED);
-            } else {
-                DrawLineV(outerMap.at(i), outerMap.at(i+1), RED);
-            }
-        }
-    }
-
-    if ( points.size() == 0) {
-
-    } else {
-        for (int i=0; i < points.size(); i++) {
-            if (pointcolor.at(i)) {
-                DrawLineV(points.at(i).at(0), points.at(i).at(1), BLUE);
-            } else {
-                DrawLineV(points.at(i).at(0), points.at(i).at(1), YELLOW);
-            }
-            for (int j=0; j < firstCheckPoints.size(); j++) {
-                if (firstCheckPoints.at(j) == i) {
-                    DrawLineV(points.at(i).at(0), points.at(i).at(1), ORANGE);
-                }
-            }
-            if (pointcolor.at(i)) {
-                DrawLineV(points.at(i).at(0), points.at(i).at(1), BLUE);
-            }
-
-        }
-    }
-
     if (IsKeyDown(KEY_ENTER)) {
         saveMap();
     }
-
-    DrawFPS(10,10);
-    EndDrawing();
-}
-
-void StartDraw() {
-    inner = true;
-    outer = false;
-}
-
-void UpdateDraw(double deltaTime) {
-
 }   
 
-int drawMap() {
-    InitWindow(screenWidthDraw, screenHeightDraw, "car");
+void Drawer::run() {
+    InitWindow(screenWidth, screenHeight, "car");
     SetWindowState(FLAG_VSYNC_HINT);
 
-    StartDraw();
+    Start();
     while (!WindowShouldClose()){
         double deltaTime = GetFrameTime();
-        UpdateDraw(deltaTime);
-        RenderDraw();
+        Update(deltaTime);
+        Render();
     }
 
     CloseWindow();
-    return 0;
 }

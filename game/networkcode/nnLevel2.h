@@ -5,6 +5,7 @@
 #include <time.h>
 #include <algorithm>
 #include <iostream>
+#include <cstdlib>
 
 class NNLevel {
     public:
@@ -29,6 +30,7 @@ NNLevel::NNLevel(int inputCount, int outpuCount) {
             double randval = rand() % 100;
             double randomdouble = randval/100;
             int negativeOrPositive = rand() % 2;
+            // int negativeOrPositive = 0;
             if (negativeOrPositive == 0){
                 neuronWeights.push_back(randomdouble);
             } else {
@@ -175,7 +177,7 @@ std::vector<double> NeuralNetwork::propagate(std::vector<double>* inputs, std::v
 
     std::vector<std::vector<double>> weightGradients;
     for (int i=0; i < outputValues->size(); i++) {
-        double dATOdZ = derivativeSigmoid(Zj.at(i)); // derivative A / derivative Z
+        double dATOdZ = derivativeRelu(Zj.at(i)); // derivative A / derivative Z
 
         std::vector<double> weightGradient;
         for (int j=0; j < level->weights.at(i).size(); j++) {

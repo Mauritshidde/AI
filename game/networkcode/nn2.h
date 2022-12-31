@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <cstdlib>
 
 double lerp(double A, double B, double t) {
     double value = A + (B-A) *t;
@@ -18,6 +19,7 @@ class GNNLevel {
         std::vector<double> FeedForward(std::vector<double> neuralNetworkInputValues);
         double sigmoid(double x);
         double relu(double x);
+        void randomize();
         std::vector<std::vector<double>> weights;
         std::vector<double> biases;
         std::vector<double> levelNeuronOutputValue, networkNetValues;
@@ -32,8 +34,8 @@ GNNLevel::GNNLevel(int inputCount, int outpuCount) {
     for (int i=0; i < outpuCount; i++) {
         std::vector<double> neuronWeights;
         for (int j=0; j < inputCount; j++) {
-            double randval = rand() % 100;
-            double randomdouble = randval/100;
+            double randval = rand() % 100000;
+            double randomdouble = randval/100000;
             int negativeOrPositive = rand() % 2;
             if (negativeOrPositive == 0){
                 neuronWeights.push_back(randomdouble);
@@ -43,8 +45,8 @@ GNNLevel::GNNLevel(int inputCount, int outpuCount) {
             }
         }
         weights.push_back(neuronWeights);
-        double randval = rand() % 100;
-        double randomdouble = randval/100;
+        double randval = rand() % 100000;
+        double randomdouble = randval/100000;
         biases.push_back(0.7);
     }
 }
@@ -78,6 +80,22 @@ double GNNLevel::relu(double x) {
     }
 }
 
+
+void GNNLevel::randomize() {
+    for (int i=0; i < weights.size(); i++) {
+        for (int j=0; j < weights.at(i).size(); j++) {
+            double v1 = rand() % 100; 
+            double v2 = (v1/100)*2-1;
+            weights.at(i).at(j) = v2;
+        }
+    }
+
+    for (int i=0; i < biases.size(); i++) {
+        double v1 = rand() % 100; 
+        double v2 = (v1/100)*2-1;        
+        biases.at(i) = v2;
+    }
+}
 class GeneticNeuralNetwork {
     public:
         GeneticNeuralNetwork(std::vector<int> neuralNetworkLevels = {8, 6, 6, 6, 4});
@@ -85,6 +103,7 @@ class GeneticNeuralNetwork {
         void saveNeuralNetwork();
         void loadNeuralNetwork(nlohmann::json networkData);
         void mutate(nlohmann::json networkData, double mutationRate);
+        void randomize();
         std::vector<GNNLevel> levels;
         std::vector<double> networkOutput;
         std::vector<double> networkError;
@@ -179,5 +198,11 @@ void GeneticNeuralNetwork::mutate(nlohmann::json networkData, double mutationRat
             double v1 = rand() % 1000000000;
             levels.at(i).biases.at(j) = lerp(networkData["biases"][std::to_string(i)][std::to_string(j)].get<double>(), (v1/1000000000)*2-1, mutationRate);
         }
+    }
+}
+
+void GeneticNeuralNetwork::randomize() {
+    for (int i=0; i < levels.size(); i++) {
+        levels.at(i).randomize();
     }
 }
