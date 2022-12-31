@@ -42,6 +42,7 @@ class Car {
         Rays rays;
         void move(double deltaTime, int action);
         void move2(double deltaTime, std::vector<double> actions, std::vector<double> offsets, GameMapE* map, double newEpsilon);
+        std::vector<double> move3(double deltaTime, std::vector<double> actions, std::vector<double> offsets, GameMapE* map, double newEpsilon);
         double friction = 20;
         double acceleration = 50;
         double speed = 0;
@@ -491,6 +492,105 @@ void Car::move2(double deltaTime, std::vector<double> actions, std::vector<doubl
     // }
 }
 
+std::vector<double> Car::move3(double deltaTime, std::vector<double> actions, std::vector<double> offsets, GameMapE* map, double epsilon) {
+    double random = rand() % 100;
+    random = random/100;
+
+    if (random <= epsilon) {
+        int randval = rand() % 13;
+        switch (randval) {
+            case 0:
+                actions = getAction(0,0,0,0);
+                break;
+            case 1:
+                actions = getAction(1,0,0,0);
+                break;
+            case 2:
+                actions = getAction(0,1,0,0);
+                break;
+            case 3:
+                actions = getAction(0,0,1,0);
+                break;
+            case 4:
+                actions = getAction(0,0,0,1);
+                break;
+            case 5:
+                actions = getAction(0,0,1,0);
+                break;
+            case 6:
+                actions = getAction(0,0,0,1);
+                break;
+            case 7:
+                actions = getAction(0,0,1,0);
+                break;
+            case 8:
+                actions = getAction(0,0,0,1);
+                break;
+            case 9:
+                actions = getAction(0,0,1,0);
+                break;
+            case 10:
+                actions = getAction(0,0,1,0);
+                break;
+            case 11:
+                actions = getAction(0,0,1,0);
+                break;
+            case 12:
+                actions = getAction(0,0,1,0);
+                break;
+        }
+    } else {
+        std::vector<double> actions2 = neuralNetwork.feedForward(offsets);
+        int highest = 0;
+        actions.clear();
+        for (int i=0; i < actions2.size(); i++) {
+            if (actions2.at(i) > actions2.at(highest)) {
+                highest = i;
+            }
+        }
+        for (int i=0; i < actions2.size(); i++) {
+            if (i == highest) {
+                actions.push_back(1);
+            } else {
+                actions.push_back(0);
+            }
+        }
+    }
+
+    if (actions.at(2) == 1) {
+        speed += acceleration * deltaTime;
+    } 
+
+    if (actions.at(3) == 1) {
+        speed -= acceleration * deltaTime;
+    }
+
+    if (actions.at(0) == 1) {
+        angle -= 3 * deltaTime;
+        direction += (3 * (180/M_PI)) * deltaTime;
+    }
+    if (actions.at(1) == 1) {
+        angle += 3 * deltaTime;
+        direction -= (3 * (180/M_PI)) * deltaTime;
+    }
+
+    if (speed > maxSpeed) {
+        speed = maxSpeed;
+    } else if (speed < -maxSpeed/2) {
+        speed = -maxSpeed/2;
+    }
+    if (speed > 0) {
+        speed -= friction * deltaTime;
+    } else if (speed < 0) {
+        speed += friction * deltaTime;
+    }
+    
+    position.x -= sin(angle) * speed * deltaTime;
+    position.y -= cos(angle) * speed * deltaTime;
+
+    return actions;
+}
+
 double Car::accelerate(double dTime, bool forward) {
     if (forward) {
         speed += acceleration * dTime;
@@ -575,127 +675,102 @@ void Car::update(double deltaTime, GameMapE* map) {
         float* x = new float(position.x);
         float* y = new float(position.y);
         rays.update(x, y, angle, map);
-        // x = NULL;
-        // y = NULL;
-        // std::cout << "ja " << "kaas" <<  "nee" << std::endl;
+
         delete x;
         delete y;
         x = NULL;
         y = NULL;
-        // std::cout << "ja " << "nee" << std::endl;
-        // double epsilon = 1;
+
         std::vector<Vector3> offsetVec = rays.hitCoordVec3;
-        // int offsets[offsetVec.size()];
         std::vector<double> offsets;
         for (int i=0; i < offsetVec.size(); i++) {
             if (offsetVec.at(i).z == 0) {
-                // offsets[i] = 0;
                 offsets.push_back(0);
             } else {
-                // offsets[i] = 1 - offsetVec.at(i).z;
                 offsets.push_back(1 - offsetVec.at(i).z);
             }
         }
         std::vector<double> outputs;
-        // std::cout << outputs[0] << " " << outputs[1] << " " << outputs[2] << " " << outputs[3] << std::endl;
-        
-        // outputsbool.clear();
-        // for (int i=0; i < 4; i++) {
-        //     outputsbool.push_back(outputs[i]);
-        // }
-        if (checkPointCollision(map)) {
-            timeSinceLastPoint = 0;
-            neuralNetwork = neuralNetworkUpdate;
-            neuralNetworkUpdate2 = neuralNetworkUpdate;
-            // std::cout << "ja" << std::endl;
-            currentPoints++;
-            // std::vector<double> target = neuralNetwork.feedForward(offsets);
-            // std::vector<double> nactions = neuralNetwork.feedForward(offsets);
-            // neuralNetwork.backPropogation({1,0,1,0}, offsets);
-        }
-        // if (test) {
-        // }
-        timeSinceLastPoint += deltaTime;
-        if (timeSinceLastPoint >= 20) {
-            alive = false;
-            // std::cout << timeSinceLastPoint << std::endl;
-            timeSinceLastPoint = 0;
-            // std::cout << "ja"<< std::endl;
-        } 
-        // std::cout << timeSinceLastPoint << std::endl;
-        // if (timeSinceLastPoint > 1) {
-        //     std::cout << timeSinceLastPoint << std::endl;
-        // }
-        // std::cout << timeSinceLastPoint;
-        // if (collectedPoints != 0) {
-        // std::cout << collectedPoints << std::endl;
+
         std::vector<double>* offsettsp = new std::vector<double>(offsets);
-        // int action = Qtable.makeDecision(offsettsp);
-        
-        
-        // offsets.push_back(speed);
-        // offsets.push_back(speed);
         std::vector<double> actions = neuralNetwork.feedForward(offsets);
-        // neuralNetwork.backPropogation({-1, 0.3, 1, -1}, offsets);
         
         for (int i=0; i < actions.size(); i++) {
             std::cout << actions.at(i) << " ";
         }
         std::cout << "\n";
-        move2(deltaTime, actions, offsets, map, epsilon);
-        previousState4 = previousState3;
-        previousState3 = previousState2;
-        previousState2 = previousState1;
-        previousState1 = previousState;
-        previousState = offsets;
-        previousStates.clear();
-        previousStates.push_back(previousState);
-        previousStates.push_back(previousState1);
-        previousStates.push_back(previousState2);
-        previousStates.push_back(previousState3);
-        previousStates.push_back(previousState4);
+        actions = move3(deltaTime, actions, offsets, map, epsilon);
+
+        int bestAction = 0;
+        for (int i=0; i < actions.size(); i++) {
+            if (actions.at(i) > actions.at(bestAction)) {
+                bestAction = i;
+            }
+        }
+        double reward = 1;
+        if (checkPointCollision(map)) {
+            timeSinceLastPoint = 0;
+            // neuralNetwork = neuralNetworkUpdate;
+            // neuralNetworkUpdate2 = neuralNetworkUpdate;
+            reward = 100;
+            currentPoints++;
+        }
+        timeSinceLastPoint += deltaTime;
+        if (timeSinceLastPoint >= 20) {
+            alive = false;
+            timeSinceLastPoint = 0;
+            reward = -10;
+        } 
+
+
         std::vector<Vector3> offsetVec2 = rays.hitCoordVec3;
-        // int offsets[offsetVec.size()];
+
         std::vector<double> offsets4;
         for (int i=0; i < offsetVec2.size(); i++) {
             if (offsetVec2.at(i).z == 0) {
-                // offsets[i] = 0;
                 offsets4.push_back(0);
             } else {
-                // offsets[i] = 1 - offsetVec.at(i).z;
                 offsets4.push_back(1 - offsetVec2.at(i).z);
             }
         }
         previousStates.push_back(offsets4);
         
-        // move(deltaTime, action);
         createPolygon();
         if(checkCollision(map)) {
+            reward = -100;
             alive = false;
         } 
-        // std::cout<<position.x<<"  "<<previousPosition.x<<"\n";
         previousPosition = position;
+
+        std::vector<double> target;
+        for (int i=0; i < actions.size(); i++) {
+            if (i == bestAction) {
+                target.push_back(reward);
+            } else {
+                target.push_back(0);
+            }
+        }
+        std::cout << target.size() << " " << actions.size() << std::endl;
+        std::vector<double> *targetptr = new std::vector<double>(target);
+        std::vector<double> *offsetsptr = new std::vector<double>(offsets);
+
+        neuralNetwork.backPropogation(targetptr, offsetsptr);
+
+        delete targetptr;
+        delete offsetsptr;
 
         float* x2 = new float(position.x);
         float* y2 = new float(position.y);
         rays.update(x2, y2, angle, map);
         
-        // x2 = NULL;
-        // y2 = NULL;
-        // std::cout << "ja " << "kaas2" <<  "nee" << std::endl;
         delete x2;
         delete y2;
         x2 = NULL;
         y2 = NULL;
-        // std::cout << "ja " <<  "nee" << std::endl;
-        
-
     } 
     else {
         // neuralNetwork = neuralNetworkUpdate2;
     }
-    // map = NULL;
-    // delete map;
 }
 
 std::vector<std::vector<double>>* Car::returnPreviousStates() {
