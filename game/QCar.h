@@ -29,13 +29,14 @@ class Car {
         std::vector<int> outputsbool;
         std::vector<double> previousState, previousState1, previousState2, previousState3, previousState4;
         std::vector<std::vector<double>> previousStates;
-        std::vector<int> neuroncounts = {8, 255, 122, 16, 4};
-        NeuralNetwork neuralNetwork = NeuralNetwork({16, 6, 6, 6, 4});
+        std::vector<int> neuroncounts = {16, 6, 6, 6, 4};
+        NeuralNetwork neuralNetwork = NeuralNetwork({16, 12, 12, 6, 4});
     private:
         Rays rays;
         void move(double deltaTime, int action);
         void move2(double deltaTime, std::vector<double> actions, std::vector<double> offsets, GameMapE* map, double newEpsilon);
         std::vector<double> move3(double deltaTime, std::vector<double> actions, std::vector<double> offsets, GameMapE* map, double newEpsilon);
+        std::vector<double> move4(double deltaTime, std::vector<double> actions, std::vector<double> offsets, GameMapE* map, double newEpsilon);
         double friction = 20;
         double acceleration = 50;
         double speed = 0;
@@ -54,8 +55,8 @@ class Car {
         Vector2 previousPosition;
         double timeSinceLastPoint = 0;
         double epsilon;
-        NeuralNetwork neuralNetworkUpdate = NeuralNetwork({16, 6, 6, 6, 4});
-        NeuralNetwork neuralNetworkUpdate2 = NeuralNetwork({16, 6, 6, 6, 4});
+        NeuralNetwork neuralNetworkUpdate = NeuralNetwork({16, 12, 12, 6, 4});
+        NeuralNetwork neuralNetworkUpdate2 = NeuralNetwork({16, 12, 12, 6, 4});
 };
 
 Car::Car(GameMapE* map, double newDirection, Vector2 newPosition) {
@@ -157,7 +158,7 @@ std::vector<double> Car::move3(double deltaTime, std::vector<double> actions, st
     random = random/100;
 
     if (random <= epsilon) {
-        int randval = rand() % 13;
+        int randval = rand() % 4;
         switch (randval) {
             case 0:
                 actions = getAction(0,0,0,0);
@@ -251,6 +252,61 @@ std::vector<double> Car::move3(double deltaTime, std::vector<double> actions, st
     return actions;
 }
 
+std::vector<double> Car::move4(double deltaTime, std::vector<double> actions, std::vector<double> offsets, GameMapE* map, double epsilon) {
+    double random = rand() % 100;
+    random = random/100;
+
+    if (random <= epsilon) {
+        int randval = rand() % 4;
+        switch (randval) {
+            case 0:
+                actions = getAction(0,0,0,0);
+                break;
+            case 1:
+                actions = getAction(1,0,0,0);
+                break;
+            case 2:
+                actions = getAction(0,1,0,0);
+                break;
+            case 3:
+                actions = getAction(0,0,1,0);
+                break;
+        }
+    } else {
+        std::vector<double> actions2 = neuralNetwork.feedForward(offsets);
+        int highest = 0;
+        actions.clear();
+        for (int i=0; i < actions2.size(); i++) {
+            if (actions2.at(i) > actions2.at(highest)) {
+                highest = i;
+            }
+        }
+        for (int i=0; i < actions2.size(); i++) {
+            if (i == highest) {
+                actions.push_back(1);
+            } else {
+                actions.push_back(0);
+            }
+        }
+    }
+
+    if (actions.at(0) == 1) {
+        angle -= 3 * deltaTime;
+        direction += (3 * (180/M_PI)) * deltaTime;
+    }
+    if (actions.at(1) == 1) {
+        angle += 3 * deltaTime;
+        direction -= (3 * (180/M_PI)) * deltaTime;
+    }
+
+    speed = maxSpeed;
+    
+    position.x -= sin(angle) * speed * deltaTime;
+    position.y -= cos(angle) * speed * deltaTime;
+
+    return actions;
+}
+
 double Car::accelerate(double dTime, bool forward) {
     if (forward) {
         speed += acceleration * dTime;
@@ -280,13 +336,11 @@ bool Car::polyIntersect(std::vector<Vector2> poly1, std::vector<Vector2> poly2) 
 bool Car::checkCollision(GameMapE* map) {
     for (int i=0; i < map->wallVectorVec.size(); i++) {
         if (polyIntersect(polygon, {map->wallVectorVec.at(i), map->wallVectorVec.at((i+1)%map->wallVectorVec.size())})) {
-            std::cout << "ja2" << std::endl;
             return true;
         }
     }
     for (int i=0; i < map->outerWall.size(); i++) {
         if (polyIntersect(polygon, {map->outerWall.at(i), map->outerWall.at((i+1)%map->outerWall.size())})) {
-            std::cout << "ja3" << std::endl;
             return true;
         }
     }
@@ -341,7 +395,7 @@ void Car::update(double deltaTime, GameMapE* map) {
             std::cout << actions.at(i) << " ";
         }
         std::cout << "\n";
-        actions = move3(deltaTime, actions, offsets, map, epsilon);
+        actions = move4(deltaTime, actions, offsets, map, epsilon);
 
         int bestAction = 0;
         for (int i=0; i < actions.size(); i++) {
@@ -354,14 +408,14 @@ void Car::update(double deltaTime, GameMapE* map) {
             timeSinceLastPoint = 0;
             // neuralNetwork = neuralNetworkUpdate;
             // neuralNetworkUpdate2 = neuralNetworkUpdate;
-            reward = 100;
+            reward = 10;
             currentPoints++;
         }
         timeSinceLastPoint += deltaTime;
         if (timeSinceLastPoint >= 20) {
             alive = false;
             timeSinceLastPoint = 0;
-            reward = -10;
+            reward = 0;
         } 
 
 
@@ -379,7 +433,7 @@ void Car::update(double deltaTime, GameMapE* map) {
         
         createPolygon();
         if(checkCollision(map)) {
-            reward = -100;
+            reward = -10;
             alive = false;
         } 
         previousPosition = position;
@@ -392,7 +446,7 @@ void Car::update(double deltaTime, GameMapE* map) {
                 target.push_back(0);
             }
         }
-        std::cout << target.size() << " " << actions.size() << std::endl;
+
         std::vector<double> *targetptr = new std::vector<double>(target);
         std::vector<double> *offsetsptr = new std::vector<double>(offsets);
 

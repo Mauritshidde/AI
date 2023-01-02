@@ -38,7 +38,7 @@ void CheckCar() {
         f.close();
         SetCar(data, epsilon);
         generation++;
-        if (generation >= 200) {
+        if (generation >= 2000) {
             epsilon -= 0.1;
             if (epsilon < 0) {
                 epsilon = 0;

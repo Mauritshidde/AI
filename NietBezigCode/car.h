@@ -8,7 +8,7 @@ class Car {
     public:
         Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize, std::vector<Vector2> outerMap, int outerWallArraySize, double newDirection, std::vector<std::vector<Vector2>> newPoints);
         ~Car();
-        void update(double deltaTime);
+        void update(double deltaTime, GameMapE map);
         double accelerate(double dTime, bool forward);
         void castRay();
         void controls();
@@ -40,9 +40,6 @@ class Car {
         std::vector<int> ditistest = {8, 6, 2};
         int currentPoint = 0;
         std::vector<std::vector<Vector2>> points;
-        
-
-
 };
 
 Car::Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arraySize, std::vector<Vector2> outerMap, int outerWallArraySize, double newDirection, std::vector<std::vector<Vector2>> newPoints) {
@@ -51,7 +48,7 @@ Car::Car(Vector2 newPosition, bool control, std::vector<Vector2> map, int arrayS
     alive = true;
     wallVec = map;
     outerWallVec = outerMap;
-    rays.setWallVec(map, wallArraySize, outerMap, outerWallArraySize);
+    // rays.setWallVec(&map, wallArraySize, outerMap, outerWallArraySize);
     wallArraySize = arraySize;
     direction = newDirection;
     angle = (direction / -(180/PI));
@@ -254,9 +251,9 @@ bool Car::checkPointCollision() {
     return false;
 }
 
-void Car::update(double deltaTime) {
+void Car::update(double deltaTime, GameMapE map) {
     if (alive) {
-        rays.update({position.x, position.y}, angle);
+        rays.update(position.x, position.y, angle, map);
         
         std::vector<Vector3> offsetVec = rays.hitCoordVec3;
         // int offsets[offsetVec.size()];

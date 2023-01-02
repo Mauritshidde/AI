@@ -188,7 +188,7 @@ void Update(double deltaTime) {
     }
 
     for (int i=0; i < cars.size(); i++) {
-        cars.at(i).update(deltaTime);
+        cars.at(i).update(deltaTime, map);
     }
 }   
 

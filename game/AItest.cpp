@@ -7,7 +7,7 @@
 
 int main() {
     srand(time(NULL));
-    NeuralNetwork nn({8, 30,30,15, 6, 4});
+    NeuralNetwork nn({8, 12, 6, 6, 4});
 
     nn.feedForward({1, 0.5,1, 0.5,1, 0.5,1, 0.5});
     for (int i=0; i < nn.networkOutput.size(); i++) {
@@ -16,7 +16,7 @@ int main() {
     std::cout << std::endl;
     
     for (int i=0; i < 10000; i++) {
-        std::vector<double> m = {0, 1, 0, 0};
+        std::vector<double> m = {0, 111, 0, 0};
         std::vector<double> n = {1, 0.5,1, 0.5,1, 0.5,1, 0.1};
         std::vector<double>* mn = new std::vector<double>(m);
         std::vector<double>* nm = new std::vector<double>(n);
@@ -38,7 +38,7 @@ int main() {
     }
     std::cout << std::endl;
 
-    nn.feedForward({0, 0,0, 0,0, 0,0, 1});
+    nn.feedForward({1, 0,0, 0,0, 1,1, 1});
     for (int i=0; i < nn.networkOutput.size(); i++) {
         std::cout << nn.networkOutput.at(i) << " out2 ";
     }

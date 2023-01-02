@@ -9,7 +9,7 @@
 #include "trainAI.h"
 #include "menuButtons.h"
 #include "draw.h"
-#include "genetic.h"
+#include "genetic2.h"
 
 const int screenWidth2 = 1980;
 const int screenHeight2 = 1024;
