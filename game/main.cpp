@@ -10,6 +10,7 @@
 #include "menuButtons.h"
 #include "draw.h"
 #include "GeneticAI/genetic2.h"
+#include "QtableAI/QtableAI.h"
 
 const int screenWidth = 1980;
 const int screenHeight = 1024;
@@ -90,6 +91,7 @@ int main() {
             gen.run();
             break;
         case 3:
+            runrun();
             break;
     }
     

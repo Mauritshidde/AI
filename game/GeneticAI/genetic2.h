@@ -14,16 +14,17 @@
 class Genetic {
     public:
         Genetic();
+        ~Genetic() {};
+        void run();
+    private:
         void Render();
         void Update(double deltaTime);
         void Start();
-        void run();
         void loadNN();
         void SetCars(bool mutate);
         void ResetCars();
         void genCars();
 
-    private:
         const int screenWidth = 1980;
         const int screenHeight = 1024;
         std::vector<GCar> cars;

@@ -26,7 +26,6 @@ class Car {
 
         std::vector<int> outputsbool;
         std::vector<int> neuroncounts = {16, 6, 6, 6, 4};
-        std::vector<std::vector<double>> previousStates;
 
         NeuralNetwork neuralNetwork;
         GameMapE *map;
@@ -403,7 +402,6 @@ void Car::update(double deltaTime) {
                 offsets4.push_back(1 - offsetVec2.at(i).z);
             }
         }
-        previousStates.push_back(offsets4);
         
         createPolygon();
         if(checkCollision()) {

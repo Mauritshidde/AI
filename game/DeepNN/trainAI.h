@@ -14,13 +14,13 @@ class TrainAI {
     public:
         TrainAI();
         ~TrainAI();
+        void run();
+    private:
         void SetCar();
         void CheckCar();
         void Render();
         void Start();
         void Update(double deltaTime);
-        void run();
-    private:
         // const int screenWidth;
         int screenWidth;
         int screenHeight;
