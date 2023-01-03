@@ -5,39 +5,49 @@
 
 class GRays {
     public:
-        GRays();
+        GRays(int newRayAmount = 8, int newRayLenght = 200);
         ~GRays();
-        void update(float *x, float *y, double newAngle, GameMapE2* map);
+        void update(float *x, float *y, double newAngle);
         void draw();
+        void setMap(GameMapE2 newMap);
         double lerp(double A, double B, double t);
         Vector4 getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D);
-        void setWallVec();
         void SetSpawn(Vector2* ps);
         int rayAmountInt;
         std::vector<Vector3> hitCoordVec3; 
     private:
-        bool calcRayHits(int endRayLoc, GameMapE2* map);
+        bool calcRayHits(int endRayLoc);
         void castRays();
 
         Vector2 position;
-        std::vector<Vector2> eindRay, wallVector, outerWallvector; 
         Vector2 startRay;
+        std::vector<Vector2> eindRay, wallVector, outerWallvector; 
         Vector3 hitCoordVec;
-        double angle, rayLenght, rayAngle;
-        const double raySpread = M_PI*2;
-        const double halfRaySpread = raySpread/2;
-        int mapArraySize, outerMapArraySize, rayAmount;
 
+        double angle, rayLenght, rayAngle;
+        int mapArraySize, outerMapArraySize, rayAmount;
+        
+        double raySpread = M_PI*2;
+        double halfRaySpread = raySpread/2;
+
+        GameMapE2 *map;
 };
 
-GRays::GRays() {
-    rayAmount = 16;
-    rayAmountInt = 16;
-    rayLenght = 200;
+GRays::GRays(int newRayAmount, int newRayLenght) {
+    rayAmount = newRayAmount;
+    rayAmountInt = newRayAmount;
+    rayLenght = newRayLenght;
+
+    map = new GameMapE2();
 }
 
 GRays::~GRays() {
 
+}
+
+void GRays::setMap(GameMapE2 newMap) {
+    delete map;
+    map = new GameMapE2(newMap);
 }
 
 void GRays::SetSpawn(Vector2* ps) {
@@ -50,10 +60,6 @@ void GRays::SetSpawn(Vector2* ps) {
 double GRays::lerp(double A, double B, double t) {
     double value = A + (B-A) *t;
     return value;
-}
-
-void GRays::setWallVec() {
-
 }
 
 Vector4 GRays::getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
@@ -82,7 +88,7 @@ Vector4 GRays::getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
 
 
 
-bool GRays::calcRayHits(int endRayLoc, GameMapE2* map) {
+bool GRays::calcRayHits(int endRayLoc) {
     std::vector<Vector3> touches;
     Vector2 endRay = eindRay.at(endRayLoc);
     for (int i=0; i < map->arraySize; i++) {
@@ -149,7 +155,7 @@ void GRays::draw() {
     }
 }
 
-void GRays::update(float* x, float* y, double newAngle, GameMapE2* map) {
+void GRays::update(float* x, float* y, double newAngle) {
     eindRay = {};
     hitCoordVec3 = {};
     angle = newAngle;
@@ -159,7 +165,7 @@ void GRays::update(float* x, float* y, double newAngle, GameMapE2* map) {
 
     castRays();
     for (int i=0; i < rayAmount; i++) {
-        if (calcRayHits(i, map)) {
+        if (calcRayHits(i)) {
             hitCoordVec3.push_back(hitCoordVec);
         } else {
             hitCoordVec3.push_back({});

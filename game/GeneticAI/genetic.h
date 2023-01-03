@@ -6,7 +6,7 @@
 #include <nlohmann/json.hpp>
 #include <cstdlib>
 
-#include "raygui.h"
+#include "../raygui.h"
 #include "GameMap2.h"
 #include "GCar.h"
 #include "geneticButton.h"

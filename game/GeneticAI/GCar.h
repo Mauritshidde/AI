@@ -6,7 +6,7 @@
 #include <cstdlib>
 
 #include "ray2.h"
-#include "networkcode/nn2.h"
+#include "../networkcode/nn2.h"
 
 class GCar {
     public:
@@ -60,7 +60,6 @@ GCar::GCar(GameMapE2 map, double newDirection, Vector2 newPosition) {
     timeSinceLastPoint = 0;
     alive = true;
     currentPoints = 0;
-    rays.setWallVec();
     direction = newDirection;
     angle = (direction / -(180/PI));
     speed = 0;

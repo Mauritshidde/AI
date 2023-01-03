@@ -6,37 +6,66 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-#include "raygui.h"
+#include "../raygui.h"
 #include "GameMap.h"
 #include "visualizeNN.h"
 
-const int screenWidth = 1980;
-const int screenHeight = 1024;
+class TrainAI {
+    public:
+        TrainAI();
+        ~TrainAI();
+        void SetCar();
+        void CheckCar();
+        void Render();
+        void Start();
+        void Update(double deltaTime);
+        void run();
+    private:
+        // const int screenWidth;
+        int screenWidth;
+        int screenHeight;
+        int fps;
+        bool server;
+        float epsilon;
+        int generation;
+        std::vector<Car> cars;
+        std::vector<double> previousMove;
+        GameMapE* map;
+        Car* car;
+        nlohmann::json mapData;
 
-std::vector<Car> cars;
+};
 
-bool server = false;
-std::vector<double> previousMove;
-float epsilon = 1;
-int generation = 0;
-GameMapE* map = new GameMapE();
-Car* car = new Car(map, 3, {200, 200});
+TrainAI::TrainAI() {
+    screenWidth = 1980;
+    screenHeight = 1024;
+    server = false;
+    epsilon = 1;
+    generation = 0;
+    fps = 60;
 
-std::ifstream f4("maps/example.json");
-nlohmann::json data4 = nlohmann::json::parse(f4);
+    map = new GameMapE();
+    car = new Car(map, 3, {200, 200});
 
-void SetCar(nlohmann::json data, double epsilon) {
-    int value2 = data["spawn"]["lenght"].get<int>();
-    int value = rand() % value2;
-    car->restartLocation(data["direction"][std::to_string(value)].get<float>(), data["spawn"][std::to_string(value)]["firstcheckpoint"].get<float>(), map->spawns.at(value), epsilon);
+    std::ifstream f("maps/example.json");
+    mapData = nlohmann::json::parse(f);
+    f.close();
 }
 
-void CheckCar() {
+TrainAI::~TrainAI() {
+    delete car;
+    delete map;
+}
+
+void TrainAI::SetCar() {
+    int value2 = mapData["spawn"]["lenght"].get<int>();
+    int value = rand() % value2;
+    car->restartLocation(mapData["direction"][std::to_string(value)].get<float>(), mapData["spawn"][std::to_string(value)]["firstcheckpoint"].get<float>(), map->spawns.at(value), epsilon);
+}
+
+void TrainAI::CheckCar() {
     if (!car->alive) {
-        std::ifstream f("maps/example.json");
-        nlohmann::json data = nlohmann::json::parse(f);
-        f.close();
-        SetCar(data, epsilon);
+        SetCar();
         generation++;
         if (generation >= 2000) {
             epsilon -= 0.1;
@@ -45,11 +74,10 @@ void CheckCar() {
             }
             generation = 0;
         }
-    } else {
     }
 }
 
-void Render() {
+void TrainAI::Render() {
     const Color backgroundColor = BLACK;
 
     BeginDrawing();
@@ -67,49 +95,38 @@ void Render() {
     EndDrawing();
 
     CheckCar();
-    
 }
 
-void Start() {
-    std::ifstream f("maps/example.json");
-    nlohmann::json data = nlohmann::json::parse(f);
-    f.close();
-    map->setMap(data);
-    
-    SetCar(data, epsilon);
+void TrainAI::Start() {
+    map->setMap(mapData);
+    SetCar();
 }
 
-void Update(double deltaTime) {
+void TrainAI::Update(double deltaTime) {
     std::ifstream f("NeuralNetworks/NN.json");
     nlohmann::json networkData = nlohmann::json::parse(f);
+    f.close();
     if (IsKeyPressed(KEY_LEFT_CONTROL)) {
         car->neuralNetwork.saveNeuralNetwork();
     }
     if (IsKeyPressed(KEY_RIGHT_CONTROL)) {
         car->neuralNetwork.loadNeuralNetwork(networkData);
-        std::ifstream f("maps/example.json");
-        nlohmann::json data = nlohmann::json::parse(f);
-        f.close();
-        SetCar(data, epsilon);
+        SetCar();
     }
     
-    car->update(1.0f/60.0f, map);
+    car->update(1.0f/60.0f);
 }   
 
-int trainAI() {
+void TrainAI::run() {
     srand(time(NULL));
     
     InitWindow(screenWidth, screenHeight, "train Ai");
-    SetTargetFPS(300);
+    SetTargetFPS(fps);
     Start();
     while (!WindowShouldClose()){
         Update(float(1.0/60.0));
         Render();
     }
-
-    delete map;
-    map = NULL;
     
     CloseWindow();
-    return 0;
 }

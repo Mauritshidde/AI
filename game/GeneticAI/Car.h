@@ -6,91 +6,102 @@
 #include <cstdlib>
 
 #include "ray2.h"
-#include "k/nn.h"
+#include "../k/nn.h"
 
 class GCar {
     public:
-        GCar(GameMapE2 map = GameMapE2(), double newDirection = 0, Vector2 newPosition = {0,0});
+        GCar(GameMapE2 newMap = GameMapE2(), double newDirection = 0, Vector2 newPosition = {0,0}, std::vector<int> newNNBlueprint = {16, 6, 4});
         ~GCar();
-        void update(double deltaTime, GameMapE2* map);
+        void update(double deltaTime);
         double accelerate(double dTime, bool forward);
         void castRay();
-        void controls();
         void draw(bool best);
         void createPolygon();
-        bool checkCollision(GameMapE2* map);
+        bool checkCollision();
         bool polyIntersect(std::vector<Vector2> poly1, std::vector<Vector2> poly2);
-        bool checkPointCollision(GameMapE2* map);
+        bool checkPointCollision();
         void restartLocation(double newDirection, double firstcheckpoint, Vector2 newPosition, double newEpsilon);
         void setSpawn(Vector2 spawn, double newDirection);
 
-        std::vector<std::vector<double>> *returnPreviousStates();
-        int collectedPoints = 0;
-        int currentPoints;
         bool alive;
+        int currentPoints;
+        int collectedPoints = 0;
+
         std::vector<int> outputsbool;
+        std::vector<int> neuroncounts;
         std::vector<double> previousState, previousState1, previousState2, previousState3, previousState4;
-        std::vector<std::vector<double>> previousStates;
-        std::vector<int> neuroncounts = {8, 255, 122, 16, 4};
+
         GeneticNeuralNetwork network;
     private:
-        GRays rays;
         void move(double deltaTime, int action);
-        double friction = 20;
-        double acceleration = 50;
-        double speed = 0;
-        double maxSpeed = 200;
-        Vector2 position;
+        
+        const double friction = 20;
+        const double acceleration = 50;
+        const double maxSpeed = 200;
         const Vector2 size{10, 20};
-        double direction = 0;
+        
+        int currentPoint;
+        double speed;
+        double direction;
         double angle;
-        Rectangle rectangle;
-        bool action[4];
-        std::vector<Vector2> polygon, wallVec, outerWallVec;
-        int currentPoint = 0;
-        std::vector<std::vector<Vector2>> points;
-        Vector2 previousPosition;
-        double timeSinceLastPoint = 0;
         double epsilon;
+        double timeSinceLastPoint;
+
+        std::vector<std::vector<Vector2>> points;
+        std::vector<Vector2> polygon, wallVec, outerWallVec;
+        
+        Vector2 position;
+        Vector2 previousPosition;
+        Rectangle rectangle;
+        GRays rays;
+        GameMapE2 *map;
 };
 
-GCar::GCar(GameMapE2 map, double newDirection, Vector2 newPosition) {
-    network = GeneticNeuralNetwork({16, 16, 8, 6, 4});
-    epsilon = 1;
-    timeSinceLastPoint = 0;
+GCar::GCar(GameMapE2 newMap, double newDirection, Vector2 newPosition, std::vector<int> newNNBlueprint) {
+    network = GeneticNeuralNetwork(newNNBlueprint);
+    neuroncounts = newNNBlueprint;
+    map = new GameMapE2(newMap);
+    rays = GRays(16, 100);
+
     alive = true;
-    currentPoints = 0;
-    rays.setWallVec();
-    direction = newDirection;
-    angle = (direction / -(180/PI));
+
     speed = 0;
+    epsilon = 1;
+    currentPoint = 0;
+    currentPoints = 0;
+    timeSinceLastPoint = 0;
+    
     position = newPosition;
+    direction = newDirection;
     previousPosition = position;
+    angle = (direction / -(180/PI));
+
+    rays.setMap(*map);
 }
 
 GCar::~GCar() {
-
+    // delete map;
 }
 
 void GCar::restartLocation(double newDirection, double firstcheckpoint, Vector2 newPosition, double newEpsilon) {
     alive = true;
+    
     speed = 0;
-    position = newPosition;
-    previousPosition = position;
-    direction = newDirection;
-    angle = (direction / -(180/PI));
     timeSinceLastPoint = 0;
-    currentPoint = firstcheckpoint;
-    epsilon = newEpsilon;
     currentPoints = 0;
+    
+    epsilon = newEpsilon;
+    position = newPosition;
+    direction = newDirection;
+    previousPosition = position;
+    currentPoint = firstcheckpoint;
+    angle = (direction / -(180/PI));
 }
 
 void GCar::setSpawn(Vector2 spawn, double newDirection) {
     position = spawn;
     direction = newDirection;
     angle = (direction / -(180/PI));
-
-    previousStates.clear();
 }
 
 
@@ -122,26 +133,15 @@ void GCar::createPolygon() {
 void GCar::draw(bool best) {
     Rectangle rectangle = {position.x, position.y, size.x, size.y};
     if (alive) {
-        DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, WHITE);  
+        if (best) { 
+            DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, PINK);
+        } else {
+            DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, WHITE);
+        }
     } else {
         DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, RED);
     }
     rays.draw();
-}
-
-void GCar::controls() {
-    if (IsKeyDown(KEY_W)){
-        action[0] = 1;
-    } 
-    if (IsKeyDown(KEY_S)){
-        action[1] = 1;
-    } 
-    if (IsKeyDown(KEY_D)) {
-        action[2] = 1;
-    }
-    if (IsKeyDown(KEY_A)) {
-        action[3] = 1;
-    }
 }
 
 void GCar::move(double deltaTime, int action) {
@@ -203,14 +203,7 @@ bool GCar::polyIntersect(std::vector<Vector2> poly1, std::vector<Vector2> poly2)
     return false;
 }
 
-bool GCar::checkCollision(GameMapE2* map) {
-    // for (int i=0; i < map->wallVectorVec.size(); i++) {
-    //     Vector4 test = rays.getIntersection(previousPosition, position, map->wallVectorVec[i], map->wallVectorVec[0]);
-    //     if (test.w == 5) {
-    //         return true;
-    //     }
-    // }
-
+bool GCar::checkCollision() {
     for (int i=0; i < map->wallVectorVec.size(); i++) {
         if (polyIntersect(polygon, {map->wallVectorVec.at(i), map->wallVectorVec.at((i+1)%map->wallVectorVec.size())})) {
             return true;
@@ -225,7 +218,7 @@ bool GCar::checkCollision(GameMapE2* map) {
     return false;
 }
 
-bool GCar::checkPointCollision(GameMapE2* map) {
+bool GCar::checkPointCollision() {
     if (polyIntersect(polygon, {map->points.at(currentPoint).at(0), map->points.at(currentPoint).at(1)})) {
         if (currentPoint == map->points.size()-1) {
             currentPoint = 0;
@@ -239,9 +232,9 @@ bool GCar::checkPointCollision(GameMapE2* map) {
     return false;
 }
 
-void GCar::update(double deltaTime, GameMapE2* map) {
+void GCar::update(double deltaTime) {
     if (alive) {
-        rays.update(&position.x, &position.y, direction ,map);
+        rays.update(&position.x, &position.y, direction);
         
         std::vector<Vector3> offsetVec = rays.hitCoordVec3;
         std::vector<double> offsets;
@@ -259,9 +252,9 @@ void GCar::update(double deltaTime, GameMapE2* map) {
         for (int i=0; i < 4; i++) {
             outputsbool.push_back(outputs[i]);
         }
-        bool test = checkPointCollision(map);
+        bool test = checkPointCollision();
         int bestindex = 0;
-        if (checkPointCollision(map)) {
+        if (checkPointCollision()) {
             collectedPoints++;
             currentPoints++;
             timeSinceLastPoint = 0;
@@ -271,29 +264,8 @@ void GCar::update(double deltaTime, GameMapE2* map) {
             alive = false;
         }
 
-        // int highest = 0;
-        // for (int i=0; i < outputs.size(); i++) {
-        //     if (outputs.at(i) >= outputs.at(highest)) {
-        //         highest = i;
-        //     }
-        // }
-        // std::vector<double> actions2 = neuralNetwork.feedForward(offsets);
-        // actions.clear();
-        // for (int i=0; i < actions2.size(); i++) {
-        //     if (actions2.at(i) > actions2.at(highest)) {
-        //         highest = i;
-        //     }
-        // }
-        // for (int i=0; i < actions2.size(); i++) {
-        //     if (i == highest) {
-        //         actions.push_back(1);
-        //     } else {
-        //         actions.push_back(0);
-        //     }
-        // }
         std::vector<double> actions2 = network.feedforward(offsets, network);
         int highest = 0;
-        // actions.clear();
         for (int i=0; i < actions2.size(); i++) {
             if (actions2.at(i) > actions2.at(highest)) {
                 highest = i;
@@ -301,16 +273,11 @@ void GCar::update(double deltaTime, GameMapE2* map) {
         }
 
         move(deltaTime, highest);
-        rays.update(&position.x, &position.y, direction ,map);
+        rays.update(&position.x, &position.y, direction);
 
         createPolygon();
-        if(checkCollision(map)) {
+        if(checkCollision()) {
             alive = false;
         } 
     }
-}
-
-std::vector<std::vector<double>>* GCar::returnPreviousStates() {
-    std::vector<std::vector<double>>* previousStatesP = new std::vector<std::vector<double>>(previousStates);
-    return previousStatesP;
 }

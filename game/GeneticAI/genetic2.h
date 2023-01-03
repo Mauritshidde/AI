@@ -6,7 +6,7 @@
 #include <nlohmann/json.hpp>
 #include <cstdlib>
 
-#include "raygui.h"
+#include "../raygui.h"
 #include "GameMap2.h"
 #include "Car.h"
 #include "geneticButton.h"
@@ -18,9 +18,12 @@ class Genetic {
         void Update(double deltaTime);
         void Start();
         void run();
-        void SetCars(nlohmann::json data, bool mutate);
-        void ResetCars(nlohmann::json data);
+        void loadNN();
+        void SetCars(bool mutate);
+        void ResetCars();
         void genCars();
+
+    private:
         const int screenWidth = 1980;
         const int screenHeight = 1024;
         std::vector<GCar> cars;
@@ -37,6 +40,7 @@ class Genetic {
         bool door = true;
         GameMapE2 map;
         GeneticMenu buttonMenu;
+        nlohmann::json mapData;
 };
 
 Genetic::Genetic() {
@@ -45,7 +49,11 @@ Genetic::Genetic() {
     buttonMenu.addButton({{100,900}, {400, 900}, {400, 1050}, {100, 1050}}, "Save Neuralnetwork", 20);
     buttonMenu.addButton({{400,900}, {700, 900}, {700, 1050}, {400, 1050}}, "Load Neuralnetwork", 20);
 
-    network = GeneticNeuralNetwork({16, 16, 8, 6, 4});
+    network = GeneticNeuralNetwork({16, 6, 4});
+
+    std::ifstream f("maps/example.json");
+    mapData = nlohmann::json::parse(f); 
+    f.close();
 }
 
 void Genetic::Render() {
@@ -62,8 +70,6 @@ void Genetic::Render() {
             bestCar = i;
         }
     }
-    // std::cout << bestCar <<  " "  << bestCarPoints << std::endl;
-    // std::cout << cars.at(0).collectedPoints <<  " "  << cars.at(0).currentPoints << std::endl;
     DrawText(TextFormat("%f", cars.at(bestCar).collectedPoints), 10, 60, 20, WHITE);
     DrawText(TextFormat("%f", cars.at(bestCar).currentPoints), 10, 80, 20, WHITE);
 
@@ -81,27 +87,18 @@ void Genetic::Render() {
 }
 
 void Genetic::genCars() {
-    std::ifstream f("maps/example.json");
-    nlohmann::json data = nlohmann::json::parse(f);
-
     cars.clear();
     
     for (int i=0; i < 200; i++) {
-        // srand(time(NULL));
-        GCar car = GCar(map, data["direction"]["0"], {data["spawn"]["0"]["x"].get<float>(), data["spawn"]["0"]["y"].get<float>()});
-        // car.network.randomize();
+        GCar car = GCar(map, mapData["direction"]["0"], {mapData["spawn"]["0"]["x"].get<float>(), mapData["spawn"]["0"]["y"].get<float>()});
         cars.push_back(car);
     }
 }
 
-void Genetic::SetCars(nlohmann::json data, bool mutate) {
-    std::ifstream f("NeuralNetworks/NN.json");
-    nlohmann::json networkData = nlohmann::json::parse(f);
-
-    // network = cars.at(bestCar).network;
+void Genetic::SetCars(bool mutate) {
     cars.clear();
     for (int i=0; i < 200; i++) {
-        GCar car = GCar(map, data["direction"]["0"], {data["spawn"]["0"]["x"].get<float>(), data["spawn"]["0"]["y"].get<float>()}); 
+        GCar car = GCar(map, mapData["direction"]["0"], {mapData["spawn"]["0"]["x"].get<float>(), mapData["spawn"]["0"]["y"].get<float>()}); 
         if (mutate) {
             if (i == 0 || i == 1) {
                 car.network.setNN(network);
@@ -113,14 +110,13 @@ void Genetic::SetCars(nlohmann::json data, bool mutate) {
     }
 }
 
-void Genetic::ResetCars(nlohmann::json data) {
+void Genetic::ResetCars() {
     std::ifstream f("NeuralNetworks/NN.json");
     nlohmann::json networkData = nlohmann::json::parse(f);
 
-    // network = cars.at(bestCar).network;
     cars.clear();   
     for (int i=0; i < 200; i++) {
-        GCar car = GCar(map, data["direction"]["0"], {data["spawn"]["0"]["x"], data["spawn"]["0"]["y"]}); 
+        GCar car = GCar(map, mapData["direction"]["0"], {mapData["spawn"]["0"]["x"], mapData["spawn"]["0"]["y"]}); 
 
         if (i == 0 || i == 1) {
             car.network.setNN(network);
@@ -131,14 +127,33 @@ void Genetic::ResetCars(nlohmann::json data) {
     }
 }
 
-
 void Genetic::Start() {
-    std::ifstream f("maps/example.json");
-    nlohmann::json data = nlohmann::json::parse(f);
-    map.setMap(data);
+    map.setMap(mapData);
 
-    // SetCars(data, false);
     genCars();
+}
+
+void Genetic::loadNN() {
+    std::ifstream f("NeuralNetworks/NN.json");
+    nlohmann::json data = nlohmann::json::parse(f);
+    
+    int lenght1 = data["weights"]["lenght"].get<int>();
+    int lenght2 = data["biases"]["lenght"].get<int>();
+
+    for (int i=0; i < lenght1; i++) {
+        int lenghti = data["weights"][std::to_string(i)]["lenght"].get<int>();
+        for (int j=0; j < lenghti; j++) {
+            int lenghtj = data["weights"][std::to_string(i)][std::to_string(j)]["lenght"].get<int>();
+            for (int k=0; k < lenghtj; k++) {
+                network.levels.at(i).weights.at(j).at(k) = data["weights"][std::to_string(i)][std::to_string(j)][std::to_string(k)].get<double>();
+            }
+        }
+        int lenghti2 = data["biases"][std::to_string(i)]["lenght"].get<int>();
+
+        for (int j=0; j < lenghti2; j++) {
+            network.levels.at(i).biases.at(j) = data["biases"][std::to_string(i)][std::to_string(j)].get<double>();
+        }
+    }
 }
 
 void Genetic::Update(double deltaTime) {
@@ -148,45 +163,21 @@ void Genetic::Update(double deltaTime) {
         } else if (buttonMenu.buttons.at(1).checkCollisionButton(GetMousePosition())) {
             cars.at(bestCar).network.saveNN();
         } else if (buttonMenu.buttons.at(2).checkCollisionButton(GetMousePosition())) {
-            std::ifstream f("NeuralNetworks/NN.json");
-            nlohmann::json data = nlohmann::json::parse(f);
-            
-            int lenght1 = data["weights"]["lenght"].get<int>();
-            int lenght2 = data["biases"]["lenght"].get<int>();
-
-            for (int i=0; i < lenght1; i++) {
-                int lenghti = data["weights"][std::to_string(i)]["lenght"].get<int>();
-                for (int j=0; j < lenghti; j++) {
-                    int lenghtj = data["weights"][std::to_string(i)][std::to_string(j)]["lenght"].get<int>();
-                    for (int k=0; k < lenghtj; k++) {
-                        network.levels.at(i).weights.at(j).at(k) = data["weights"][std::to_string(i)][std::to_string(j)][std::to_string(k)].get<double>();
-                    }
-                }
-                int lenghti2 = data["biases"][std::to_string(i)]["lenght"].get<int>();
-
-                for (int j=0; j < lenghti2; j++) {
-                    network.levels.at(i).biases.at(j) = data["biases"][std::to_string(i)][std::to_string(j)].get<double>();
-                }
-            }
+            loadNN();
             
             std::ifstream l("maps/example.json");
             nlohmann::json data2 = nlohmann::json::parse(l);
+            l.close();
 
-            SetCars(data2, true);
+            SetCars(true);
         }
     }
 
     if (IsKeyPressed(KEY_ENTER)) {
-        // std::cout << cars.at(bestCar).collectedPoints << " Ja " << bestCarPoints <<std::endl;
         cars.at(bestCar).network.saveNN();
-
-        std::ifstream f("maps/example.json");
-        nlohmann::json data = nlohmann::json::parse(f);
-        SetCars(data, true);
+        SetCars(true);
     } else if (IsKeyPressed(KEY_LEFT_SHIFT)) {
-        std::ifstream f("maps/example.json");
-        nlohmann::json data = nlohmann::json::parse(f);
-        ResetCars(data);
+        ResetCars();
     } else if (IsKeyPressed(KEY_Q)) {
         mutationRate += 0.05;
         std::cout << mutationRate << std::endl;
@@ -204,7 +195,7 @@ void Genetic::Update(double deltaTime) {
     }
 
     for (int i=0; i < cars.size(); i++) {
-        cars.at(i).update(deltaTime, &map);
+        cars.at(i).update(deltaTime);
     }
 }   
 

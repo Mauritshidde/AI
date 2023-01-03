@@ -6,15 +6,19 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-#include "trainAI.h"
+#include "DeepNN/trainAI.h"
 #include "menuButtons.h"
 #include "draw.h"
-#include "genetic2.h"
+#include "GeneticAI/genetic2.h"
 
-const int screenWidth2 = 1980;
-const int screenHeight2 = 1024;
+const int screenWidth = 1980;
+const int screenHeight = 1024;
 
 std::vector<MenuButton> menuButtonVector;
+
+Drawer draw;
+TrainAI train;
+Genetic gen;
 
 void RenderMenu() {
     const Color backgroundColor = BLACK;
@@ -29,27 +33,23 @@ void RenderMenu() {
 }
 
 void StartMenu() {
-    MenuButton button1 = MenuButton({screenWidth2/2-200,100}, {screenWidth2/2+200,100}, {screenWidth2/2+200,200}, {screenWidth2/2-200,200}, "map drawer", 20);
-    MenuButton button2 = MenuButton({screenWidth2/2-200,300}, {screenWidth2/2+200,300}, {screenWidth2/2+200,400}, {screenWidth2/2-200,400}, "train AI", 20);
-    MenuButton button3 = MenuButton({screenWidth2/2-200,500}, {screenWidth2/2+200,500}, {screenWidth2/2+200,600}, {screenWidth2/2-200,600}, "run AI", 20);
+    MenuButton button1 = MenuButton({screenWidth/2-200,100}, {screenWidth/2+200,100}, {screenWidth/2+200,200}, {screenWidth/2-200,200}, "map drawer", 20);
+    MenuButton button2 = MenuButton({screenWidth/2-200,300}, {screenWidth/2+200,300}, {screenWidth/2+200,400}, {screenWidth/2-200,400}, "Deep NN", 20);
+    MenuButton button3 = MenuButton({screenWidth/2-200,500}, {screenWidth/2+200,500}, {screenWidth/2+200,600}, {screenWidth/2-200,600}, "Genetic NN", 20);
+    MenuButton button4 = MenuButton({screenWidth/2-200,700}, {screenWidth/2+200,700}, {screenWidth/2+200,800}, {screenWidth/2-200,800}, "Qtable AI", 20);
     menuButtonVector.push_back(button1);
     menuButtonVector.push_back(button2);
     menuButtonVector.push_back(button3);
+    menuButtonVector.push_back(button4);
 }
 
 void UpdateMenu() {
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-        std::cout << "ja";
-    }
-    if (IsKeyPressed(KEY_U)) {
-        std::cout << "ja";
-        
-    }
+    
 }
 
 int main() {
     srand(time(NULL));
-    InitWindow(screenWidth2, screenHeight2, "menu");
+    InitWindow(screenWidth, screenHeight, "menu");
     SetTargetFPS(60);
     bool notChosenMenu = true;
     int choice;
@@ -79,14 +79,18 @@ int main() {
 
     CloseWindow();
     
-    if (choice == 0) {
-        Drawer draw;
-        draw.run();
-    } else if (choice == 1) {
-        trainAI();
-    } else if (choice == 2) {
-        Genetic gen;
-        gen.run();
+    switch (choice) {
+        case 0:
+            draw.run();
+            break;
+        case 1:
+            train.run();
+            break;
+        case 2:
+            gen.run();
+            break;
+        case 3:
+            break;
     }
     
     CloseWindow();

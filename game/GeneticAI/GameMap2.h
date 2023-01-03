@@ -6,6 +6,7 @@
 class GameMapE2 {
     public:
         GameMapE2();
+        ~GameMapE2() {};
         void draw();
         void setMap(nlohmann::json mapJson);
         int arraySize = 10;

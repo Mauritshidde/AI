@@ -4,104 +4,99 @@
 #include <ostream>
 
 #include "ray.h"
-#include "networkcode/nnLevel2.h"
+#include "../networkcode/nnLevel2.h"
 
 class Car {
     public:
-        Car(GameMapE* map, double newDirection, Vector2 newPosition);
+        Car(GameMapE* newMap, double newDirection, Vector2 newPosition, std::vector<int> newNNBlueprint = {16, 6, 4});
         ~Car();
-        void update(double deltaTime, GameMapE* map);
+        void update(double deltaTime);
         double accelerate(double dTime, bool forward);
         void castRay();
-        void controls();
         void draw(bool best);
         void createPolygon();
-        bool checkCollision(GameMapE* map);
+        bool checkCollision();
         bool polyIntersect(std::vector<Vector2> poly1, std::vector<Vector2> poly2);
-        bool checkPointCollision(GameMapE* map);
+        bool checkPointCollision();
         void restartLocation(double newDirection, double firstcheckpoint, Vector2 newPosition, double newEpsilon);
-        void setSpawn(Vector2 spawn, double newDirection);
 
-        std::vector<std::vector<double>> *returnPreviousStates();
-        int collectedPoints = 0;
+        int collectedPoints;
         int currentPoints;
         bool alive;
+
         std::vector<int> outputsbool;
-        std::vector<double> previousState, previousState1, previousState2, previousState3, previousState4;
-        std::vector<std::vector<double>> previousStates;
         std::vector<int> neuroncounts = {16, 6, 6, 6, 4};
-        NeuralNetwork neuralNetwork = NeuralNetwork({16, 12, 12, 6, 4});
+        std::vector<std::vector<double>> previousStates;
+
+        NeuralNetwork neuralNetwork;
+        GameMapE *map;
     private:
-        Rays rays;
-        void move(double deltaTime, int action);
-        void move2(double deltaTime, std::vector<double> actions, std::vector<double> offsets, GameMapE* map, double newEpsilon);
-        std::vector<double> move3(double deltaTime, std::vector<double> actions, std::vector<double> offsets, GameMapE* map, double newEpsilon);
-        std::vector<double> move4(double deltaTime, std::vector<double> actions, std::vector<double> offsets, GameMapE* map, double newEpsilon);
-        double friction = 20;
-        double acceleration = 50;
-        double speed = 0;
-        double maxSpeed = 200;
-        Vector2 position;
-        const Vector2 size{10, 20};
-        double direction = 0;
-        double angle;
-        Rectangle rectangle;
-        // bool controlType;
-        bool action[4];
-        std::vector<Vector2> polygon, wallVec, outerWallVec;
-        // int wallArraySize;
-        int currentPoint = 0;
-        std::vector<std::vector<Vector2>> points;
-        Vector2 previousPosition;
-        double timeSinceLastPoint = 0;
+        std::vector<double> move3(double deltaTime, std::vector<double> actions, std::vector<double> offsets, double newEpsilon);
+        std::vector<double> move4(double deltaTime, std::vector<double> actions, std::vector<double> offsets, double newEpsilon);
+
+        double friction, acceleration, speed, maxSpeed;
         double epsilon;
-        NeuralNetwork neuralNetworkUpdate = NeuralNetwork({16, 12, 12, 6, 4});
-        NeuralNetwork neuralNetworkUpdate2 = NeuralNetwork({16, 12, 12, 6, 4});
+        double timeSinceLastPoint;
+        double direction, angle;
+
+        int currentPoint;
+        
+        Vector2 position;
+        Vector2 previousPosition;
+        const Vector2 size{10, 20};
+
+        std::vector<Vector2> polygon, wallVec, outerWallVec;
+        std::vector<std::vector<Vector2>> points;
+
+        Rays rays;
+        Rectangle rectangle;
+        NeuralNetwork neuralNetworkUpdate;
+        NeuralNetwork neuralNetworkUpdate2;
 };
 
-Car::Car(GameMapE* map, double newDirection, Vector2 newPosition) {
+Car::Car(GameMapE* newMap, double newDirection, Vector2 newPosition, std::vector<int> newNNBlueprint) {
+    map = newMap;
+    neuralNetwork = NeuralNetwork(newNNBlueprint);
     neuralNetworkUpdate = neuralNetwork;
     neuralNetworkUpdate2 = neuralNetwork;
-    epsilon = 1;
-    timeSinceLastPoint = 0;
+
     alive = true;
-    currentPoints = 0;
-    rays.setWallVec();
-    direction = newDirection;
-    angle = (direction / -(180/PI));
+
     speed = 0;
+    epsilon = 1;
+    friction = 20;
+    maxSpeed = 200;
+    currentPoint = 0;
+    acceleration = 50;
+    currentPoints = 0;
+    collectedPoints = 0;
+    timeSinceLastPoint = 0;
+
     position = newPosition;
+    direction = newDirection;
     previousPosition = position;
+    angle = (direction / -(180/PI));
 }
 
 Car::~Car() {
-    // map = NULL;
-    // delete map;
-    // rays.~Rays();
+
 }
 
 void Car::restartLocation(double newDirection, double firstcheckpoint, Vector2 newPosition, double newEpsilon) {
     alive = true;
+
     speed = 0;
-    neuralNetworkUpdate = neuralNetwork;
-    position = newPosition;
-    previousPosition = position;
-    direction = newDirection;
-    angle = (direction / -(180/PI));
-    timeSinceLastPoint = 0;
-    currentPoint = firstcheckpoint;
-    epsilon = newEpsilon;
     currentPoints = 0;
-}
+    timeSinceLastPoint = 0;
 
-void Car::setSpawn(Vector2 spawn, double newDirection) {
-    position = spawn;
+    epsilon = newEpsilon;
+    position = newPosition;
     direction = newDirection;
+    previousPosition = position;
+    currentPoint = firstcheckpoint;
     angle = (direction / -(180/PI));
-
-    previousStates.clear();
+    neuralNetworkUpdate = neuralNetwork;
 }
-
 
 void Car::createPolygon() {
     polygon = {};
@@ -129,31 +124,16 @@ void Car::createPolygon() {
 }
 
 void Car::draw(bool best) {
-    Rectangle rectangle = {position.x, position.y, size.x, size.y};
+    rectangle = {position.x, position.y, size.x, size.y};
     DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, WHITE);  
     rays.draw();
-}
-
-void Car::controls() {
-    if (IsKeyDown(KEY_W)){
-        action[0] = 1;
-    } 
-    if (IsKeyDown(KEY_S)){
-        action[1] = 1;
-    } 
-    if (IsKeyDown(KEY_D)) {
-        action[2] = 1;
-    }
-    if (IsKeyDown(KEY_A)) {
-        action[3] = 1;
-    }
 }
 
 std::vector<double> getAction(double x, double y,double z,double w) {
     return {x,y,z,w};
 }
 
-std::vector<double> Car::move3(double deltaTime, std::vector<double> actions, std::vector<double> offsets, GameMapE* map, double epsilon) {
+std::vector<double> Car::move3(double deltaTime, std::vector<double> actions, std::vector<double> offsets, double epsilon) {
     double random = rand() % 100;
     random = random/100;
 
@@ -252,7 +232,7 @@ std::vector<double> Car::move3(double deltaTime, std::vector<double> actions, st
     return actions;
 }
 
-std::vector<double> Car::move4(double deltaTime, std::vector<double> actions, std::vector<double> offsets, GameMapE* map, double epsilon) {
+std::vector<double> Car::move4(double deltaTime, std::vector<double> actions, std::vector<double> offsets, double epsilon) {
     double random = rand() % 100;
     random = random/100;
 
@@ -333,7 +313,7 @@ bool Car::polyIntersect(std::vector<Vector2> poly1, std::vector<Vector2> poly2) 
     return false;
 }
 
-bool Car::checkCollision(GameMapE* map) {
+bool Car::checkCollision() {
     for (int i=0; i < map->wallVectorVec.size(); i++) {
         if (polyIntersect(polygon, {map->wallVectorVec.at(i), map->wallVectorVec.at((i+1)%map->wallVectorVec.size())})) {
             return true;
@@ -345,12 +325,10 @@ bool Car::checkCollision(GameMapE* map) {
         }
     }
 
-    // map = NULL;
-    // delete map;
     return false;
 }
 
-bool Car::checkPointCollision(GameMapE* map) {
+bool Car::checkPointCollision() {
     if (polyIntersect(polygon, {map->points.at(currentPoint).at(0), map->points.at(currentPoint).at(1)})) {
         if (currentPoint == map->points.size()-1) {
             currentPoint = 0;
@@ -361,12 +339,10 @@ bool Car::checkPointCollision(GameMapE* map) {
         return true;
     }
 
-    // map = NULL;
-    // delete map;
     return false;
 }
 
-void Car::update(double deltaTime, GameMapE* map) {
+void Car::update(double deltaTime) {
     if (alive) {
         float* x = new float(position.x);
         float* y = new float(position.y);
@@ -395,7 +371,7 @@ void Car::update(double deltaTime, GameMapE* map) {
             std::cout << actions.at(i) << " ";
         }
         std::cout << "\n";
-        actions = move4(deltaTime, actions, offsets, map, epsilon);
+        actions = move4(deltaTime, actions, offsets, epsilon);
 
         int bestAction = 0;
         for (int i=0; i < actions.size(); i++) {
@@ -404,7 +380,7 @@ void Car::update(double deltaTime, GameMapE* map) {
             }
         }
         double reward = 1;
-        if (checkPointCollision(map)) {
+        if (checkPointCollision()) {
             timeSinceLastPoint = 0;
             // neuralNetwork = neuralNetworkUpdate;
             // neuralNetworkUpdate2 = neuralNetworkUpdate;
@@ -418,9 +394,7 @@ void Car::update(double deltaTime, GameMapE* map) {
             reward = 0;
         } 
 
-
         std::vector<Vector3> offsetVec2 = rays.hitCoordVec3;
-
         std::vector<double> offsets4;
         for (int i=0; i < offsetVec2.size(); i++) {
             if (offsetVec2.at(i).z == 0) {
@@ -432,7 +406,7 @@ void Car::update(double deltaTime, GameMapE* map) {
         previousStates.push_back(offsets4);
         
         createPolygon();
-        if(checkCollision(map)) {
+        if(checkCollision()) {
             reward = -10;
             alive = false;
         } 
@@ -467,9 +441,4 @@ void Car::update(double deltaTime, GameMapE* map) {
     else {
         // neuralNetwork = neuralNetworkUpdate2;
     }
-}
-
-std::vector<std::vector<double>>* Car::returnPreviousStates() {
-    std::vector<std::vector<double>>* previousStatesP = new std::vector<std::vector<double>>(previousStates);
-    return previousStatesP;
 }
