@@ -4,7 +4,7 @@
 #include <ostream>
 
 #include "ray.h"
-#include "../networkcode/Qlearning.h"
+#include "../networkcode/Qtable/Qlearning.h"
 
 class TCar {
     public:

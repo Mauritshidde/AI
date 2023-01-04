@@ -4,7 +4,7 @@
 #include <ostream>
 
 #include "ray.h"
-#include "../networkcode/nnLevel2.h"
+#include "../networkcode/DeepNN/nnLevel2.h"
 
 class Car {
     public:

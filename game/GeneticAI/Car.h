@@ -6,7 +6,7 @@
 #include <cstdlib>
 
 #include "ray2.h"
-#include "../k/nn.h"
+#include "../networkcode/GeneticAI/nn.h"
 
 class GCar {
     public:
@@ -80,7 +80,7 @@ GCar::GCar(GameMapE2 newMap, double newDirection, Vector2 newPosition, std::vect
 }
 
 GCar::~GCar() {
-    // delete map;
+    delete map;
 }
 
 void GCar::restartLocation(double newDirection, double firstcheckpoint, Vector2 newPosition, double newEpsilon) {
