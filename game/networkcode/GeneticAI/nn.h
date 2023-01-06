@@ -103,7 +103,7 @@ void GeneticNeuralNetwork::saveNN() {
     }
 
     std::ofstream testfile;
-    testfile.open ("NeuralNetworks/NN.json");
+    testfile.open ("NeuralNetworks/GNN.json");
     testfile << jsonfile;
     testfile.close();
 }
