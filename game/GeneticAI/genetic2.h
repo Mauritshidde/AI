@@ -38,6 +38,7 @@ class Genetic {
 
         int bestCar = 0;
         int bestCarPoints;
+        int generation;
         bool door = true;
         GameMapE2 map;
         GeneticMenu buttonMenu;
@@ -50,7 +51,8 @@ Genetic::Genetic() {
     buttonMenu.addButton({{100,900}, {400, 900}, {400, 1050}, {100, 1050}}, "Save Neuralnetwork", 20);
     buttonMenu.addButton({{400,900}, {700, 900}, {700, 1050}, {400, 1050}}, "Load Neuralnetwork", 20);
 
-    network = GeneticNeuralNetwork({4, 6, 8});
+    network = GeneticNeuralNetwork({4, 8, 12, 18, 16});
+    generation = 0;
 
     std::ifstream f("maps/example.json");
     mapData = nlohmann::json::parse(f); 
@@ -71,7 +73,7 @@ void Genetic::Render() {
             bestCar = i;
         }
     }
-    DrawText(TextFormat("%f", cars.at(bestCar).collectedPoints), 10, 60, 20, WHITE);
+    DrawText(TextFormat("%f", generation), 10, 60, 20, WHITE);
     DrawText(TextFormat("%f", mutationRate), 10, 80, 20, WHITE);
 
     map.draw();
@@ -119,7 +121,7 @@ void Genetic::ResetCars() {
     for (int i=0; i < 200; i++) {
         GCar car = GCar(map, mapData["direction"]["0"], {mapData["spawn"]["0"]["x"], mapData["spawn"]["0"]["y"]}); 
 
-        if (i == 0 || i == 1) {
+        if (i == 0) {
             car.network.setNN(network);
         } else {
             car.network.mutate(network, mutationRate);
@@ -205,13 +207,20 @@ void Genetic::Update(double deltaTime) {
         }
     }
     if (alive == 0) {
-        network = cars.at(bestCar).network;
-        cars.at(bestCar).network.saveNN();
-        mutationRate -= 0.05;
-        if (mutationRate < 0) {
-            mutationRate = 0;
+        generation++;
+        if (generation >= 20) {
+            network = cars.at(bestCar).network;
+            cars.at(bestCar).network.saveNN();
+            mutationRate -= 0.05;
+            if (mutationRate < 0) {
+                mutationRate = 0;
+            }
+            SetCars(true);
+        } else {
+            network = cars.at(bestCar).network;
+            cars.at(bestCar).network.saveNN();
+            ResetCars();
         }
-        SetCars(true);
     }
 }   
 

@@ -10,7 +10,7 @@
 
 class GCar {
     public:
-        GCar(GameMapE2 newMap = GameMapE2(), double newDirection = 0, Vector2 newPosition = {0,0}, std::vector<int> newNNBlueprint = {4, 6, 8}, int rayAmount = 8, int rayLenght = 200);
+        GCar(GameMapE2 newMap = GameMapE2(), double newDirection = 0, Vector2 newPosition = {0,0}, std::vector<int> newNNBlueprint = {4, 8, 8, 12, 16}, int rayAmount = 16, int rayLenght = 200);
         ~GCar();
         void update(double deltaTime);
         double accelerate(double dTime, bool forward);
