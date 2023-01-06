@@ -80,7 +80,7 @@ GCar::GCar(GameMapE2 newMap, double newDirection, Vector2 newPosition, std::vect
 }
 
 GCar::~GCar() {
-    delete map;
+    // delete map;
 }
 
 void GCar::restartLocation(double newDirection, double firstcheckpoint, Vector2 newPosition, double newEpsilon) {
