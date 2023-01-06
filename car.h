@@ -19,7 +19,7 @@ class Car {
         bool checkPointCollision();
         int collectedPoints = 0;
         bool alive;
-        NeuralNetwork network = NeuralNetwork({8, 6, 2});
+        NeuralNetwork network = NeuralNetwork({4, 6, 8});
     private:
         Rays rays;
         void move(double deltaTime, std::vector<int> outputsbool);
@@ -36,7 +36,7 @@ class Car {
         bool action[4];
         std::vector<Vector2> polygon, wallVec, outerWallVec;
         int wallArraySize;
-        std::vector<int> ditistest = {8, 6, 2};
+        std::vector<int> ditistest = {4, 6, 8};
         int currentPoint = 0;
         std::vector<std::vector<Vector2>> points;
         
@@ -266,6 +266,7 @@ void Car::update(double deltaTime) {
         }
         std::vector<double> outputs;
         outputs = network.feedforward(offsets, network);
+        std::cout << outputs.size() << std::endl;
         // std::cout << outputs[0] << " " << outputs[1] << " " << outputs[2] << " " << outputs[3] << std::endl;
         
         std::vector<int> outputsbool;
@@ -278,6 +279,7 @@ void Car::update(double deltaTime) {
 
         // }
         move(deltaTime, outputsbool);
+        rays.update({position.x, position.y}, angle);
 
         createPolygon();
         if(checkCollision()) {

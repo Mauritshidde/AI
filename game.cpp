@@ -14,7 +14,7 @@ std::vector<Car> cars;
 
 std::vector<std::vector<double>> weights;
 std::vector<double> biases;
-NeuralNetwork network({8, 6, 2});
+NeuralNetwork network({4, 6, 8});
 
 
 bool server = false;
