@@ -145,7 +145,7 @@ int main() {
     Start();
     while (!WindowShouldClose()){
         double deltaTime = GetFrameTime();
-        Update(deltaTime);
+        Update(1/60.0f);
         Render();
     }
 
