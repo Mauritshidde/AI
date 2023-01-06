@@ -180,9 +180,11 @@ void GRays::castRays() {
     for (int i=0; i < rayAmount; i++) {
         double value;
         if (i != 0) {
-            value = i/float(rayAmount-1);
+            value = i/float(rayAmount);
         } else {
-            value = 0.5;
+            // value = i/float(rayAmount);
+
+            value = 0;
         }
 
         double rayAngle = lerp(halfRaySpread, -halfRaySpread, value);

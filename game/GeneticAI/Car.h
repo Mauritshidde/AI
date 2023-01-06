@@ -10,7 +10,7 @@
 
 class GCar {
     public:
-        GCar(GameMapE2 newMap = GameMapE2(), double newDirection = 0, Vector2 newPosition = {0,0}, std::vector<int> newNNBlueprint = {16, 6, 4});
+        GCar(GameMapE2 newMap = GameMapE2(), double newDirection = 0, Vector2 newPosition = {0,0}, std::vector<int> newNNBlueprint = {4, 6, 8}, int rayAmount = 8, int rayLenght = 200);
         ~GCar();
         void update(double deltaTime);
         double accelerate(double dTime, bool forward);
@@ -33,7 +33,7 @@ class GCar {
 
         GeneticNeuralNetwork network;
     private:
-        void move(double deltaTime, int action);
+        void move(double deltaTime, std::vector<int> action);
         
         const double friction = 20;
         const double acceleration = 50;
@@ -44,7 +44,6 @@ class GCar {
         double speed;
         double direction;
         double angle;
-        double epsilon;
         double timeSinceLastPoint;
 
         std::vector<std::vector<Vector2>> points;
@@ -57,16 +56,15 @@ class GCar {
         GameMapE2 *map;
 };
 
-GCar::GCar(GameMapE2 newMap, double newDirection, Vector2 newPosition, std::vector<int> newNNBlueprint) {
+GCar::GCar(GameMapE2 newMap, double newDirection, Vector2 newPosition, std::vector<int> newNNBlueprint, int rayAmount , int rayLenght) {
     network = GeneticNeuralNetwork(newNNBlueprint);
     neuroncounts = newNNBlueprint;
     map = new GameMapE2(newMap);
-    rays = GRays(16, 100);
+    rays = GRays(rayAmount, rayLenght);
 
     alive = true;
 
     speed = 0;
-    epsilon = 1;
     currentPoint = 0;
     currentPoints = 0;
     timeSinceLastPoint = 0;
@@ -80,7 +78,7 @@ GCar::GCar(GameMapE2 newMap, double newDirection, Vector2 newPosition, std::vect
 }
 
 GCar::~GCar() {
-    delete map;
+    // delete map;
 }
 
 void GCar::restartLocation(double newDirection, double firstcheckpoint, Vector2 newPosition, double newEpsilon) {
@@ -90,7 +88,6 @@ void GCar::restartLocation(double newDirection, double firstcheckpoint, Vector2 
     timeSinceLastPoint = 0;
     currentPoints = 0;
     
-    epsilon = newEpsilon;
     position = newPosition;
     direction = newDirection;
     previousPosition = position;
@@ -138,28 +135,43 @@ void GCar::draw(bool best) {
         } else {
             DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, WHITE);
         }
+        // rays.draw();
     } else {
         DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, RED);
     }
-    rays.draw();
 }
 
-void GCar::move(double deltaTime, int action) {
-    switch (action) {
-        case 0:
-            angle -= 3 * deltaTime;
-            direction += (3 * (180/M_PI)) * deltaTime;
-            break;
-        case 1:
-            angle += 3 * deltaTime;
-            direction -= (3 * (180/M_PI)) * deltaTime;
-            break;
-        case 2:
-            speed += acceleration * deltaTime;
-            break;
-        case 3:
-            speed -= acceleration * deltaTime;
-            break;
+void GCar::move(double deltaTime, std::vector<int> action) {
+    // switch (action) {
+    //     case 0:
+    //         angle -= 3 * deltaTime;
+    //         direction += (3 * (180/M_PI)) * deltaTime;
+    //         break;
+    //     case 1:
+    //         angle += 3 * deltaTime;
+    //         direction -= (3 * (180/M_PI)) * deltaTime;
+    //         break;
+    //     case 2:
+    //         speed += acceleration * deltaTime;
+    //         break;
+    //     case 3:
+    //         speed -= acceleration * deltaTime;
+    //         break;
+    // }
+
+    if (action.at(0) == 1) {
+        angle -= 3 * deltaTime;
+        direction += (3 * (180/M_PI)) * deltaTime;
+    }
+    if (action.at(1) == 1) {
+        angle += 3 * deltaTime;
+        direction -= (3 * (180/M_PI)) * deltaTime;
+    }
+    if (action.at(2) == 1) {
+        speed += acceleration * deltaTime;
+    }
+    if (action.at(3) == 1) {
+        speed -= acceleration * deltaTime;
     }
 
     if (speed > maxSpeed) {
@@ -226,6 +238,7 @@ bool GCar::checkPointCollision() {
             currentPoint++;
         }
         collectedPoints++;
+        timeSinceLastPoint = 0;
         return true;
     }
 
@@ -254,25 +267,24 @@ void GCar::update(double deltaTime) {
         }
         bool test = checkPointCollision();
         int bestindex = 0;
-        if (checkPointCollision()) {
-            collectedPoints++;
-            currentPoints++;
-            timeSinceLastPoint = 0;
-        }
+        // if (checkPointCollision()) {
+        //     // collectedPoints++;
+        //     // currentPoints++;
+        //     timeSinceLastPoint = 0;
+        // }
         timeSinceLastPoint += deltaTime;
-        if (timeSinceLastPoint > 20) {
+        if (timeSinceLastPoint > 4) {
             alive = false;
         }
 
         std::vector<double> actions2 = network.feedforward(offsets, network);
-        int highest = 0;
+        // int highest = 0;
+        std::vector<int> actionsint;
         for (int i=0; i < actions2.size(); i++) {
-            if (actions2.at(i) > actions2.at(highest)) {
-                highest = i;
-            }
+            actionsint.push_back(actions2.at(i));
         }
 
-        move(deltaTime, highest);
+        move(deltaTime, actionsint);
         rays.update(&position.x, &position.y, direction);
 
         createPolygon();

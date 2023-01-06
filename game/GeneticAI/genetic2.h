@@ -32,7 +32,7 @@ class Genetic {
         std::vector<std::vector<double>> weights;
         std::vector<double> biases;
         GeneticNeuralNetwork network;
-        double mutationRate = 0.3;
+        double mutationRate = 0.8;
 
         bool server = false;
 
@@ -50,7 +50,7 @@ Genetic::Genetic() {
     buttonMenu.addButton({{100,900}, {400, 900}, {400, 1050}, {100, 1050}}, "Save Neuralnetwork", 20);
     buttonMenu.addButton({{400,900}, {700, 900}, {700, 1050}, {400, 1050}}, "Load Neuralnetwork", 20);
 
-    network = GeneticNeuralNetwork({16, 6, 4});
+    network = GeneticNeuralNetwork({4, 6, 8});
 
     std::ifstream f("maps/example.json");
     mapData = nlohmann::json::parse(f); 
@@ -112,7 +112,7 @@ void Genetic::SetCars(bool mutate) {
 }
 
 void Genetic::ResetCars() {
-    std::ifstream f("NeuralNetworks/NN.json");
+    std::ifstream f("NeuralNetworks/GNN.json");
     nlohmann::json networkData = nlohmann::json::parse(f);
 
     cars.clear();   
@@ -135,7 +135,7 @@ void Genetic::Start() {
 }
 
 void Genetic::loadNN() {
-    std::ifstream f("NeuralNetworks/NN.json");
+    std::ifstream f("NeuralNetworks/GNN.json");
     nlohmann::json data = nlohmann::json::parse(f);
     
     int lenght1 = data["weights"]["lenght"].get<int>();
@@ -197,6 +197,21 @@ void Genetic::Update(double deltaTime) {
 
     for (int i=0; i < cars.size(); i++) {
         cars.at(i).update(deltaTime);
+    }
+    int alive = 0;
+    for (int i=0; i < cars.size(); i++) {
+        if (cars.at(i).alive) {
+            alive++; 
+        }
+    }
+    if (alive == 0) {
+        network = cars.at(bestCar).network;
+        cars.at(bestCar).network.saveNN();
+        mutationRate -= 0.01;
+        if (mutationRate < 0) {
+            mutationRate = 0;
+        }
+        SetCars(true);
     }
 }   
 

@@ -25,12 +25,12 @@ class Drawer {
     bool inner, outer, spawn, point, selectpoint;
 
     std::vector<bool> pointcolor;
+    std::vector<double> rotations;
+    std::vector<int> firstCheckPoints;
+    std::vector<Vector2> spawnLocations;
     std::vector<Vector2> innerMap, outerMap, points2;
     std::vector<std::vector<Vector2>> points;
     Vector2 spawnLocation, angle;
-    std::vector<Vector2> spawnLocations;
-    std::vector<double> rotations;
-    std::vector<int> firstCheckPoints;
 
     DrawMenu menu;
 };
