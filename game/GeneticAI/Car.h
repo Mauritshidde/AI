@@ -247,49 +247,42 @@ bool GCar::checkPointCollision() {
 
 void GCar::update(double deltaTime) {
     if (alive) {
-        rays.update(&position.x, &position.y, direction);
+        rays.update(&position.x, &position.y, angle);
         
         std::vector<Vector3> offsetVec = rays.hitCoordVec3;
+        // int offsets[offsetVec.size()];
         std::vector<double> offsets;
         for (int i=0; i < offsetVec.size(); i++) {
             if (offsetVec.at(i).z == 0) {
+                // offsets[i] = 0;
                 offsets.push_back(0);
             } else {
+                // offsets[i] = 1 - offsetVec.at(i).z;
                 offsets.push_back(1 - offsetVec.at(i).z);
             }
         }
         std::vector<double> outputs;
         outputs = network.feedforward(offsets, network);
-        outputsbool.clear();
-
+        std::cout << outputs.size() << std::endl;
+        // std::cout << outputs[0] << " " << outputs[1] << " " << outputs[2] << " " << outputs[3] << std::endl;
+        
+        std::vector<int> outputsbool;
         for (int i=0; i < 4; i++) {
             outputsbool.push_back(outputs[i]);
         }
         bool test = checkPointCollision();
-        int bestindex = 0;
-        // if (checkPointCollision()) {
-        //     // collectedPoints++;
-        //     // currentPoints++;
-        //     timeSinceLastPoint = 0;
-        // }
+        // if (collectedPoints != 0) {
+        // std::cout << collectedPoints << std::endl;
         timeSinceLastPoint += deltaTime;
-        if (timeSinceLastPoint > 4) {
-            alive = false;
-        }
-
-        std::vector<double> actions2 = network.feedforward(offsets, network);
-        // int highest = 0;
-        std::vector<int> actionsint;
-        for (int i=0; i < actions2.size(); i++) {
-            actionsint.push_back(actions2.at(i));
-        }
-
-        move(deltaTime, actionsint);
-        rays.update(&position.x, &position.y, direction);
-
+        // }
+        move(deltaTime, outputsbool);
+        rays.update(&position.x, &position.y, angle);
+    
         createPolygon();
         if(checkCollision()) {
             alive = false;
-        } 
+        } else if (timeSinceLastPoint > 6) {
+            alive = false;
+        }
     }
 }

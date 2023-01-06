@@ -32,7 +32,7 @@ class Genetic {
         std::vector<std::vector<double>> weights;
         std::vector<double> biases;
         GeneticNeuralNetwork network;
-        double mutationRate = 0.8;
+        double mutationRate = 1;
 
         bool server = false;
 
@@ -72,7 +72,7 @@ void Genetic::Render() {
         }
     }
     DrawText(TextFormat("%f", cars.at(bestCar).collectedPoints), 10, 60, 20, WHITE);
-    DrawText(TextFormat("%f", cars.at(bestCar).currentPoints), 10, 80, 20, WHITE);
+    DrawText(TextFormat("%f", mutationRate), 10, 80, 20, WHITE);
 
     map.draw();
     
@@ -207,7 +207,7 @@ void Genetic::Update(double deltaTime) {
     if (alive == 0) {
         network = cars.at(bestCar).network;
         cars.at(bestCar).network.saveNN();
-        mutationRate -= 0.01;
+        mutationRate -= 0.05;
         if (mutationRate < 0) {
             mutationRate = 0;
         }
