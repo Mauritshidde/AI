@@ -56,7 +56,7 @@ std::vector<double> NNLevel::FeedForward(std::vector<double> *neuralNetworkInput
             neuronValue += weights.at(i).at(j) * neuralNetworkInputValues->at(j);
         }
         networkNetValues.push_back(neuronValue - biases.at(i));
-        neuronValueSigmoid = sigmoid(neuronValue - biases.at(i));
+        neuronValueSigmoid = relu(neuronValue - biases.at(i));
         levelNeuronOutputValue.push_back(neuronValueSigmoid);
     }
     return levelNeuronOutputValue;
@@ -153,32 +153,96 @@ std::vector<double> NeuralNetwork::propagate(std::vector<double>* inputs, std::v
         ZjValue += level->biases.at(i);
         Zj.push_back(ZjValue);
     }
+    // std::cout << std::endl << std::endl;
+    // for (int i=0; i < outputValues.size(); i++) {
+    //     for (int j=0; j < inputs.size(); j++) {
+    //         Zj += level.weights.at(j).at(i) * level.levelNeuronOutputValue.at(j);
+    //     }
+    // }
+    
+    // double dATOdZ = derivativeSigmoid(Zj); // derivative A0 / derivative Zj
+
+    // for (int i=0; outputValues.size(); i++) {
+    //     std::vector<double> newWeights;
+    //     for (int j=0; j < inputs.size(); j++) {
+    //         level.weights.at(j).at(i); // for the first output neuron the first weight of all input neurons is used
+    //         double a = inputs.at(j);
+    //         double costWeight = 2 * (targets.at(j));
+    //         double costOverWeightRatio;
+    //         // newWeights.push_back();
+    //     }
+    //     newWeightValues.push_back(newWeights);
+    // }
 
     std::vector<std::vector<double>> weightGradients;
     for (int i=0; i < outputValues->size(); i++) {
-        double dATOdZ = derivativeSigmoid(Zj.at(i)); // derivative A / derivative Z
+        double dATOdZ = derivativeRelu(Zj.at(i)); // derivative A / derivative Z
 
         std::vector<double> weightGradient;
         for (int j=0; j < level->weights.at(i).size(); j++) {
             double a = inputs->at(j);
+            // double Aj = 2 * (level->levelNeuronOutputValue.at(i) - targets.at(i));
             double Aj = (level->levelNeuronOutputValue.at(i) - targets->at(i));
 
             double costOverWeightRatio = a * Aj * dATOdZ;
             weightGradient.push_back(costOverWeightRatio);
+            // std::cout << costOverWeightRatio << " " << Aj << " " << a << " " << dATOdZ << " ddd ";
         }
+        // std::cout << std::endl << std::endl;
         weightGradients.push_back(weightGradient);
     }
+    // newWeightsUpdate.push_back(weightGradients);
     newWeightsUpdate.insert(newWeightsUpdate.begin(), weightGradients);
 
     std::vector<double> biasGradients;
     for (int i=0; i < outputValues->size(); i++) {
-        double dATOdZ = derivativeSigmoid(Zj.at(i)); // derivative A / derivative Z
+        double dATOdZ = derivativeRelu(Zj.at(i)); // derivative A / derivative Z
         double Aj = (level->levelNeuronOutputValue.at(i) - targets->at(i));
 
         double costOverWeightRatio = 1 * Aj * dATOdZ;
         biasGradients.push_back(costOverWeightRatio);
     }
     newBiasesUpdate.insert(newBiasesUpdate.begin(), biasGradients);
+
+    // // calculate the partial derivitive of the total cost to the derivative of the input layers neuron
+    // for (int i=0; i < inputs.size(); i++) { 
+    //     for (int j=0; j < outputValues.size(); j++) {
+    //         for (int k=0; k < level.weights.at(i).size(); k++) {
+
+    //         }
+    //     }
+    //     double derivitiveSum;
+    //     for (int j=0; j < outputValues.size(); j++) {
+    //         derivitiveSum +=  2;
+    //     }
+    // }
+
+    // std::vector<double> nextLayerTarget;
+    // for (int k=0; k < outputValues.size(); k++) {
+    //     double nextNeuronValue;
+
+    //     for (int i=0; i < inputs.size(); i++) {
+    //         double zA = level->weights.at(k).at(i);
+    //         double dATOdZ = derivativeSigmoid(Zj.at(i)); // derivative A / derivative Z
+            
+    //         double weight = level->weights.at(i).at(k);
+    //         double Aj = 2 * (level->levelNeuronOutputValue.at(i) - targets.at(i));
+    //         // dit klopt /werkt niet
+    //         double costOverWeightRatio = weight * Aj * dATOdZ;
+    //         nextNeuronValue += costOverWeightRatio;
+    //         // std::vector<double> weightGradient;
+    //         // for (int j=0; j < level.weights.at(i).size(); j++) {
+    //         //     double weight = level.weights.at(j).at(k);
+    //         //     double Aj = 2 * (level.levelNeuronOutputValue.at(j) - targets.at(j));
+        
+    //         //     double costOverWeightRatio = weight * Aj * dATOdZ;
+    //         //     nextNeuronValue += costOverWeightRatio;
+    //         // }
+    //         // weightGradients.push_back(weightGradient);
+
+    //     }
+    //     nextLayerTarget.push_back(nextNeuronValue);
+    // }
 
     std::vector<double> nextLayerTarget;
     for (int i=0; i < inputs->size(); i++) {
@@ -192,16 +256,32 @@ std::vector<double> NeuralNetwork::propagate(std::vector<double>* inputs, std::v
         }
         nextLayerTarget.push_back(derivative);
     }
+    // std::cout << nextLayerTarget.size() << " Q " << inputs.size() << std::endl;
 
+    // change weights and biases by learning rate
     for (int i=0; i < outputValues->size(); i++) {
         for (int j=0; j < level->weights.at(i).size(); j++) {
+            // std::cout << level->weights.at(i).at(j) << " " << weightGradients.at(i).at(j) << " ";
             double newWeight = level->weights.at(i).at(j) + (*learningRate * weightGradients.at(i).at(j));
+            // std::cout << newWeight << " " << level->weights.at(i).at(j) << std::endl;
             level->weights.at(i).at(j) = newWeight;
+            // std::cout << weightGradients.at(i).at(j) << " weight update ";
         }
+        // std::cout << std::endl;
         double newBias = level->biases.at(i) + (*learningRate * biasGradients.at(i));
         level->biases.at(i) = newBias;
     }
     
+    // for (int i=0; i < outputValues.size(); i++) {
+    //     for (int j=0; j < level.weights.at(i).size(); j++) {
+        
+    //     }
+    // }
+
+    // nextLayerTarget this vector is used to 
+    // weightGradients
+    // biasGradients
+    // std::cout << std::endl;
     std::vector<double> costs;
     for (int i=0; i < outputValues->size(); i++) {
         double value = pow((outputValues->at(i)-targets->at(i)),2);
@@ -209,6 +289,7 @@ std::vector<double> NeuralNetwork::propagate(std::vector<double>* inputs, std::v
     }
 
     return nextLayerTarget;
+    // return costs;
 }
 
 std::vector<double> NeuralNetwork::propagate2(std::vector<double>* inputs, std::vector<double>* outputValues, std::vector<double>* targets, NNLevel* level, double* learningRate) {
@@ -226,22 +307,26 @@ std::vector<double> NeuralNetwork::propagate2(std::vector<double>* inputs, std::
     
     std::vector<std::vector<double>> weightGradients;
     for (int i=0; i < outputValues->size(); i++) {
+        // std::cout << targets.size() << " t " << outputValues.size() << std::endl;
         double Aj = targets->at(i);
-        double dATOdZ = derivativeSigmoid(Zj.at(i)); // derivative A / derivative Z
+        double dATOdZ = derivativeRelu(Zj.at(i)); // derivative A / derivative Z
 
         std::vector<double> weightGradient;
         for (int j=0; j < level->weights.at(i).size(); j++) {
             double a = inputs->at(j);
+            // double Aj = 2 * (inputs.at(j) - targets.at(i));
 
             double costOverWeightRatio = a * Aj * dATOdZ;
             weightGradient.push_back(costOverWeightRatio);
         }
         weightGradients.push_back(weightGradient);
     }
+    // newWeightsUpdate.push_back(weightGradients);
     newWeightsUpdate.insert(newWeightsUpdate.begin(), weightGradients);
     std::vector<double> biasGradients;
     for (int i=0; i < outputValues->size(); i++) {
-        double dATOdZ = derivativeSigmoid(Zj.at(i)); // derivative A / derivative Z
+        double dATOdZ = derivativeRelu(Zj.at(i)); // derivative A / derivative Z
+        // double Aj = 2 * (level->levelNeuronOutputValue.at(i) - targets.at(i));
         double Aj = targets->at(i);
 
         double costOverWeightRatio = 1 * Aj * dATOdZ;
@@ -249,18 +334,36 @@ std::vector<double> NeuralNetwork::propagate2(std::vector<double>* inputs, std::
     }
     newBiasesUpdate.insert(newBiasesUpdate.begin(), biasGradients);
 
+    // std::vector<double> nextLayerTarget;
+    // for (int k=0; k < outputValues.size(); k++) {
+    //     double nextNeuronValue;
+
+    //     for (int i=0; i < inputs.size(); i++) {
+    //         double dATOdZ = derivativeSigmoid(Zj.at(i)); // derivative A / derivative Z
+            
+    //         double weight = level->weights.at(i).at(k);
+    //         // double Aj = 2 * (level->levelNeuronOutputValue.at(i) - targets.at(i));
+    //         double Aj = targets.at(i);
+    
+    //         double costOverWeightRatio = weight * Aj * dATOdZ;
+    //         nextNeuronValue += costOverWeightRatio;
+    //     }
+    //     nextLayerTarget.push_back(nextNeuronValue);
+    // }
+
     std::vector<double> nextLayerTarget;
     for (int i=0; i < inputs->size(); i++) {
         double derivative;
         for (int j=0; j < outputValues->size(); j++) {
             double w = level->weights.at(j).at(i);
-            double a  = derivativeSigmoid(Zj.at(j));
+            double a  = derivativeRelu(Zj.at(j));
             double Co = targets->at(j);
             double v = w * a * Co;
             derivative += v;
         }
         nextLayerTarget.push_back(derivative);
     }
+    // std::cout << nextLayerTarget.size() << " Q " << inputs.size() << std::endl;
 
     std::vector<double> weights;
     for (int i=0; i < outputValues->size(); i++) {
@@ -270,10 +373,12 @@ std::vector<double> NeuralNetwork::propagate2(std::vector<double>* inputs, std::
         }
 
         double newBias = level->biases.at(i) + (*learningRate * biasGradients.at(i));
+        // double newBias = biasGradients.at(i);
         level->biases.at(i) = newBias;
 
     }
     
+    // return nextLayerTarget;
     return nextLayerTarget;
 }
 
@@ -308,23 +413,72 @@ void NeuralNetwork::backPropogation(std::vector<double>* newTargets, std::vector
     newWeightsUpdate.clear();
     newBiasesUpdate.clear();
     for (int i=0; i < newTargets->size(); i++) {
+        // targets.push_back(1 - newTargets.at(i));
         targets.push_back(newTargets->at(i));
     }
     feedForward(*input);
     double learningRate = 0.01;
     for (int i=levels.size()-1; -1 < i; i--) { // loop backwards trough te levels for backpropagation
+        // std::cout << targets.at(0) << " in" << std::endl;
+        // if (i == 0) {
+        //     targets = propagate(input, levels.at(i).levelNeuronOutputValue, targets, &levels.at(i), learningRate);
+        // } else {
+        //     targets = propagate(levels.at(i-1).levelNeuronOutputValue, levels.at(i).levelNeuronOutputValue, targets, &levels.at(i), learningRate);
+        // }
+        // std::cout << "ja" << std::endl;
         std::vector<double>* targetsPtr = new std::vector<double>(targets);
         if (i == 0) {
             targets = propagate2(input, &levels.at(i).levelNeuronOutputValue, targetsPtr, &levels.at(i), &learningRate);
+            // std::cout << "ja";
         } else if (i == levels.size()-1) {
             targets = propagate(&levels.at(i-1).levelNeuronOutputValue, &levels.at(i).levelNeuronOutputValue, targetsPtr, &levels.at(i), &learningRate);
+            // std::cout << targets.size() << std::endl;
+            // std::cout << "jna";
         } else {
             targets = propagate2(&levels.at(i-1).levelNeuronOutputValue, &levels.at(i).levelNeuronOutputValue, targetsPtr, &levels.at(i), &learningRate);
+            // std::cout << targets.size() << std::endl;
+            // std::cout << "jnweea";
         }
         delete targetsPtr;
         targetsPtr = NULL;
-    }
 
+        // std::cout << targets.at(0) << std::endl;
+
+        // for (int k=0; k < levels.at(i).levelOutputCount; k++) {
+        //     for (int j=0; j < levels.at(i).levelInputCount; j++) {
+        //         std::cout << "weight " << levels.at(i).weights.at(j).at(k) << " ";
+        //     }
+        //     std::cout << "bias " << levels.at(i).biases.at(k) << std::endl;
+        // }
+    }
+    // std::cout << newWeigths.at(0).at(0).size();
+    // for (int i=0; i < levels.size(); i++) {
+    //     for (int j=0; j < newWeigths.at(i).size(); j++) {
+    //         for (int k=0; k < levels.at(levels.size()-1-i).weights.at(j).size(); k++) {
+    //             newWeigths.at(i).at(j).at(k) = newWeigths.at(i).at(j).at(k) + newWeightsUpdate.at(i).at(j).at(k);
+    //         }
+    //         std::cout << "ja " << levels.at(levels.size()-1-i).weights.size() << " NEE " << newWeigths.at(i).at(j).size() << " j " << j << " j " << newWeigths.size() << " " << levels.size()-1-i  << std::endl;
+
+    //     }
+    //     std::cout << "ja " << newWeigths.at(i).size() << " i "  << i << std::endl;
+    // }    
+    // std::cout << newWeigths.size() << "  " << newWeightsUpdate.size() << " " << levels.size() << std::endl;
+
+    // // for (int i=levels.size()-1; 0 < i; i--) {
+    // //     for (int j=0; j < newWeigths.size(); j++) {
+    // //         newWeigths.at(i).at(j) = newWeigths.at(i).at(j) + newWeightsUpdate.at(i).at(j);
+    // //     }
+    // // }
+    // if (timesRun >= 10) {
+    //     timesRun = 0;
+    //     for (int i=levels.size(); 0 < i; i--) {
+    //         for (int j=0; j < newWeigths.size(); j++) {
+    //             for (int k=0; k < newWeigths.at(j).size(); k++) {
+    //                 levels.at(i).weights.at(j).at(k) = levels.at(i).weights.at(j).at(k) + learningRate * newWeightsUpdate.at(i).at(j).at(k);
+    //             }
+    //         }
+    //     }
+    // }
     for (int i=0; i < levels.size(); i++) {
         for (int j=0; j < levels.at(i).weights.size(); j++) {
             for (int k=0; k < levels.at(i).weights.at(j).size(); k++) {
@@ -334,11 +488,33 @@ void NeuralNetwork::backPropogation(std::vector<double>* newTargets, std::vector
         for (int j=0; j < levels.at(i).biases.size(); j++) {
             newBiases.at(i).at(j) = newBiases.at(i).at(j) +  newBiasesUpdate.at(i).at(j);
         }
+        // std::cout << newBiases.at(i).size() << "  " << newBiasesUpdate.at(i).size() << " " << levels.at(i).biases.size() << std::endl; 
+        // std::cout << "ja";
     }    
+    // std::cout << newWeigths.size() << "  " << newWeightsUpdate.size() << " " << levels.size() << std::endl;
 
+    // for (int i=levels.size()-1; 0 < i; i--) {
+    //     for (int j=0; j < newWeigths.size(); j++) {
+    //         newWeigths.at(i).at(j) = newWeigths.at(i).at(j) + newWeightsUpdate.at(i).at(j);
+    //     }
+    // }
     if (timesRun >= 10) {
         timesRun = 0;
+    //     for (int i=0; i < levels.size()-1; i++) {
+    //         for (int j=0; j < levels.at(i).weights.size(); j++) {
+    //             for (int k=0; k < levels.at(i).weights.at(j).size(); k++) {
+    //                 levels.at(i).weights.at(j).at(k) = levels.at(i).weights.at(j).at(k) + learningRate * (newWeigths.at(i).at(j).at(k)/10);
+    //             }
+    //         }
+    //     }
+    //     for (int i=0; i < levels.size()-1; i++) {
+    //         for (int j=0; j < newBiases.at(i).size(); j++) {
+    //             levels.at(i).biases.at(j) = levels.at(i).biases.at(j) + learningRate * (newBiases.at(i).at(j)/10); 
+    //         }
+    //     }
     }
+    // std::cout << std::endl;
+    // std::cout << std::endl;
 }
 
 void NeuralNetwork::saveNeuralNetwork() {
@@ -353,6 +529,7 @@ void NeuralNetwork::saveNeuralNetwork() {
             jsonfile["weights"][std::to_string(i)][std::to_string(j)]["lenght"] = levels.at(i).weights.at(j).size();
             for (int k=0; k < levels.at(i).weights.at(j).size(); k++) {
                 jsonfile["weights"][std::to_string(i)][std::to_string(j)][std::to_string(k)] = levels.at(i).weights.at(j).at(k);
+                // j["weights"][std::to_string(j)][k][levels.at(i).weights.at(j).at(k)];
             }
         }
         jsonfile["biases"][std::to_string(i)]["lenght"] = levels.at(i).biases.size();

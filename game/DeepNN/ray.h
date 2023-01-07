@@ -5,7 +5,7 @@
 
 class Rays {
     public:
-        Rays(int newRayAmount = 16, int newRaylenght = 200);
+        Rays(int newRayAmount = 8, int newRaylenght = 125);
         ~Rays();
         void update(float *x, float *y, double newAngle, GameMapE* map);
         void draw();
@@ -163,9 +163,9 @@ void Rays::castRays() {
     for (int i=0; i < rayAmount; i++) {
         double value;
         if (i != 0) {
-            value = i/float(rayAmount-1);
+            value = i/float(rayAmount);
         } else {
-            value = 0.5;
+            value = 0;
         }
 
         double rayAngle = lerp(halfRaySpread, -halfRaySpread, value);

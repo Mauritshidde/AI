@@ -8,7 +8,7 @@
 
 class Car {
     public:
-        Car(GameMapE* newMap, double newDirection, Vector2 newPosition, std::vector<int> newNNBlueprint = {16, 6, 4});
+        Car(GameMapE* newMap, double newDirection, Vector2 newPosition, std::vector<int> newNNBlueprint = {8, 12, 12, 6, 4});
         ~Car();
         void update(double deltaTime);
         double accelerate(double dTime, bool forward);
@@ -382,7 +382,7 @@ void Car::update(double deltaTime) {
         if (checkPointCollision()) {
             timeSinceLastPoint = 0;
             // neuralNetwork = neuralNetworkUpdate;
-            // neuralNetworkUpdate2 = neuralNetworkUpdate;
+            neuralNetworkUpdate2 = neuralNetworkUpdate;
             reward = 10;
             currentPoints++;
         }
@@ -413,19 +413,32 @@ void Car::update(double deltaTime) {
         std::vector<double> target;
         for (int i=0; i < actions.size(); i++) {
             if (i == bestAction) {
-                target.push_back(reward);
+                target.push_back(1);
             } else {
                 target.push_back(0);
+            }
+        }
+
+        std::vector<double> target2;
+        for (int i=0; i < actions.size(); i++) {
+            if (i == bestAction) {
+                target2.push_back(0);
+            } else {
+                target2.push_back(1);
             }
         }
 
         std::vector<double> *targetptr = new std::vector<double>(target);
         std::vector<double> *offsetsptr = new std::vector<double>(offsets);
 
-        neuralNetwork.backPropogation(targetptr, offsetsptr);
+        std::vector<double> *targetptr2 = new std::vector<double>(target2);
 
+        neuralNetwork.backPropogation(targetptr2, offsetsptr);
+        neuralNetworkUpdate2.backPropogation(targetptr, offsetsptr);
+        
         delete targetptr;
         delete offsetsptr;
+        delete targetptr2;
 
         float* x2 = new float(position.x);
         float* y2 = new float(position.y);
@@ -437,6 +450,6 @@ void Car::update(double deltaTime) {
         y2 = NULL;
     } 
     else {
-        // neuralNetwork = neuralNetworkUpdate2;
+        neuralNetwork = neuralNetworkUpdate2;
     }
 }

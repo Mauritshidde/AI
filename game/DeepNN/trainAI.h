@@ -40,7 +40,7 @@ TrainAI::TrainAI() {
     screenWidth = 1980;
     screenHeight = 1024;
     server = false;
-    epsilon = 1;
+    epsilon = 0;
     generation = 0;
     fps = 60;
 
