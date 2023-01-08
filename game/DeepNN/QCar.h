@@ -4,6 +4,7 @@
 #include <ostream>
 
 #include "ray.h"
+#include "checkpoint.h"
 #include "../networkcode/DeepNN/nnLevel2.h"
 
 class Car {
@@ -47,6 +48,7 @@ class Car {
         std::vector<Vector2> polygon, wallVec, outerWallVec;
         std::vector<std::vector<Vector2>> points;
 
+        Tracker tracker = Tracker(100, 50);
         Rays rays;
         Rectangle rectangle;
         NeuralNetwork neuralNetworkUpdate;
@@ -126,6 +128,7 @@ void Car::draw(bool best) {
     rectangle = {position.x, position.y, size.x, size.y};
     DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, WHITE);  
     rays.draw();
+    // tracker.draw();
 }
 
 std::vector<double> getAction(double x, double y,double z,double w) {
@@ -346,6 +349,7 @@ void Car::update(double deltaTime) {
         float* x = new float(position.x);
         float* y = new float(position.y);
         rays.update(x, y, angle, map);
+        tracker.update(x, y, angle, map);
 
         delete x;
         delete y;

@@ -96,12 +96,7 @@ void Drawer::saveMap() {
     j["inner"]["lenght"] = innerMap.size();
     j["outer"]["lenght"] = outerMap.size();
     j["points"]["lenght"] = points.size();
-    j["bestRoute"]["lenght"] = bestRoute.size();
 
-    for (int i=0; i < bestRoute.size(); i++) {
-        j["bestRoute"][std::to_string(i)]["x"] = bestRoute.at(i).x;
-        j["bestRoute"][std::to_string(i)]["y"] = bestRoute.at(i).y;
-    }
 
     for (int i=0; i < innerMap.size(); i++) {
         j["inner"][std::to_string(i)]["x"] = innerMap.at(i).x;
@@ -450,56 +445,65 @@ Vector3 getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
 }
 
 void Drawer::calcInnerWall(Vector2 firstPoint, Vector2 secondPoint) {
-    std::vector<Vector2> points;
+    int times = 10;
+    double x = (secondPoint.x - firstPoint.x) / times;
+    double y = (secondPoint.y - firstPoint.y) / times;
+    
     double directionX, directionY, direction, b1, b2;
     directionX = secondPoint.x - firstPoint.x;
     directionY = secondPoint.y - firstPoint.y;
     double f = directionY/directionX;
-    
 
-    b1 = firstPoint.x - f * firstPoint.y;
+    for (int i=1; i < times; i++) {
+        std::vector<Vector2> points;
+        float currentX = firstPoint.x + x * i;
+        float currentY = firstPoint.y + y * i;
 
-    Vector2 top, bottom;
-    top.y = 0;
-    top.x = b1;
 
-    bottom.y = screenHeight;
-    bottom.x = b1 + f * screenHeight;
-    
-    for (int i=0; i < outerMap.size(); i++) {
-        Vector3 t;
-        if (i == outerMap.size()-1) {
-            t = getIntersection(top, bottom, outerMap.at(i), outerMap.at(0));
-        } else {
-            t = getIntersection(top, bottom, outerMap.at(i), outerMap.at(i+1));
-        }
+        b1 = currentX - f * currentY;
 
-        if (t.z == 5) {
-            // std::cout << t.x << std::endl;
-            points.push_back({t.x, t.y});
-        }
-    }
-    if (points.size() > 0) {
-        int closest = 0;
-        double closestDistance = sqrt(pow(firstPoint.x - points.at(0).x, 2) + pow(firstPoint.y - points.at(0).y, 2));
-        for (int i=0; i < points.size(); i++) {
-            double distance = sqrt(pow(firstPoint.x - points.at(i).x, 2) + pow(firstPoint.y - points.at(i).y, 2));
-            if (distance < closestDistance) {
-                closestDistance = distance;
-                closest = i;
+        Vector2 top, bottom;
+        top.y = 0;
+        top.x = b1;
+
+        bottom.y = screenHeight;
+        bottom.x = b1 + f * screenHeight;
+        
+        for (int i=0; i < outerMap.size(); i++) {
+            Vector3 t;
+            if (i == outerMap.size()-1) {
+                t = getIntersection(top, bottom, outerMap.at(i), outerMap.at(0));
+            } else {
+                t = getIntersection(top, bottom, outerMap.at(i), outerMap.at(i+1));
+            }
+
+            if (t.z == 5) {
+                // std::cout << t.x << std::endl;
+                points.push_back({t.x, t.y});
             }
         }
+        if (points.size() > 0) {
+            int closest = 0;
+            double closestDistance = sqrt(pow(firstPoint.x - points.at(0).x, 2) + pow(firstPoint.y - points.at(0).y, 2));
+            for (int i=0; i < points.size(); i++) {
+                double distance = sqrt(pow(firstPoint.x - points.at(i).x, 2) + pow(firstPoint.y - points.at(i).y, 2));
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closest = i;
+                }
+            }
 
-        std::cout << points.at(closest).x << " " << points.at(closest).y << std::endl;
-        bestRoute.push_back({(firstPoint.x+points.at(closest).x)/2, (firstPoint.y+points.at(closest).y)/2});
+            std::cout << points.at(closest).x << " " << points.at(closest).y << std::endl;
+            bestRoute.push_back({(currentX+points.at(closest).x)/2, (currentY+points.at(closest).y)/2});
+        }
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        DrawLineV(bottom, top, PINK);
+        DrawCircleV(firstPoint, 10, PINK);
+
+        EndDrawing();
     }
-    BeginDrawing();
-    ClearBackground(BLACK);
-
-    DrawLineV(bottom, top, PINK);
-    DrawCircleV(firstPoint, 10, PINK);
-
-    EndDrawing();
 }
 
 void Drawer::run() {

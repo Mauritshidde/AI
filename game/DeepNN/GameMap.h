@@ -13,6 +13,7 @@ class GameMapE {
         Vector2 spawn;
         std::vector<Vector2> wallVectorVec, innerWall, outerWall, spawns;
         std::vector<std::vector<Vector2>> points;
+        std::vector<Vector2> bestRoute;
 };
 
 GameMapE::GameMapE() {
@@ -74,6 +75,14 @@ void GameMapE::setMap(nlohmann::json mapJson) {
         float y2 =  mapJson["points"][std::to_string(i)]["end"]["y"].get<float>();
 
         points.push_back({{x, y}, {x2, y2}});
+    }
+
+    int bestRouteAmount = mapJson["bestRoute"]["lenght"].get<int>();
+    for (int i=0; i < bestRouteAmount; i++) {
+        float x = mapJson["bestRoute"][std::to_string(i)]["x"].get<float>();
+        float y =  mapJson["bestRoute"][std::to_string(i)]["y"].get<float>();
+
+        bestRoute.push_back({x, y});
     }
 
 }

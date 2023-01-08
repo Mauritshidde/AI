@@ -91,6 +91,13 @@ void TrainAI::Render() {
     DrawText(TextFormat("%i", car->currentPoints), 10, 80, 20, WHITE);
     VisualiseNN visualiseNetwork = VisualiseNN(car);
     visualiseNetwork.DrawNeuralNetwork();
+    for (int i=0; i < map->bestRoute.size(); i++) {
+        if (i == map->bestRoute.size()-1) {
+            DrawLineV(map->bestRoute.at(i), map->bestRoute.at(0), YELLOW);
+        } else {
+            DrawLineV(map->bestRoute.at(i), map->bestRoute.at(i+1), YELLOW);
+        }
+    }
     DrawFPS(10,10);
     EndDrawing();
 
