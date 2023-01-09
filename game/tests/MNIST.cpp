@@ -3,7 +3,7 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 
-#include "networkcode/nnLevel2.h"
+#include "../networkcode/DeepNN/nnLevel2.h"
 
 int correct, notcorrect;
 
@@ -49,7 +49,7 @@ int main() {
     // }
 
     srand(time(NULL));
-    NeuralNetwork nn({784, 32, 32, 16, 10});
+    NeuralNetwork nn({784, 1000, 1000, 10});
     // std::vector<double> input;
     for (int z=0; z < 9980; z++) {
         std::vector<double> input;

@@ -16,11 +16,11 @@ class TrainAI {
         ~TrainAI();
         void run();
     private:
-        void SetCar();
-        void CheckCar();
-        void Render();
-        void Start();
-        void Update(double deltaTime);
+        void setCar();
+        void checkCar();
+        void render();
+        void start();
+        void update(double deltaTime);
         // const int screenWidth;
         int screenWidth;
         int screenHeight;
@@ -57,15 +57,15 @@ TrainAI::~TrainAI() {
     delete map;
 }
 
-void TrainAI::SetCar() {
+void TrainAI::setCar() {
     int value2 = mapData["spawn"]["lenght"].get<int>();
     int value = rand() % value2;
     car->restartLocation(mapData["direction"][std::to_string(value)].get<float>(), mapData["spawn"][std::to_string(value)]["firstcheckpoint"].get<float>(), map->spawns.at(value), epsilon);
 }
 
-void TrainAI::CheckCar() {
+void TrainAI::checkCar() {
     if (!car->alive) {
-        SetCar();
+        setCar();
         generation++;
         if (generation >= 2000) {
             epsilon -= 0.1;
@@ -77,7 +77,7 @@ void TrainAI::CheckCar() {
     }
 }
 
-void TrainAI::Render() {
+void TrainAI::render() {
     const Color backgroundColor = BLACK;
 
     BeginDrawing();
@@ -94,15 +94,15 @@ void TrainAI::Render() {
     DrawFPS(10,10);
     EndDrawing();
 
-    CheckCar();
+    checkCar();
 }
 
-void TrainAI::Start() {
+void TrainAI::start() {
     map->setMap(mapData);
-    SetCar();
+    setCar();
 }
 
-void TrainAI::Update(double deltaTime) {
+void TrainAI::update(double deltaTime) {
     std::ifstream f("NeuralNetworks/NN.json");
     nlohmann::json networkData = nlohmann::json::parse(f);
     f.close();
@@ -111,7 +111,7 @@ void TrainAI::Update(double deltaTime) {
     }
     if (IsKeyPressed(KEY_RIGHT_CONTROL)) {
         car->neuralNetwork.loadNeuralNetwork(networkData);
-        SetCar();
+        setCar();
     }
     
     car->update(1.0f/60.0f);
@@ -122,10 +122,10 @@ void TrainAI::run() {
     
     InitWindow(screenWidth, screenHeight, "train Ai");
     SetTargetFPS(fps);
-    Start();
+    start();
     while (!WindowShouldClose()){
-        Update(float(1.0/60.0));
-        Render();
+        update(float(1.0/60.0));
+        render();
     }
     
     CloseWindow();
