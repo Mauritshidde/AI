@@ -40,12 +40,6 @@ Drawer::Drawer() {
     float screenWidthf, screenHeightf;
     screenWidthf = float(screenWidth);
     screenHeightf = float(screenHeight);
-    menu = DrawMenu({{screenWidthf-200, 0}, {screenWidthf, 0}, {screenWidthf, screenHeightf}, {screenWidthf-200, screenHeightf}});
-    // menu = DrawMenu({{0, screenHeightf-150}, {screenWidthf, screenHeightf-150}, {screenWidthf, screenHeightf}, {0, screenHeightf}});
-    // menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 220}, {screenWidthf-180, 220}}}, "space = save", 10);
-    menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 80}, {screenWidthf-180, 80}}}, "save map", 15);
-    menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 80}, {screenWidthf-180, 80}}}, "place checkpoints", 10);
-    menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 80}, {screenWidthf-180, 80}}}, "save map", 15);
 }
 
 bool Drawer::clickOnLine(Vector2 location, int i) {
@@ -333,36 +327,6 @@ void Drawer::Update(double deltaTime) {
     }
 }   
 
-// void Drawer::calcInnerWall(Vector2 firstPoint, Vector2 secondPoint) {
-//     std::vector<Vector2> points;
-//     double directionX, directionY, direction, b1, b2;
-//     directionX = firstPoint.x - secondPoint.x;
-//     directionY = firstPoint.y - secondPoint.y;
-
-
-//     b1 = directionY * firstPoint.y - directionX * firstPoint.x;
-//     b2 = directionY * secondPoint.y - directionX * secondPoint.x;
-
-    
-//     for (int i=0; i < map->outerWall.size(); i++) {
-//         Vector2 newPoints;
-//         double t = directionX - map->outerWall.at(i).x; 
-//         newPoints.x = (directionY + b1)/t;
-//         newPoints.y = newPoints.x *  directionX + b1;
-//         points.push_back(newPoints);
-//     }
-
-//     int closest = 0;
-//     double closestDistance = sqrt(pow(firstPoint.x - points.at(0).x, 2) + pow(firstPoint.y - points.at(0).y, 2));
-//     for (int i=0; i < points.size(); i++) {
-//         double distance = sqrt(pow(firstPoint.x - points.at(i).x, 2) + pow(firstPoint.y - points.at(i).y, 2));
-//         if (distance < closestDistance) {
-//             closestDistance = distance;
-//             closest = i;
-//         }
-//     }
-// }
-
 double lerps(double A, double B, double t) {
     double value = A + (B-A) *t;
     return value;
@@ -391,62 +355,6 @@ Vector3 getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
     }
     std::cout << bottom << std::endl;
     return test;
-    
-    
-    // float s1_x, s1_y, s2_x, s2_y;
-    // s1_x = B.x - A.x;     
-    // s1_y = B.y - A.y;
-    // s2_x = D.x - C.x;     
-    // s2_y = D.y - C.y;
-
-    // float s, t;
-    // s = (-s1_y * (A.x - C.x) + s1_x * (A.y - C.y)) / (-s2_x * s1_y + s1_x * s2_y);
-    // t = ( s2_x * (A.y - C.y) - s2_y * (A.x - C.x)) / (-s2_x * s1_y + s1_x * s2_y);
-
-    // if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
-    // {
-    //     float i_x, i_y;
-    //     if (i_x != NULL) {
-    //         i_x = A.x + (t * s1_x);
-    //     }
-    //     if (i_y != NULL) {
-    //         i_y = A.y + (t * s1_y);
-    //     }
-    //     return {i_x, i_y, 5};
-    // }
-
-    // return {0,0,0}; // No collision
-    
-    // double xTop = ((A.x * B.y - A.y * B.x) * (C.x - D.x)) - ((A.x - B.x) * (C.x * D.y - C.y * D.x));
-    // double yTop = ((A.x * B.y - A.y * B.x) * (C.y - D.y)) - ((A.y - B.y) * (C.x * D.y - C.y * D.x));
-    // double bottom = ((A.x - B.x) * (C.y - D.y)) - ((A.y - B.y) * (C.x - D.x));
-    // double pX = xTop/bottom;
-    // double pY = yTop/bottom;
-    // Vector3 intersection;
-    // if (pX == 0) {
-    //     intersection = {float(pX), float(pY), 0};
-    // } else {
-    //     intersection = {float(pX), float(pY), 5};
-    // }
-    // return intersection;
-    // float a1 = B.y - A.y;
-    // float b1 = A.x - B.x;
-    // float c1 = a1*(A.x) + b1*(A.y);
-
-    // float a2 = D.y - C.y;
-    // float b2 = C.x - D.x;
-    // float c2 = a2*(C.x)+ b2*(C.y);
-    // float determinant = a1*b2 - a2*b1;
-    // if (determinant == 0)
-    // {
-    //     return {0, 0, 0};
-    // }
-    // else
-    // {
-    //     float x = (b2*c1 - b1*c2)/determinant;
-    //     float y = (a1*c2 - a2*c1)/determinant;
-    //     return {x, y, 5};
-    // }
 }
 
 void Drawer::calcInnerWall(Vector2 firstPoint, Vector2 secondPoint) {
