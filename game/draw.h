@@ -364,15 +364,27 @@ void Drawer::calcInnerWall(Vector2 firstPoint, Vector2 secondPoint) {
     directionY = secondPoint.y - firstPoint.y;
     double f = directionY/directionX;
     
+    // b1 = firstPoint.x * x + y * firstPoint.y;
+    //     // b1 = firstPoint.x - f * firstPoint.y;
 
-    b1 = firstPoint.x - f * firstPoint.y;
+    //     Vector2 top, bottom;
+    //     top.y = 0;
+    //     top.x = (b1)/x;
+
+    //     bottom.y = screenWidth;
+    //     bottom.x = (b1 - y * screenWidth)/x;
+    
+    // b1 = firstPoint.x - f * firstPoint.y;
+
+    b1 = firstPoint.x * directionX + directionY * firstPoint.y;
+    // b1 = firstPoint.x - f * firstPoint.y;
 
     Vector2 top, bottom;
     top.y = 0;
-    top.x = b1;
+    top.x = (b1)/directionX;
 
-    bottom.y = screenHeight;
-    bottom.x = b1 + f * screenHeight;
+    bottom.y = screenWidth;
+    bottom.x = (b1 - directionY * screenWidth)/directionX;
     
     for (int i=0; i < outerMap.size(); i++) {
         Vector3 t;

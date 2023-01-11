@@ -128,7 +128,7 @@ void Car::draw(bool best) {
     rectangle = {position.x, position.y, size.x, size.y};
     DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, WHITE);  
     rays.draw();
-    // tracker.draw();
+    tracker.draw();
 }
 
 std::vector<double> getAction(double x, double y,double z,double w) {
