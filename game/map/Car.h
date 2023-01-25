@@ -6,11 +6,11 @@
 #include <cstdlib>
 
 #include "ray2.h"
-#include "../networkcode/GeneticAI/nnLevel2.h"
+#include "nn.h"
 
 class GCar {
     public:
-        GCar(GameMapE2 newMap = GameMapE2(), double newDirection = 0, Vector2 newPosition = {0,0}, std::vector<int> newNNBlueprint = {8, 12, 12, 6, 4}, int rayAmount = 8, int rayLenght = 200);
+        GCar(GameMapE2 newMap = GameMapE2(), double newDirection = 0, Vector2 newPosition = {0,0}, std::vector<int> newNNBlueprint = {4, 6, 6, 8}, int rayAmount = 8, int rayLenght = 200);
         ~GCar();
         void update(double deltaTime);
         double accelerate(double dTime, bool forward);
@@ -31,7 +31,7 @@ class GCar {
         std::vector<int> neuroncounts;
         std::vector<double> previousState, previousState1, previousState2, previousState3, previousState4;
 
-        GeneticNeuralNetwork network;
+        NeuralNetwork network;
     private:
         void move(double deltaTime, std::vector<int> action);
         
@@ -57,19 +57,15 @@ class GCar {
 };
 
 GCar::GCar(GameMapE2 newMap, double newDirection, Vector2 newPosition, std::vector<int> newNNBlueprint, int rayAmount , int rayLenght) {
-    network = GeneticNeuralNetwork(newNNBlueprint);
+    network = NeuralNetwork(newNNBlueprint);
     neuroncounts = newNNBlueprint;
     map = new GameMapE2(newMap);
     rays = GRays(rayAmount, rayLenght);
 
     alive = true;
 
-    std::ifstream f("maps/example.json");
-    nlohmann::json mapData = nlohmann::json::parse(f); 
-    f.close();
-
     speed = 0;
-    currentPoint = mapData["spawn"][std::to_string(19)]["firstcheckpoint"].get<float>();
+    currentPoint = 0;
     currentPoints = 0;
     timeSinceLastPoint = 0;
     
@@ -146,23 +142,6 @@ void GCar::draw(bool best) {
 }
 
 void GCar::move(double deltaTime, std::vector<int> action) {
-    // switch (action) {
-    //     case 0:
-    //         angle -= 3 * deltaTime;
-    //         direction += (3 * (180/M_PI)) * deltaTime;
-    //         break;
-    //     case 1:
-    //         angle += 3 * deltaTime;
-    //         direction -= (3 * (180/M_PI)) * deltaTime;
-    //         break;
-    //     case 2:
-    //         speed += acceleration * deltaTime;
-    //         break;
-    //     case 3:
-    //         speed -= acceleration * deltaTime;
-    //         break;
-    // }
-
     if (action.at(0) == 1) {
         angle -= 3 * deltaTime;
         direction += (3 * (180/M_PI)) * deltaTime;
@@ -254,35 +233,24 @@ void GCar::update(double deltaTime) {
         rays.update(&position.x, &position.y, angle);
         
         std::vector<Vector3> offsetVec = rays.hitCoordVec3;
-        // int offsets[offsetVec.size()];
         std::vector<double> offsets;
         for (int i=0; i < offsetVec.size(); i++) {
             if (offsetVec.at(i).z == 0) {
-                // offsets[i] = 0;
                 offsets.push_back(0);
             } else {
-                // offsets[i] = 1 - offsetVec.at(i).z;
                 offsets.push_back(1 - offsetVec.at(i).z);
             }
         }
         std::vector<double> outputs;
-        outputs = network.feedForward(offsets);
-        // std::cout << outputs.size() << std::endl;
-        // std::cout << outputs[0] << " " << outputs[1] << " " << outputs[2] << " " << outputs[3] << std::endl;
+        outputs = network.feedforward(offsets, network);
+        std::cout << outputs.size() << std::endl;
         
         std::vector<int> outputsbool;
         for (int i=0; i < 4; i++) {
-            if (outputs.at(i) >= 0.5) {
-                outputsbool.push_back(1);
-            } else {
-                outputsbool.push_back(0);
-            }
+            outputsbool.push_back(outputs[i]);
         }
         bool test = checkPointCollision();
-        // if (collectedPoints != 0) {
-        // std::cout << collectedPoints << std::endl;
         timeSinceLastPoint += deltaTime;
-        // }
         move(deltaTime, outputsbool);
         rays.update(&position.x, &position.y, angle);
     

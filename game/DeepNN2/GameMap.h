@@ -51,14 +51,16 @@ void GameMapE::draw() {
     Vector2 outerWallarr[outerWall.size()];
 
     for (int i=0; i < wallVectorVec.size(); i++) {
-        // float x = (wallVectorVec.at(i).x/1980)*screenWidth;
-        // float y = (wallVectorVec.at(i).y/1024)*screenHeight;
-        wallVector[i] = wallVectorVec.at(i);
+        float x = (wallVectorVec.at(i).x/1980)*screenWidth;
+        float y = (wallVectorVec.at(i).y/1024)*screenHeight;
+        wallVector[i] = {x,y};
+        // wallVector[i] = wallVectorVec.at(i);
     }
     for (int i=0; i < outerWall.size(); i++) {
-        // float x = (outerWall.at(i).x/1980)*screenWidth;
-        // float y = (outerWall.at(i).y/1024)*screenHeight;
-        outerWallarr[i] = outerWall.at(i);
+        float x = (outerWall.at(i).x/1980)*screenWidth;
+        float y = (outerWall.at(i).y/1024)*screenHeight;
+        outerWallarr[i] = {x,y};
+        // outerWallarr[i] = outerWall.at(i);
     }
 
     DrawLineStrip(wallVector, arraySize, WHITE);
@@ -67,8 +69,8 @@ void GameMapE::draw() {
     DrawLineStrip(outerWallarr, outerSize, WHITE);
     DrawLineV(outerWallarr[0], outerWallarr[outerSize-1], WHITE);
     for (int i=0; i < points.size(); i++) {
-        // DrawLine((points.at(i).at(0).x/1980)*screenWidth, (points.at(i).at(0).y/1024)*screenHeight, (points.at(i).at(1).x/1980)*screenWidth, (points.at(i).at(1).y/1024)*screenHeight, YELLOW);   
-        DrawLine(points.at(i).at(0).x, points.at(i).at(0).y, points.at(i).at(1).x, points.at(i).at(1).y, YELLOW);   
+        DrawLine((points.at(i).at(0).x/1980)*screenWidth, (points.at(i).at(0).y/1024)*screenHeight, (points.at(i).at(1).x/1980)*screenWidth, (points.at(i).at(1).y/1024)*screenHeight, YELLOW);   
+        // DrawLine(points.at(i).at(0).x, points.at(i).at(0).y, points.at(i).at(1).x, points.at(i).at(1).y, YELLOW);   
 
     }
 }

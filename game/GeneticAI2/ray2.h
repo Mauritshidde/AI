@@ -3,48 +3,66 @@
 #include <vector>
 #include <iostream>
 
-class Rays {
+class GRays {
     public:
-        Rays(int newRayAmount = 8, int newRaylenght = 200);
-        ~Rays();
-        void update(float *x, float *y, double newAngle, GameMapE* map);
+        GRays(int newRayAmount = 8, int newRayLenght = 200);
+        ~GRays();
+        void update(float *x, float *y, double newAngle);
         void draw();
+        void setMap(GameMapE2 newMap);
         double lerp(double A, double B, double t);
         Vector4 getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D);
         void SetSpawn(Vector2* ps);
         int rayAmountInt;
         std::vector<Vector3> hitCoordVec3; 
     private:
-        bool calcRayHits(int endRayLoc, GameMapE* map);
+        bool calcRayHits(int endRayLoc);
         void castRays();
 
+        Vector2 position;
         Vector2 startRay;
-        Vector3 hitCoordVec;
         std::vector<Vector2> eindRay, wallVector, outerWallvector; 
+        Vector3 hitCoordVec;
 
-        int mapArraySize, outerMapArraySize, rayAmount;
         double angle, rayLenght, rayAngle;
-        const double raySpread = M_PI*2;
-        const double halfRaySpread = raySpread/2;
+        int mapArraySize, outerMapArraySize, rayAmount;
+        
+        double raySpread = M_PI*2;
+        double halfRaySpread = raySpread/2;
 
+        GameMapE2 *map;
 };
 
-Rays::Rays(int newRayAmount, int newRaylenght) {
+GRays::GRays(int newRayAmount, int newRayLenght) {
     rayAmount = newRayAmount;
     rayAmountInt = newRayAmount;
-    rayLenght = newRaylenght;
+    rayLenght = newRayLenght;
+
+    map = new GameMapE2();
 }
 
-Rays::~Rays() {
+GRays::~GRays() {
 
 }
 
-double Rays::lerp(double A, double B, double t) {
+void GRays::setMap(GameMapE2 newMap) {
+    delete map;
+    map = new GameMapE2(newMap);
+}
+
+void GRays::SetSpawn(Vector2* ps) {
+    position = *ps;
+    delete ps;
+    ps = NULL;
+}
+
+
+double GRays::lerp(double A, double B, double t) {
     double value = A + (B-A) *t;
     return value;
 }
 
-Vector4 Rays::getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
+Vector4 GRays::getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
     double tTop = (D.x-C.x) * (A.y-C.y) - (D.y-C.y) * (A.x-C.x);
     double uTop = (C.y-A.y) * (A.x-B.x) - (C.x-A.x) * (A.y-B.y);
     double bottom = (D.y-C.y) * (B.x-A.x) - (D.x-C.x) * (B.y-A.y);
@@ -70,10 +88,9 @@ Vector4 Rays::getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
 
 
 
-bool Rays::calcRayHits(int endRayLoc, GameMapE* map) {
+bool GRays::calcRayHits(int endRayLoc) {
     std::vector<Vector3> touches;
     Vector2 endRay = eindRay.at(endRayLoc);
-
     for (int i=0; i < map->arraySize; i++) {
         Vector4 test;
         if (i < map->arraySize-1) {
@@ -125,7 +142,7 @@ bool Rays::calcRayHits(int endRayLoc, GameMapE* map) {
     return false;
 }
 
-void Rays::draw() {
+void GRays::draw() {
     for (int i=0; i < rayAmount; i++) {
         Vector2 start = {startRay.x, startRay.y};
         if (hitCoordVec3.at(i).x == 0 && hitCoordVec3.at(i).y == 0 && hitCoordVec3.at(i).z == 0) {
@@ -138,7 +155,7 @@ void Rays::draw() {
     }
 }
 
-void Rays::update(float* x, float* y, double newAngle, GameMapE* map) {
+void GRays::update(float* x, float* y, double newAngle) {
     eindRay = {};
     hitCoordVec3 = {};
     angle = newAngle;
@@ -148,32 +165,33 @@ void Rays::update(float* x, float* y, double newAngle, GameMapE* map) {
 
     castRays();
     for (int i=0; i < rayAmount; i++) {
-        if (calcRayHits(i, map)) {
+        if (calcRayHits(i)) {
             hitCoordVec3.push_back(hitCoordVec);
         } else {
             hitCoordVec3.push_back({});
         }
+        for (int i=0; i < 8; i++) {
+            
+        }
     }
 }
 
-void Rays::castRays() {
+void GRays::castRays() {
     for (int i=0; i < rayAmount; i++) {
         double value;
         if (i != 0) {
             value = i/float(rayAmount);
         } else {
+            // value = i/float(rayAmount);
+
             value = 0;
         }
 
         double rayAngle = lerp(halfRaySpread, -halfRaySpread, value);
         rayAngle += angle;
 
-        float eindx = (startRay.x  - sin(rayAngle) * rayLenght);
+        float eindx = (startRay.x - sin(rayAngle) * rayLenght);
         float eindy = (startRay.y - cos(rayAngle) * rayLenght);
-
-        // float eindx = (((startRay.x/1980)*GetScreenWidth())  - sin(rayAngle) * rayLenght);
-        // float eindy = (((startRay.y/1024)*GetScreenHeight()) - cos(rayAngle) * rayLenght);
-
 
         Vector2 newEindRay = {eindx, eindy};
 

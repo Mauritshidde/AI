@@ -25,7 +25,7 @@ class Car {
         bool alive;
 
         std::vector<int> outputsbool;
-        std::vector<int> neuroncounts = {18, 12, 12, 6, 4};
+        std::vector<int> neuroncounts = {16, 6, 6, 6, 4};
 
         NeuralNetwork neuralNetwork;
         GameMapE *map;
@@ -78,8 +78,8 @@ Car::Car(GameMapE* newMap, double newDirection, Vector2 newPosition, std::vector
     previousPosition = position;
     angle = (direction / -(180/PI));
 
-    position.x = (position2.x/1980)*GetScreenWidth();
-    position.y = (position2.y/1024)*GetScreenHeight();
+    // position.x = (position2.x/1980)*GetScreenWidth();
+    // position.y = (position2.y/1024)*GetScreenHeight();
 }
 
 Car::~Car() {
@@ -102,8 +102,8 @@ void Car::restartLocation(double newDirection, double firstcheckpoint, Vector2 n
     angle = (direction / -(180/PI));
     neuralNetworkUpdate = neuralNetwork;
 
-    position.x = (position2.x/1980)*GetScreenWidth();
-    position.y = (position2.y/1024)*GetScreenHeight();
+    // position.x = (position2.x/1980)*GetScreenWidth();
+    // position.y = (position2.y/1024)*GetScreenHeight();
 }
 
 void Car::createPolygon() {
@@ -132,8 +132,8 @@ void Car::createPolygon() {
 }
 
 void Car::draw(bool best) {
-    rectangle = {position.x, position.y, size.x, size.y};
-    DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, WHITE);  
+    rectangle = {(position.x/1980)*GetScreenWidth(), (position.y/1024)*GetScreenHeight(), (size.x/1980)*GetScreenWidth(), (size.y/1024)/GetScreenHeight()};
+    DrawRectanglePro(rectangle, {((size.x/1980)*GetScreenWidth())/2, ((size.y/1024)/GetScreenHeight())/2}, direction, WHITE);  
     rays.draw();
 }
 
@@ -289,10 +289,10 @@ std::vector<double> Car::move4(double deltaTime, std::vector<double> actions, st
 
     speed = maxSpeed;
     
-    position2.x -= sin(angle) * speed * deltaTime;
-    position2.y -= cos(angle) * speed * deltaTime;
-    position.x = (position2.x/1980)*GetScreenWidth();
-    position.y = (position2.y/1024)*GetScreenHeight();
+    position.x -= sin(angle) * speed * deltaTime;
+    position.y -= cos(angle) * speed * deltaTime;
+    // position.x = (position2.x/1980)*GetScreenWidth();
+    // position.y = (position2.y/1024)*GetScreenHeight();
 
     std::cout << position2.x << " ja " << position2.y << std::endl;
     std::cout << position.x << " nee " << position.y << std::endl;

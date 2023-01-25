@@ -106,7 +106,7 @@ void TrainAI::start() {
 }
 
 void TrainAI::update(double deltaTime) {
-    map->update();
+    // map->update();
     std::ifstream f("NeuralNetworks/NN.json");
     nlohmann::json networkData = nlohmann::json::parse(f);
     f.close();

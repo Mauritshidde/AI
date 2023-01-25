@@ -6,11 +6,11 @@
 #include <cstdlib>
 
 #include "ray2.h"
-#include "../networkcode/GeneticAI/nnLevel2.h"
+#include "../networkcode/GeneticAI/nn.h"
 
 class GCar {
     public:
-        GCar(GameMapE2 newMap = GameMapE2(), double newDirection = 0, Vector2 newPosition = {0,0}, std::vector<int> newNNBlueprint = {8, 12, 12, 6, 4}, int rayAmount = 8, int rayLenght = 200);
+        GCar(GameMapE2 newMap = GameMapE2(), double newDirection = 0, Vector2 newPosition = {0,0}, std::vector<int> newNNBlueprint = {8, 6, 6, 4}, int rayAmount = 8, int rayLenght = 200);
         ~GCar();
         void update(double deltaTime);
         double accelerate(double dTime, bool forward);
@@ -64,12 +64,8 @@ GCar::GCar(GameMapE2 newMap, double newDirection, Vector2 newPosition, std::vect
 
     alive = true;
 
-    std::ifstream f("maps/example.json");
-    nlohmann::json mapData = nlohmann::json::parse(f); 
-    f.close();
-
     speed = 0;
-    currentPoint = mapData["spawn"][std::to_string(19)]["firstcheckpoint"].get<float>();
+    currentPoint = 0;
     currentPoints = 0;
     timeSinceLastPoint = 0;
     
@@ -266,17 +262,13 @@ void GCar::update(double deltaTime) {
             }
         }
         std::vector<double> outputs;
-        outputs = network.feedForward(offsets);
-        // std::cout << outputs.size() << std::endl;
+        outputs = network.feedforward(offsets, network);
+        std::cout << outputs.size() << std::endl;
         // std::cout << outputs[0] << " " << outputs[1] << " " << outputs[2] << " " << outputs[3] << std::endl;
         
         std::vector<int> outputsbool;
         for (int i=0; i < 4; i++) {
-            if (outputs.at(i) >= 0.5) {
-                outputsbool.push_back(1);
-            } else {
-                outputsbool.push_back(0);
-            }
+            outputsbool.push_back(outputs[i]);
         }
         bool test = checkPointCollision();
         // if (collectedPoints != 0) {

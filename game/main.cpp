@@ -49,7 +49,7 @@ void UpdateMenu() {
 }
 
 int main() {
-    srand(time(NULL));
+    // srand(time(NULL));
     InitWindow(screenWidth, screenHeight, "menu");
     SetTargetFPS(60);
     bool notChosenMenu = true;
