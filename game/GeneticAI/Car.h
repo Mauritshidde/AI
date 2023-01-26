@@ -135,11 +135,11 @@ void GCar::draw(bool best) {
     Rectangle rectangle = {position.x, position.y, size.x, size.y};
     if (alive) {
         if (best) { 
+            rays.draw();
             DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, PINK);
         } else {
             DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, WHITE);
         }
-        // rays.draw();
     } else {
         DrawRectanglePro(rectangle, {size.x/2, size.y/2}, direction, RED);
     }
