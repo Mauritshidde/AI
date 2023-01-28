@@ -10,6 +10,7 @@
 #include "Car.h"
 #include "geneticButton.h"
 #include "visualizeNN.h"
+#include "box.h"
 
 class Genetic {
     public:
@@ -36,6 +37,7 @@ class Genetic {
         double mutationRate = 0.7;
 
         bool server = false;
+        bool showMenu = true;
 
         int bestCar = 0;
         int bestCarPoints;
@@ -44,6 +46,11 @@ class Genetic {
         GameMapE2 map;
         GeneticMenu buttonMenu;
         nlohmann::json mapData;
+        Vector2 testss = {100, 200};
+        Box visualizeNNBox;
+        
+        std::vector<Vector2> box;
+        std::vector<Vector2> nnlocation = {{200, 240}, {200, 680}, {720, 680}, {720, 240}};
 };
 
 Genetic::Genetic() {
@@ -58,6 +65,7 @@ Genetic::Genetic() {
     std::ifstream f("maps/example.json");
     mapData = nlohmann::json::parse(f); 
     f.close();
+    visualizeNNBox = Box(nnlocation.at(0), nnlocation.at(1), nnlocation.at(2), nnlocation.at(3));
 }
 
 void Genetic::Render() {
@@ -78,7 +86,7 @@ void Genetic::Render() {
     DrawText(TextFormat("%f", mutationRate), 10, 80, 20, WHITE);
 
     map.draw();
-    
+
     for (int i=0; i < cars.size(); i++) {
         cars.at(i).draw(false);
     }
@@ -86,8 +94,18 @@ void Genetic::Render() {
     cars.at(bestCar).draw(true);
     buttonMenu.Draw();
 
-    VisualiseGNN visualiseNetwork = VisualiseGNN(&cars.at(bestCar));
+    Vector2 test[4] = {nnlocation.at(0), nnlocation.at(1), nnlocation.at(2), nnlocation.at(3)};
+    VisualiseGNN visualiseNetwork = VisualiseGNN(&cars.at(bestCar), test);
     visualiseNetwork.DrawNeuralNetwork();
+    if (box.size() > 1) {
+        for (int i=0; i < box.size(); i++) {
+            if (i == box.size()-1) {
+                DrawLineV(box.at(i), box.at(0), WHITE);
+            } else {
+                DrawLineV(box.at(i), box.at(i+1), WHITE);
+            }
+        }
+    }
 
     DrawFPS(10,10);
     EndDrawing();
@@ -97,7 +115,7 @@ void Genetic::genCars() {
     cars.clear();
     
     for (int i=0; i < 100; i++) {
-        GCar car = GCar(map, mapData["direction"]["19"], {mapData["spawn"]["19"]["x"].get<float>(), mapData["spawn"]["19"]["y"].get<float>()});
+        GCar car = GCar(map, mapData["direction"]["0"], {mapData["spawn"]["0"]["x"].get<float>(), mapData["spawn"]["0"]["y"].get<float>()});
         cars.push_back(car);
     }
 }
@@ -109,7 +127,7 @@ void Genetic::SetCars(bool mutate) {
     
     cars.clear();
     for (int i=0; i < 100; i++) {
-        GCar car = GCar(map, mapData["direction"]["19"], {mapData["spawn"]["19"]["x"].get<float>(), mapData["spawn"]["19"]["y"].get<float>()}); 
+        GCar car = GCar(map, mapData["direction"]["0"], {mapData["spawn"]["0"]["x"].get<float>(), mapData["spawn"]["0"]["y"].get<float>()}); 
         if (mutate) {
             car.network.loadNeuralNetwork(networkData);
             if (i == 0 || i == 1) {
@@ -129,7 +147,7 @@ void Genetic::loadNNCars() {
     
     cars.clear();
     for (int i=0; i < 100; i++) {
-        GCar car = GCar(map, mapData["direction"]["19"], {mapData["spawn"]["19"]["x"].get<float>(), mapData["spawn"]["19"]["y"].get<float>()}); 
+        GCar car = GCar(map, mapData["direction"]["0"], {mapData["spawn"]["0"]["x"].get<float>(), mapData["spawn"]["0"]["y"].get<float>()}); 
         car.network.loadNeuralNetwork(networkData);
         if (i != 0) {
             car.network.mutate(0.1);
@@ -143,13 +161,9 @@ void Genetic::ResetCars() {
     nlohmann::json networkData = nlohmann::json::parse(f);
     f.close();
 
-    // std::ifstream r("NeuralNetworks/GNN.json");
-    // nlohmann::json networkData = nlohmann::json::parse(r);
-    // r.close();
-
     cars.clear();   
     for (int i=0; i < 100; i++) {
-        GCar car = GCar(map, mapData["direction"]["19"], {mapData["spawn"]["19"]["x"], mapData["spawn"]["19"]["y"]}); 
+        GCar car = GCar(map, mapData["direction"]["0"], {mapData["spawn"]["0"]["x"], mapData["spawn"]["0"]["y"]}); 
 
         car.network.loadNeuralNetwork(networkData);
         if (i == 0) {
@@ -171,44 +185,42 @@ void Genetic::loadNN() {
 }
 
 void Genetic::Update(double deltaTime) {
-    // std::cout << "ja0 " << std::endl;
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         if (buttonMenu.buttons.at(0).checkCollisionButton(GetMousePosition())) {
             door = false;
         } else if (buttonMenu.buttons.at(1).checkCollisionButton(GetMousePosition())) {
             cars.at(bestCar).network.saveNeuralNetwork();
         } else if (buttonMenu.buttons.at(2).checkCollisionButton(GetMousePosition())) {
-            // loadNN();
             loadNNCars();
-            
-            // std::ifstream l("maps/example.json");
-            // nlohmann::json data2 = nlohmann::json::parse(l);
-            // l.close();
-
-            // SetCars(true);
         }
     }
 
     if (IsKeyPressed(KEY_ENTER)) {
         cars.at(bestCar).network.saveNeuralNetwork();
         loadNNCars();
-        // SetCars(true);
     } else if (IsKeyPressed(KEY_LEFT_SHIFT)) {
         ResetCars();
     } else if (IsKeyPressed(KEY_Q)) {
         mutationRate += 0.05;
-        std::cout << mutationRate << std::endl;
     } else if (IsKeyPressed(KEY_E)) {
         mutationRate -= 0.05;
-        std::cout << mutationRate << std::endl;
     } else if (IsKeyPressed(KEY_R)) {
         mutationRate += 0.001;
-        std::cout << mutationRate << std::endl;
     } else if (IsKeyPressed(KEY_T)) {
         mutationRate -= 0.001;
-        std::cout << mutationRate << std::endl;
     } else if (IsKeyPressed(KEY_SPACE)) {
         genCars();
+    }
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+        box.push_back(GetMousePosition());
+    } else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
+        if (box.size() != 0) {
+            box.pop_back();
+        }
+    }
+
+    if (box.size() == 4) {
+        nnlocation = box;
     }
 
     int alive = 0;
@@ -224,7 +236,7 @@ void Genetic::Update(double deltaTime) {
             cars.at(bestCar).network.saveNeuralNetwork();
             mutationRate -= 0.01;
             if (mutationRate < 0) {
-                mutationRate = 0;
+                mutationRate = 0.01;
             }
             SetCars(true);
         } else {
@@ -240,7 +252,6 @@ void Genetic::Update(double deltaTime) {
 
 void Genetic::run() {
     srand(time(NULL));
-    // srand((unsigned) time(NULL));
     InitWindow(screenWidth, screenHeight, "car");
     SetWindowState(FLAG_VSYNC_HINT);
     SetTargetFPS(60);

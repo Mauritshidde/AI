@@ -265,17 +265,22 @@ std::vector<double> Car::move4(double deltaTime, std::vector<double> actions, st
         int highest = 0;
         actions.clear();
         for (int i=0; i < actions2.size(); i++) {
-            if (actions2.at(i) > actions2.at(highest)) {
-                highest = i;
-            }
-        }
-        for (int i=0; i < actions2.size(); i++) {
-            if (i == highest) {
+            // if (actions2.at(i) > actions2.at(highest)) {
+            //     highest = i;
+            // }
+            if (actions2.at(i) >= 0.5) {
                 actions.push_back(1);
             } else {
                 actions.push_back(0);
             }
         }
+        // for (int i=0; i < actions2.size(); i++) {
+        //     if (i == highest) {
+        //         actions.push_back(1);
+        //     } else {
+        //         actions.push_back(0);
+        //     }
+        // }
     }
 
     if (actions.at(0) == 1) {
@@ -286,8 +291,25 @@ std::vector<double> Car::move4(double deltaTime, std::vector<double> actions, st
         angle += 3 * deltaTime;
         direction -= (3 * (180/M_PI)) * deltaTime;
     }
+    if (actions.at(2) == 1) {
+        speed += acceleration * deltaTime;
+    }
+    if (actions.at(3) == 1) {
+        speed -= acceleration * deltaTime;
+    }
 
-    speed = maxSpeed;
+    if (speed > maxSpeed) {
+        speed = maxSpeed;
+    } else if (speed < -maxSpeed/2) {
+        speed = -maxSpeed/2;
+    }
+    if (speed > 0) {
+        speed -= friction * deltaTime;
+    } else if (speed < 0) {
+        speed += friction * deltaTime;
+    }
+
+    // speed = maxSpeed;
     
     position2.x -= sin(angle) * speed * deltaTime;
     position2.y -= cos(angle) * speed * deltaTime;

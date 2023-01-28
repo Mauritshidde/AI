@@ -38,6 +38,7 @@ class GCar {
         const double friction = 20;
         const double acceleration = 50;
         const double maxSpeed = 200;
+        // const Vector2 size{15, 30};
         const Vector2 size{10, 20};
         
         int currentPoint;
@@ -254,21 +255,16 @@ void GCar::update(double deltaTime) {
         rays.update(&position.x, &position.y, angle);
         
         std::vector<Vector3> offsetVec = rays.hitCoordVec3;
-        // int offsets[offsetVec.size()];
         std::vector<double> offsets;
         for (int i=0; i < offsetVec.size(); i++) {
             if (offsetVec.at(i).z == 0) {
-                // offsets[i] = 0;
                 offsets.push_back(0);
             } else {
-                // offsets[i] = 1 - offsetVec.at(i).z;
                 offsets.push_back(1 - offsetVec.at(i).z);
             }
         }
         std::vector<double> outputs;
         outputs = network.feedForward(offsets);
-        // std::cout << outputs.size() << std::endl;
-        // std::cout << outputs[0] << " " << outputs[1] << " " << outputs[2] << " " << outputs[3] << std::endl;
         
         std::vector<int> outputsbool;
         for (int i=0; i < 4; i++) {
@@ -279,10 +275,7 @@ void GCar::update(double deltaTime) {
             }
         }
         bool test = checkPointCollision();
-        // if (collectedPoints != 0) {
-        // std::cout << collectedPoints << std::endl;
         timeSinceLastPoint += deltaTime;
-        // }
         move(deltaTime, outputsbool);
         rays.update(&position.x, &position.y, angle);
     
