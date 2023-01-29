@@ -35,9 +35,11 @@ class Genetic {
         std::vector<double> biases;
         GeneticNeuralNetwork network;
         double mutationRate = 0.7;
+        double timePast, fpsTimePast;
 
         bool server = false;
         bool showMenu = true;
+        bool drawNNlocation = false;
 
         int bestCar = 0;
         int bestCarPoints;
@@ -82,8 +84,34 @@ void Genetic::Render() {
             bestCar = i;
         }
     }
-    DrawText(TextFormat("%f", generation), 10, 60, 20, WHITE);
-    DrawText(TextFormat("%f", mutationRate), 10, 80, 20, WHITE);
+
+    DrawText(TextFormat("generations: "), 10, 60, 20, WHITE);
+    DrawText(TextFormat("%f", float(generation)), 140, 60, 20, WHITE);
+
+    DrawText(TextFormat("mutationRate: "), 10, 80, 20, WHITE);
+    DrawText(TextFormat("%f", mutationRate), 150, 80, 20, WHITE);
+
+    DrawText(TextFormat("frame time past: "), 10, 100, 20, WHITE);
+    DrawText(TextFormat("%f", fpsTimePast), 180, 100, 20, WHITE);
+
+    DrawText(TextFormat("total time past: "), 10, 120, 20, WHITE);
+    DrawText(TextFormat("%f", timePast), 170, 120, 20, WHITE);
+
+    if (drawNNlocation) {
+        DrawCircle(20, 880, 15, WHITE);
+        if (box.size() > 1) {
+            for (int i=0; i < box.size(); i++) {
+                if (i == box.size()-1) {
+                    DrawLineV(box.at(i), box.at(0), WHITE);
+                } else {
+                    DrawLineV(box.at(i), box.at(i+1), WHITE);
+                }
+            }
+        }
+    } else {
+        DrawCircle(20, 880, 15, RED);
+    }
+    DrawText(TextFormat("draw NN location: "), 40, 873.5, 20, WHITE);
 
     map.draw();
 
@@ -97,15 +125,6 @@ void Genetic::Render() {
     Vector2 test[4] = {nnlocation.at(0), nnlocation.at(1), nnlocation.at(2), nnlocation.at(3)};
     VisualiseGNN visualiseNetwork = VisualiseGNN(&cars.at(bestCar), test);
     visualiseNetwork.DrawNeuralNetwork();
-    if (box.size() > 1) {
-        for (int i=0; i < box.size(); i++) {
-            if (i == box.size()-1) {
-                DrawLineV(box.at(i), box.at(0), WHITE);
-            } else {
-                DrawLineV(box.at(i), box.at(i+1), WHITE);
-            }
-        }
-    }
 
     DrawFPS(10,10);
     EndDrawing();
@@ -192,6 +211,12 @@ void Genetic::Update(double deltaTime) {
             cars.at(bestCar).network.saveNeuralNetwork();
         } else if (buttonMenu.buttons.at(2).checkCollisionButton(GetMousePosition())) {
             loadNNCars();
+        } else if (sqrt(pow(GetMousePosition().x-20, 2) + pow(GetMousePosition().y-880, 2)) <= 15) {
+            if (drawNNlocation) {
+                drawNNlocation = false;
+            } else {
+                drawNNlocation = true;
+            }
         }
     }
 
@@ -211,16 +236,18 @@ void Genetic::Update(double deltaTime) {
     } else if (IsKeyPressed(KEY_SPACE)) {
         genCars();
     }
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-        box.push_back(GetMousePosition());
-    } else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
-        if (box.size() != 0) {
-            box.pop_back();
+    if (drawNNlocation) {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+            box.push_back(GetMousePosition());
+        } else if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) {
+            if (box.size() != 0) {
+                box.pop_back();
+            }
         }
-    }
 
-    if (box.size() == 4) {
-        nnlocation = box;
+        if (box.size() == 4) {
+            nnlocation = box;
+        }
     }
 
     int alive = 0;
@@ -258,6 +285,8 @@ void Genetic::run() {
     Start();
     while (!WindowShouldClose() && door){
         double deltaTime = GetFrameTime();
+        fpsTimePast += 1/60.0f;
+        timePast += deltaTime;
         Update(1/60.0f);
         Render();
     }

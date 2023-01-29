@@ -86,8 +86,6 @@ Vector4 GRays::getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
     return test;
 }
 
-
-
 bool GRays::calcRayHits(int endRayLoc) {
     std::vector<Vector3> touches;
     Vector2 endRay = eindRay.at(endRayLoc);

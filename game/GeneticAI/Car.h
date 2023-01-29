@@ -70,7 +70,7 @@ GCar::GCar(GameMapE2 newMap, double newDirection, Vector2 newPosition, std::vect
     f.close();
 
     speed = 0;
-    currentPoint = mapData["spawn"][std::to_string(19)]["firstcheckpoint"].get<float>();
+    currentPoint = mapData["spawn"][std::to_string(0)]["firstcheckpoint"].get<float>();
     currentPoints = 0;
     timeSinceLastPoint = 0;
     
@@ -147,23 +147,6 @@ void GCar::draw(bool best) {
 }
 
 void GCar::move(double deltaTime, std::vector<int> action) {
-    // switch (action) {
-    //     case 0:
-    //         angle -= 3 * deltaTime;
-    //         direction += (3 * (180/M_PI)) * deltaTime;
-    //         break;
-    //     case 1:
-    //         angle += 3 * deltaTime;
-    //         direction -= (3 * (180/M_PI)) * deltaTime;
-    //         break;
-    //     case 2:
-    //         speed += acceleration * deltaTime;
-    //         break;
-    //     case 3:
-    //         speed -= acceleration * deltaTime;
-    //         break;
-    // }
-
     if (action.at(0) == 1) {
         angle -= 3 * deltaTime;
         direction += (3 * (180/M_PI)) * deltaTime;
