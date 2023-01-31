@@ -6,7 +6,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-#include "GameMap.h"
+#include "map.h"
 #include "visualizeNN.h"
 
 class TrainAI {
@@ -20,7 +20,6 @@ class TrainAI {
         void render();
         void start();
         void update(double deltaTime);
-        // const int screenWidth;
         float screenWidth;
         float screenHeight;
         int fps;
@@ -29,7 +28,7 @@ class TrainAI {
         int generation;
         std::vector<Car> cars;
         std::vector<double> previousMove;
-        GameMapE* map;
+        Map* map;
         Car* car;
         nlohmann::json mapData;
 
@@ -43,7 +42,7 @@ TrainAI::TrainAI() {
     generation = 0;
     fps = 60;
 
-    map = new GameMapE();
+    map = new Map();
     car = new Car(map, 3, {200, 200});
 
     std::ifstream f("maps/example.json");
@@ -62,7 +61,7 @@ void TrainAI::setCar() {
     Vector2 spawn;
     spawn.x = (map->spawns.at(value).x/1980)*screenWidth;
     spawn.y = (map->spawns.at(value).y/1024)*screenHeight;
-    std::cout << spawn.x << " ja " << spawn.y << std::endl;
+    
     car->restartLocation(mapData["direction"][std::to_string(value)].get<float>(), mapData["spawn"][std::to_string(value)]["firstcheckpoint"].get<float>(), map->spawns.at(value), epsilon);
 }
 
@@ -124,9 +123,7 @@ void TrainAI::update(double deltaTime) {
 void TrainAI::run() {
     srand(time(NULL));
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);    // Window configuration flags
-    // InitWindow(screenWidth, screenHeight, "backpropagation");
     InitWindow(screenWidth, screenHeight, "backpropagation");
-    // InitWindow(screenWidth, screenHeight, "train Ai");
     void SetCameraAltControl(int keyAlt);
     SetTargetFPS(fps);
     start();

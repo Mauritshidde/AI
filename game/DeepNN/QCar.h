@@ -4,11 +4,11 @@
 #include <ostream>
 
 #include "ray.h"
-#include "../networkcode/DeepNN/nnLevel2.h"
+#include "../networkcode/DeepNN/nn.h"
 
 class Car {
     public:
-        Car(GameMapE* newMap, double newDirection, Vector2 newPosition, std::vector<int> newNNBlueprint = {8, 12, 12, 6, 4});
+        Car(Map* newMap, double newDirection, Vector2 newPosition, std::vector<int> newNNBlueprint = {8, 12, 12, 6, 4});
         ~Car();
         void update(double deltaTime, Vector2 *screen);
         double accelerate(double dTime, bool forward);
@@ -28,7 +28,7 @@ class Car {
         std::vector<int> neuroncounts = {18, 12, 12, 6, 4};
 
         NeuralNetwork neuralNetwork;
-        GameMapE *map;
+        Map *map;
     private:
         std::vector<double> move3(double deltaTime, std::vector<double> actions, std::vector<double> offsets, double newEpsilon);
         std::vector<double> move4(double deltaTime, std::vector<double> actions, std::vector<double> offsets, double newEpsilon);
@@ -54,7 +54,7 @@ class Car {
         NeuralNetwork neuralNetworkUpdate2;
 };
 
-Car::Car(GameMapE* newMap, double newDirection, Vector2 newPosition, std::vector<int> newNNBlueprint) {
+Car::Car(Map* newMap, double newDirection, Vector2 newPosition, std::vector<int> newNNBlueprint) {
     map = newMap;
     neuralNetwork = NeuralNetwork(newNNBlueprint);
     neuralNetworkUpdate = neuralNetwork;
@@ -316,9 +316,6 @@ std::vector<double> Car::move4(double deltaTime, std::vector<double> actions, st
     position.x = (position2.x/1980)*GetScreenWidth();
     position.y = (position2.y/1024)*GetScreenHeight();
 
-    std::cout << position2.x << " ja " << position2.y << std::endl;
-    std::cout << position.x << " nee " << position.y << std::endl;
-
     return actions;
 }
 
@@ -404,10 +401,6 @@ void Car::update(double deltaTime, Vector2 *screen) {
         std::vector<double>* offsettsp = new std::vector<double>(offsets);
         std::vector<double> actions = neuralNetwork.feedForward(offsets);
         
-        for (int i=0; i < actions.size(); i++) {
-            std::cout << actions.at(i) << " ";
-        }
-        std::cout << "\n";
         actions = move4(deltaTime, actions, offsets, epsilon);
 
         int bestAction = 0;

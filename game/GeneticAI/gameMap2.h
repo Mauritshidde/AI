@@ -43,10 +43,8 @@ void GameMapE2::draw() {
 }
 
 void GameMapE2::setMap(nlohmann::json mapJson) {
-    std::cout << mapJson["spawn"]["lenght"].get<int>() << std::endl;
     for (int i=0; i < mapJson["spawn"]["lenght"].get<int>(); i++) {
         spawns.push_back({mapJson["spawn"][std::to_string(i)]["x"].get<float>(), mapJson["spawn"][std::to_string(i)]["y"].get<float>()});
-        std::cout << spawns.at(i).x << "  " << spawns.at(i).y << "\n";
     }
 
     int size = mapJson["inner"]["lenght"].get<int>();

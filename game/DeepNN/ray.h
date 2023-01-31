@@ -7,7 +7,7 @@ class Rays {
     public:
         Rays(int newRayAmount = 8, int newRaylenght = 200);
         ~Rays();
-        void update(float *x, float *y, double newAngle, GameMapE* map);
+        void update(float *x, float *y, double newAngle, Map* map);
         void draw();
         double lerp(double A, double B, double t);
         Vector4 getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D);
@@ -15,7 +15,7 @@ class Rays {
         int rayAmountInt;
         std::vector<Vector3> hitCoordVec3; 
     private:
-        bool calcRayHits(int endRayLoc, GameMapE* map);
+        bool calcRayHits(int endRayLoc, Map* map);
         void castRays();
 
         Vector2 startRay;
@@ -70,7 +70,7 @@ Vector4 Rays::getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
 
 
 
-bool Rays::calcRayHits(int endRayLoc, GameMapE* map) {
+bool Rays::calcRayHits(int endRayLoc, Map* map) {
     std::vector<Vector3> touches;
     Vector2 endRay = eindRay.at(endRayLoc);
 
@@ -138,7 +138,7 @@ void Rays::draw() {
     }
 }
 
-void Rays::update(float* x, float* y, double newAngle, GameMapE* map) {
+void Rays::update(float* x, float* y, double newAngle, Map* map) {
     eindRay = {};
     hitCoordVec3 = {};
     angle = newAngle;

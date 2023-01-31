@@ -153,6 +153,7 @@ void GRays::draw() {
     }
 }
 
+// update the location specifick variables of the ray function using the x and y coordinates and the angle of the car 
 void GRays::update(float* x, float* y, double newAngle) {
     eindRay = {};
     hitCoordVec3 = {};
@@ -180,8 +181,6 @@ void GRays::castRays() {
         if (i != 0) {
             value = i/float(rayAmount);
         } else {
-            // value = i/float(rayAmount);
-
             value = 0;
         }
 

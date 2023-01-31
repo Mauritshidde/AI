@@ -6,8 +6,8 @@
 #include <nlohmann/json.hpp>
 #include <cstdlib>
 
-#include "GameMap2.h"
-#include "Car.h"
+#include "gameMap2.h"
+#include "car.h"
 #include "geneticButton.h"
 #include "visualizeNN.h"
 #include "box.h"
@@ -115,7 +115,7 @@ void Genetic::Render() {
 
     Vector2 test[4] = {nnlocation.at(0), nnlocation.at(1), nnlocation.at(2), nnlocation.at(3)};
     VisualiseGNN visualiseNetwork = VisualiseGNN(&cars.at(bestCar), test);
-    visualiseNetwork.DrawNeuralNetwork();
+    visualiseNetwork.drawNeuralNetwork();
 
     DrawFPS(10,10);
     EndDrawing();
@@ -151,7 +151,7 @@ void Genetic::SetCars(bool mutate) {
 }
 
 void Genetic::loadNNCars() {
-    std::ifstream f("NeuralNetworks/GNN2.json");
+    std::ifstream f("NeuralNetworks/GNN.json");
     nlohmann::json networkData = nlohmann::json::parse(f);
     f.close();
     
@@ -266,7 +266,7 @@ void Genetic::Update(double deltaTime) {
             cars.at(bestCar).network.saveNeuralNetwork();
             ResetCars();
         }
-    } else if (cars.at(bestCar).currentPoints >= (map.points.size()-1)*3) {
+    } else if (cars.at(bestCar).collectedPoints >= (map.points.size()-1)*3) {
         network = cars.at(bestCar).network;
         cars.at(bestCar).network.saveNeuralNetwork();
         mutationRate -= 0.01;

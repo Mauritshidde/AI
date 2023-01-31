@@ -3,9 +3,9 @@
 #include <nlohmann/json.hpp>
 
 
-class GameMapE {
+class Map {
     public:
-        GameMapE();
+        Map();
         void update();
         void draw();
         void setMap(nlohmann::json mapJson);
@@ -16,11 +16,11 @@ class GameMapE {
         std::vector<std::vector<Vector2>> points, points2;
 };
 
-GameMapE::GameMapE() {
+Map::Map() {
     
 }
 
-void GameMapE::update() {
+void Map::update() {
     int screenWidth = GetScreenWidth();
     int screenHeight = GetScreenHeight();
     for (int i=0; i < wallVectorVec2.size(); i++) {
@@ -44,7 +44,7 @@ void GameMapE::update() {
     }
 }
 
-void GameMapE::draw() {
+void Map::draw() {
     int screenWidth = GetScreenWidth();
     int screenHeight = GetScreenHeight();
     Vector2 wallVector[wallVectorVec.size()];
@@ -56,8 +56,6 @@ void GameMapE::draw() {
         wallVector[i] = wallVectorVec.at(i);
     }
     for (int i=0; i < outerWall.size(); i++) {
-        // float x = (outerWall.at(i).x/1980)*screenWidth;
-        // float y = (outerWall.at(i).y/1024)*screenHeight;
         outerWallarr[i] = outerWall.at(i);
     }
 
@@ -67,13 +65,12 @@ void GameMapE::draw() {
     DrawLineStrip(outerWallarr, outerSize, WHITE);
     DrawLineV(outerWallarr[0], outerWallarr[outerSize-1], WHITE);
     for (int i=0; i < points.size(); i++) {
-        // DrawLine((points.at(i).at(0).x/1980)*screenWidth, (points.at(i).at(0).y/1024)*screenHeight, (points.at(i).at(1).x/1980)*screenWidth, (points.at(i).at(1).y/1024)*screenHeight, YELLOW);   
         DrawLine(points.at(i).at(0).x, points.at(i).at(0).y, points.at(i).at(1).x, points.at(i).at(1).y, YELLOW);   
 
     }
 }
 
-void GameMapE::setMap(nlohmann::json mapJson) {
+void Map::setMap(nlohmann::json mapJson) {
     for (int i=0; i < mapJson["spawn"]["lenght"].get<int>(); i++) {
         spawns.push_back({mapJson["spawn"][std::to_string(i)]["x"].get<float>(), mapJson["spawn"][std::to_string(i)]["y"].get<float>()});
     }
