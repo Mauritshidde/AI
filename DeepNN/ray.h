@@ -11,7 +11,6 @@ class Rays {
         void draw();
         double lerp(double A, double B, double t);
         Vector4 getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D);
-        void SetSpawn(Vector2* ps);
         int rayAmountInt;
         std::vector<Vector3> hitCoordVec3; 
     private:

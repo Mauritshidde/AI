@@ -92,7 +92,7 @@ void TrainAI::render() {
     DrawText(TextFormat("%f", epsilon), 10, 60, 20, WHITE);
     DrawText(TextFormat("%i", car->currentPoints), 10, 80, 20, WHITE);
     VisualiseNN visualiseNetwork = VisualiseNN(car);
-    visualiseNetwork.DrawNeuralNetwork();
+    visualiseNetwork.drawNeuralNetwork();
     DrawFPS(10,10);
     EndDrawing();
 

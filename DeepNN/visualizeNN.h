@@ -1,11 +1,11 @@
 #include <vector>
 #include <raylib.h>
-#include "QCar.h"
+#include "deepcar.h"
 
 class VisualiseNN {
     public:
         VisualiseNN(Car* newCar);
-        void DrawNeuralNetwork();
+        void drawNeuralNetwork();
         std::vector<std::vector<Vector2>> neuronLocation;
         Car* car;
 };
@@ -28,7 +28,7 @@ VisualiseNN::VisualiseNN(Car* newCar) {
     }
 }
 
-void VisualiseNN::DrawNeuralNetwork() {
+void VisualiseNN::drawNeuralNetwork() {
     for (int i=0; i < neuronLocation.size(); i++) {
         for (int j=0; j < neuronLocation.at(i).size(); j++) {
             if (i == 0) {
@@ -51,9 +51,9 @@ void VisualiseNN::DrawNeuralNetwork() {
         for (int j=0; j < car->neuralNetwork.levels.at(i).weights.size(); j++) {
             for (int k=0; k < car->neuralNetwork.levels.at(i).weights.at(j).size(); k++) {
                 if (car->neuralNetwork.levels.at(i).weights.at(j).at(k) >= 0){
-                    DrawLineV(neuronLocation.at(i+1).at(j), neuronLocation.at(i).at(k), RED);
-                } else {
                     DrawLineV(neuronLocation.at(i+1).at(j), neuronLocation.at(i).at(k), WHITE);
+                } else {
+                    DrawLineV(neuronLocation.at(i+1).at(j), neuronLocation.at(i).at(k), RED);
                 }
             }  
         }

@@ -5,7 +5,7 @@
 #include <time.h>
 #include <cstdlib>
 
-#include "ray2.h"
+#include "ray.h"
 #include "../networkcode/GeneticAI/nn.h"
 
 class GCar {

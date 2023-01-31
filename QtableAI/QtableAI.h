@@ -6,8 +6,8 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-#include "GameMap.h"
-#include "TCar.h"
+#include "map.h"
+#include "car.h"
 
 const int screenWidthT = 1980;
 const int screenHeightT = 1024;

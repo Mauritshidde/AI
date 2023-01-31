@@ -9,9 +9,10 @@
 #include "DeepNN/trainAI.h"
 #include "menuButtons.h"
 #include "draw.h"
-#include "GeneticAI/genetic2.h"
+#include "GeneticAI/genetic.h"
 #include "QtableAI/QtableAI.h"
 #include "selectMap.h"
+
 const int screenWidth = 1980;
 const int screenHeight = 1024;
 
