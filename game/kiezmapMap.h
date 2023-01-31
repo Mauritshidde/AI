@@ -23,7 +23,7 @@ Mapgen::Mapgen(int newwidth, int newheight, Vector2 newlocation) {
     location = newlocation;
 }
 
-void Mapgen::update() {
+void Mapgen::update() { //update map so it fits in the given width, height at the correct location
     int screenWidth = width;
     int screenHeight = height;
     for (int i=0; i < wallVectorVec2.size(); i++) {
@@ -47,7 +47,7 @@ void Mapgen::update() {
     }
 }
 
-void Mapgen::draw() {
+void Mapgen::draw() { // draw the maps you can choice inside the boxes
     int screenWidth = width;
     int screenHeight = height;
     Vector2 wallVector[wallVectorVec.size()];
@@ -71,7 +71,7 @@ void Mapgen::draw() {
     }
 }
 
-void Mapgen::setMap(nlohmann::json mapJson) {
+void Mapgen::setMap(nlohmann::json mapJson) { // load the map from an json file into vectors and arrays
     for (int i=0; i < mapJson["spawn"]["lenght"].get<int>(); i++) {
         spawns.push_back({mapJson["spawn"][std::to_string(i)]["x"].get<float>(), mapJson["spawn"][std::to_string(i)]["y"].get<float>()});
     }
@@ -107,5 +107,4 @@ void Mapgen::setMap(nlohmann::json mapJson) {
     points2 = points;
     wallVectorVec2 = wallVectorVec;
     outerWall2 = outerWall;
-
 }

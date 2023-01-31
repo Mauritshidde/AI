@@ -21,20 +21,20 @@ Drawer draw;
 TrainAI train;
 Genetic gen;
 
-void RenderMenu() {
+void renderMenu() { // draw the menu items
     const Color backgroundColor = BLACK;
     
     BeginDrawing();
     ClearBackground(backgroundColor);
     for (int i=0; i < menuButtonVector.size(); i++) {
-        menuButtonVector.at(i).Draw();
+        menuButtonVector.at(i).draw();
     }
 
     DrawFPS(10,10);
     EndDrawing();
 }
 
-void StartMenu() {
+void startMenu() { // make the menu at the start of the program
     MenuButton button1 = MenuButton({screenWidth/2-200,100}, {screenWidth/2+200,100}, {screenWidth/2+200,200}, {screenWidth/2-200,200}, "map drawer", 20);
     MenuButton button2 = MenuButton({screenWidth/2-200,300}, {screenWidth/2+200,300}, {screenWidth/2+200,400}, {screenWidth/2-200,400}, "Deep NN", 20);
     MenuButton button3 = MenuButton({screenWidth/2-200,500}, {screenWidth/2+200,500}, {screenWidth/2+200,600}, {screenWidth/2-200,600}, "Genetic NN", 20);
@@ -45,23 +45,20 @@ void StartMenu() {
     menuButtonVector.push_back(button4);
 }
 
-void UpdateMenu() {
-}
-
 int main() {
     InitWindow(screenWidth, screenHeight, "menu");
     SetTargetFPS(60);
     bool notChosenMenu = true;
     int choice;
-    StartMenu();
-    while (notChosenMenu) {
+    startMenu();
+    while (notChosenMenu) { // run this until an action is chosen from the menu or escape is pressed
         if (IsKeyPressed(KEY_A)) {
             notChosenMenu = false;
             break;
         } 
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             for (int i=0; i < menuButtonVector.size(); i++) {
-                if (menuButtonVector.at(i).CheckCollisionRectangle(GetMousePosition())) {
+                if (menuButtonVector.at(i).checkCollisionRectangle(GetMousePosition())) {
                     notChosenMenu = false;
                     choice = i;
                     break;
@@ -73,15 +70,14 @@ int main() {
             break;
         }
         
-        UpdateMenu();
-        RenderMenu();
+        renderMenu();
     }
 
     CloseWindow();
     
     std::string maplocation;
 
-    switch (choice) {
+    switch (choice) { // run the script of the chosen option
         case 0:
             draw.run();
             break;

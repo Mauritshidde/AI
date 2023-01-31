@@ -12,7 +12,7 @@
 const int screenWidth2 = 1980;
 const int screenHeight2 = 1024;
 
-std::vector<std::string> maps= {"map1", "map2", "example", "k"};
+std::vector<std::string> maps= {"map1", "map2", "example", "k"}; // vector of the name of the map files
 std::vector<std::string> maplocations;
 std::vector<MenuButton> mapButtons;
 std::vector<Mapgen> mapdrawings;
@@ -24,7 +24,7 @@ void renderMaps() {
     ClearBackground(backgroundColor);
 
     for (int i=0; i < mapButtons.size(); i++) {
-        mapButtons.at(i).Draw();
+        mapButtons.at(i).draw();
     }
     
     for (int i=0; i < mapdrawings.size(); i++) {
@@ -77,7 +77,7 @@ std::string runhjk() {
         } 
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             for (int i=0; i < mapButtons.size(); i++) {
-                if (mapButtons.at(i).CheckCollisionRectangle(GetMousePosition())) {
+                if (mapButtons.at(i).checkCollisionRectangle(GetMousePosition())) {
                     notChosenMenu = false;
                     choice = i;
                     break;

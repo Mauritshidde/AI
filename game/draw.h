@@ -13,9 +13,9 @@ class Drawer {
         Drawer();
         bool clickOnLine(Vector2 location, int i);
         void saveMap();
-        void Render();
-        void Start();
-        void Update(double deltaTime);
+        void render();
+        void start();
+        void update(double deltaTime);
         void run();
 
     private:
@@ -41,15 +41,10 @@ Drawer::Drawer() {
     float screenWidthf, screenHeightf;
     screenWidthf = float(screenWidth);
     screenHeightf = float(screenHeight);
-    // menu = DrawMenu({{screenWidthf-200, 0}, {screenWidthf, 0}, {screenWidthf, screenHeightf}, {screenWidthf-200, screenHeightf}});
-    // menu = DrawMenu({{0, screenHeightf-150}, {screenWidthf, screenHeightf-150}, {screenWidthf, screenHeightf}, {0, screenHeightf}});
-    // menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 220}, {screenWidthf-180, 220}}}, "space = save", 10);
-    // menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 80}, {screenWidthf-180, 80}}}, "save map", 15);
-    // menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 80}, {screenWidthf-180, 80}}}, "place checkpoints", 10);
-    // menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 80}, {screenWidthf-180, 80}}}, "save map", 15);
 }
 
-bool Drawer::clickOnLine(Vector2 location, int i) {
+// checks if a click was on a checkpoint line to set the firstchecki=point for a specifick spawnpoint. with a erro marin for clicking on the line
+bool Drawer::clickOnLine(Vector2 location, int i) { 
     Vector2 startCoords = points.at(i).at(0);
     Vector2 endCoords = points.at(i).at(1);
     double factor = ((endCoords.y - startCoords.y)/(endCoords.x - startCoords.x));
@@ -90,7 +85,7 @@ bool Drawer::clickOnLine(Vector2 location, int i) {
     return false;
 }
 
-void Drawer::saveMap() {
+void Drawer::saveMap() { // save the drwan map to a json file 
     nlohmann::json j;
     j["inner"]["lenght"] = innerMap.size();
     j["outer"]["lenght"] = outerMap.size();
@@ -127,7 +122,7 @@ void Drawer::saveMap() {
     testfile.close();
 }
 
-void Drawer::Render() {
+void Drawer::render() { // draw the parts of the map that are already created by the person drawing a map
     const Color backgroundColor = BLACK;
 
     DrawCircle(spawnLocation.x, spawnLocation.y, 4, RED);
@@ -142,7 +137,7 @@ void Drawer::Render() {
         DrawRectanglePro(rectangle, {5, 10}, rotations.at(i), WHITE);  
     }
     
-    if ( innerMap.size() == 1) {
+    if (innerMap.size() == 1) {
 
     } else if (innerMap.size() == 2) {
         DrawLineV(innerMap.at(0), innerMap.at(1), RED);
@@ -197,12 +192,15 @@ void Drawer::Render() {
     EndDrawing();
 }
 
-void Drawer::Start() {
+void Drawer::start() {
     inner = true;
     outer = false;
+    spawn = false;
+    point = false;
+    selectpoint = false;
 }
 
-void Drawer::setbools(bool in, bool out, bool spa, bool poi, bool sel) {
+void Drawer::setbools(bool in, bool out, bool spa, bool poi, bool sel) { // change drawing mode used in update
     inner = in;
     outer = out;
     spawn = spa;
@@ -210,7 +208,7 @@ void Drawer::setbools(bool in, bool out, bool spa, bool poi, bool sel) {
     selectpoint = sel;
 }
 
-void Drawer::Update(double deltaTime) {
+void Drawer::update(double deltaTime) { // check if button is pressed and change draw mode or draw accordingly
     switch (GetKeyPressed()) {
         case 79:
             setbools(true, false, false, false, false);
@@ -309,11 +307,11 @@ void Drawer::run() {
     InitWindow(screenWidth, screenHeight, "car");
     SetWindowState(FLAG_VSYNC_HINT);
 
-    Start();
+    start();
     while (!WindowShouldClose()){
         double deltaTime = GetFrameTime();
-        Update(deltaTime);
-        Render();
+        update(deltaTime);
+        render();
     }
 
     CloseWindow();

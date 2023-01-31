@@ -6,11 +6,10 @@ class DrawButton {
     public:
         DrawButton(std::vector<Vector2> newCorners, char const newMenuBoxText[], int newTextSize);
         bool checkCollisionButton(Vector2 coordM);
-        void Draw();
+        void draw();
         std::vector<Vector2> corners;
         char const *menuBoxText;
         int textSize;
-
 };
 
 DrawButton::DrawButton(std::vector<Vector2> newCorners, char const newMenuBoxText[], int newTextSize) {
@@ -19,7 +18,7 @@ DrawButton::DrawButton(std::vector<Vector2> newCorners, char const newMenuBoxTex
     textSize = newTextSize;
 }
 
-bool DrawButton::checkCollisionButton(Vector2 coordM) {
+bool DrawButton::checkCollisionButton(Vector2 coordM) { // check if point is inside the box or at the borders, returned true als het punt in de box of op de borders
     Vector2 AM = {coordM.x-corners.at(0).x, coordM.y-corners.at(0).y};
     Vector2 AB = {corners.at(1).x-corners.at(0).x, corners.at(1).y-corners.at(0).y};
     Vector2 AD = {corners.at(3).x-corners.at(0).x, corners.at(3).y-corners.at(0).y};
@@ -37,7 +36,7 @@ bool DrawButton::checkCollisionButton(Vector2 coordM) {
     return false;
 }
 
-void DrawButton::Draw() {
+void DrawButton::draw() {
     for (int i=0; i < corners.size(); i++) {
         if (i == corners.size()-1) {
             DrawLineV(corners.at(i), corners.at(0), WHITE);
@@ -76,6 +75,6 @@ void DrawMenu::Draw() {
         }
     }
     for (int i=0; i < buttons.size(); i++) {
-        buttons.at(i).Draw();
+        buttons.at(i).draw();
     }
 }

@@ -5,8 +5,8 @@
 class MenuButton {
     public:
         MenuButton(Vector2 leftUpperCorner, Vector2 rightUpperCorner, Vector2 rightUnderCorner, Vector2 leftUnderCorner, char const *newMenuBoxText, int newTextSize);
-        void Draw();
-        bool CheckCollisionRectangle(Vector2 coordM);
+        void draw();
+        bool checkCollisionRectangle(Vector2 coordM);
         std::vector<Vector2> menuBox;
         char const *menuBoxText;
         int textSize;
@@ -22,7 +22,7 @@ MenuButton::MenuButton(Vector2 leftUpperCorner, Vector2 rightUpperCorner, Vector
     menuBox.push_back(leftUnderCorner);
 }
 
-void MenuButton::Draw() {
+void MenuButton::draw() {
     for (int i=0; i < menuBox.size(); i++) {
         if (i == menuBox.size()-1) {
             DrawLineV(menuBox.at(i), menuBox.at(0), WHITE);
@@ -33,7 +33,7 @@ void MenuButton::Draw() {
     DrawText(TextFormat(menuBoxText), (menuBox.at(0).x + menuBox.at(1).x)/2-50, (menuBox.at(0).y+menuBox.at(3).y)/2-10, textSize, WHITE);
 }
 
-bool MenuButton::CheckCollisionRectangle(Vector2 coordM) {
+bool MenuButton::checkCollisionRectangle(Vector2 coordM) {
     Vector2 AM = {coordM.x-menuBox.at(0).x, coordM.y-menuBox.at(0).y};
     Vector2 AB = {menuBox.at(1).x-menuBox.at(0).x, menuBox.at(1).y-menuBox.at(0).y};
     Vector2 AD = {menuBox.at(3).x-menuBox.at(0).x, menuBox.at(3).y-menuBox.at(0).y};
