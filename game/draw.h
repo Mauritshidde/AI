@@ -18,33 +18,35 @@ class Drawer {
         void Update(double deltaTime);
         void run();
 
-    const int screenWidth = 1980;
-    const int screenHeight = 1024;
-    double rotation = 0;
+    private:
+        void setbools(bool in, bool out, bool spa, bool poi, bool sel);
+        const int screenWidth = 1980;
+        const int screenHeight = 1024;
+        double rotation = 0;
 
-    bool inner, outer, spawn, point, selectpoint;
+        bool inner, outer, spawn, point, selectpoint;
 
-    std::vector<bool> pointcolor;
-    std::vector<double> rotations;
-    std::vector<int> firstCheckPoints;
-    std::vector<Vector2> spawnLocations;
-    std::vector<Vector2> innerMap, outerMap, points2;
-    std::vector<std::vector<Vector2>> points;
-    Vector2 spawnLocation, angle;
+        std::vector<bool> pointcolor;
+        std::vector<double> rotations;
+        std::vector<int> firstCheckPoints;
+        std::vector<Vector2> spawnLocations;
+        std::vector<Vector2> innerMap, outerMap, points2;
+        std::vector<std::vector<Vector2>> points;
+        Vector2 spawnLocation, angle;
 
-    DrawMenu menu;
+        DrawMenu menu;
 };
 
 Drawer::Drawer() {
     float screenWidthf, screenHeightf;
     screenWidthf = float(screenWidth);
     screenHeightf = float(screenHeight);
-    menu = DrawMenu({{screenWidthf-200, 0}, {screenWidthf, 0}, {screenWidthf, screenHeightf}, {screenWidthf-200, screenHeightf}});
+    // menu = DrawMenu({{screenWidthf-200, 0}, {screenWidthf, 0}, {screenWidthf, screenHeightf}, {screenWidthf-200, screenHeightf}});
     // menu = DrawMenu({{0, screenHeightf-150}, {screenWidthf, screenHeightf-150}, {screenWidthf, screenHeightf}, {0, screenHeightf}});
     // menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 220}, {screenWidthf-180, 220}}}, "space = save", 10);
-    menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 80}, {screenWidthf-180, 80}}}, "save map", 15);
-    menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 80}, {screenWidthf-180, 80}}}, "place checkpoints", 10);
-    menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 80}, {screenWidthf-180, 80}}}, "save map", 15);
+    // menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 80}, {screenWidthf-180, 80}}}, "save map", 15);
+    // menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 80}, {screenWidthf-180, 80}}}, "place checkpoints", 10);
+    // menu.addButton({{{screenWidthf-180, 20}, {screenWidthf-80, 20}, {screenWidthf-80, 80}, {screenWidthf-180, 80}}}, "save map", 15);
 }
 
 bool Drawer::clickOnLine(Vector2 location, int i) {
@@ -59,10 +61,8 @@ bool Drawer::clickOnLine(Vector2 location, int i) {
                 if (location.y <= startCoords.y+10 && location.y >= endCoords.y-10) {
                     return true;
                 }
-            } else {
-                if (location.y >= startCoords.y-10 && location.y <= endCoords.y+10) {
+            } else if (location.y >= startCoords.y-10 && location.y <= endCoords.y+10) {
                     return true;
-                }
             }
         }
     }
@@ -202,38 +202,35 @@ void Drawer::Start() {
     outer = false;
 }
 
+void Drawer::setbools(bool in, bool out, bool spa, bool poi, bool sel) {
+    inner = in;
+    outer = out;
+    spawn = spa;
+    point = poi;
+    selectpoint = sel;
+}
+
 void Drawer::Update(double deltaTime) {
-    if (IsKeyDown(KEY_O)) {
-        inner = true;
-        outer = false;
-        spawn = false;
-        point = false;
-        selectpoint = false;
-    } else if (IsKeyDown(KEY_P)) {
-        inner = false;
-        outer = true;
-        spawn = false;
-        point = false;
-        selectpoint = false;
-    } else if (IsKeyDown(KEY_Q)) {
-        inner = false;
-        outer = false;
-        spawn = true;
-        point = false;
-        selectpoint = false;
-    } else if (IsKeyDown(KEY_C)) {
-        inner = false;
-        outer = false;
-        spawn = false;
-        point = true;
-        selectpoint = false;
-    } else if (IsKeyDown(KEY_X)) {
-        inner = false;
-        outer = false;
-        spawn = false;
-        point = false;
-        selectpoint = true;
+    switch (GetKeyPressed()) {
+        case 79:
+            setbools(true, false, false, false, false);
+            break;
+        case 80:
+            setbools(false, true, false, false, false);
+            break;
+        case 81:
+            setbools(false, false, true, false, false);
+            break;
+        case 67:
+            setbools(false, false, false, true, false);
+            break;
+        case 88:
+            setbools(false, false, false, false, true);
+            break;
+        default:
+            break;
     }
+
     if (inner) {
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
             Vector2 innerPosition = GetMousePosition();

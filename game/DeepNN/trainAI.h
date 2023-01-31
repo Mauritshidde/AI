@@ -21,8 +21,8 @@ class TrainAI {
         void start();
         void update(double deltaTime);
         // const int screenWidth;
-        int screenWidth;
-        int screenHeight;
+        float screenWidth;
+        float screenHeight;
         int fps;
         bool server;
         float epsilon;

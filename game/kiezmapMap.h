@@ -3,24 +3,53 @@
 #include <nlohmann/json.hpp>
 
 
-class GameMapE2 {
+class Mapgen {
     public:
-        GameMapE2();
-        ~GameMapE2() {};
+        Mapgen(int newwidth, int newheight, Vector2 newlocation);
+        void update();
         void draw();
         void setMap(nlohmann::json mapJson);
         int arraySize = 10;
         int outerSize = 10;
-        Vector2 spawn;
-        std::vector<Vector2> wallVectorVec, innerWall, outerWall, spawns;
-        std::vector<std::vector<Vector2>> points;
+        int width, height;
+        Vector2 spawn, location;
+        std::vector<Vector2> wallVectorVec, innerWall, outerWall, spawns, outerWall2, wallVectorVec2;
+        std::vector<std::vector<Vector2>> points, points2;
 };
 
-GameMapE2::GameMapE2() {
-    
+Mapgen::Mapgen(int newwidth, int newheight, Vector2 newlocation) {
+    width = newwidth;
+    height = newheight;
+    location = newlocation;
 }
 
-void GameMapE2::draw() {
+void Mapgen::update() {
+    int screenWidth = width;
+    int screenHeight = height;
+    for (int i=0; i < wallVectorVec2.size(); i++) {
+        float x = ((wallVectorVec2.at(i).x/1980)*screenWidth)+location.x;
+        float y = ((wallVectorVec2.at(i).y/1024)*screenHeight)+location.y;
+        wallVectorVec.at(i) = {x,y};
+    }
+    for (int i=0; i < outerWall2.size(); i++) {
+        float x = ((outerWall2.at(i).x/1980)*screenWidth)+location.x;
+        float y = ((outerWall2.at(i).y/1024)*screenHeight)+location.y;
+        outerWall.at(i) = {x,y};
+    }
+    for (int i=0; i < points2.size(); i++) {
+        float x = ((points2.at(i).at(0).x/1980)*screenWidth)+location.x;
+        float y = ((points2.at(i).at(0).y/1024)*screenHeight)+location.y;
+
+        float x2 = ((points2.at(i).at(1).x/1980)*screenWidth)+location.x;
+        float y2 = ((points2.at(i).at(1).y/1024)*screenHeight)+location.y;
+
+        points.at(i) = {{x,y}, {x2,y2}};
+    }
+}
+
+void Mapgen::draw() {
+    int screenWidth = width;
+    int screenHeight = height;
     Vector2 wallVector[wallVectorVec.size()];
     Vector2 outerWallarr[outerWall.size()];
 
@@ -42,13 +71,10 @@ void GameMapE2::draw() {
     }
 }
 
-void GameMapE2::setMap(nlohmann::json mapJson) {
-    std::cout << mapJson["spawn"]["lenght"].get<int>() << std::endl;
+void Mapgen::setMap(nlohmann::json mapJson) {
     for (int i=0; i < mapJson["spawn"]["lenght"].get<int>(); i++) {
         spawns.push_back({mapJson["spawn"][std::to_string(i)]["x"].get<float>(), mapJson["spawn"][std::to_string(i)]["y"].get<float>()});
-        std::cout << spawns.at(i).x << "  " << spawns.at(i).y << "\n";
     }
-
     int size = mapJson["inner"]["lenght"].get<int>();
     int size2 = mapJson["outer"]["lenght"].get<int>();
     int pointsSize = mapJson["points"]["lenght"].get<int>();
@@ -77,5 +103,9 @@ void GameMapE2::setMap(nlohmann::json mapJson) {
 
         points.push_back({{x, y}, {x2, y2}});
     }
+
+    points2 = points;
+    wallVectorVec2 = wallVectorVec;
+    outerWall2 = outerWall;
 
 }

@@ -10,7 +10,7 @@
 
 class GCar {
     public:
-        GCar(GameMapE2 newMap = GameMapE2(), double newDirection = 0, Vector2 newPosition = {0,0}, std::vector<int> newNNBlueprint = {8, 12, 12, 6, 4}, int rayAmount = 8, int rayLenght = 200);
+        GCar(GameMapE2 newMap = GameMapE2(), double newDirection = 0, Vector2 newPosition = {0,0}, std::string newmaplocation = "maps/example.json", std::vector<int> newNNBlueprint = {8, 12, 12, 6, 4}, int rayAmount = 8, int rayLenght = 200);
         ~GCar();
         void update(double deltaTime);
         double accelerate(double dTime, bool forward);
@@ -49,7 +49,8 @@ class GCar {
 
         std::vector<std::vector<Vector2>> points;
         std::vector<Vector2> polygon, wallVec, outerWallVec;
-        
+        std::string maplocation;
+
         Vector2 position;
         Vector2 previousPosition;
         Rectangle rectangle;
@@ -57,15 +58,16 @@ class GCar {
         GameMapE2 *map;
 };
 
-GCar::GCar(GameMapE2 newMap, double newDirection, Vector2 newPosition, std::vector<int> newNNBlueprint, int rayAmount , int rayLenght) {
+GCar::GCar(GameMapE2 newMap, double newDirection, Vector2 newPosition, std::string newmaplocation, std::vector<int> newNNBlueprint, int rayAmount , int rayLenght) {
     network = GeneticNeuralNetwork(newNNBlueprint);
     neuroncounts = newNNBlueprint;
     map = new GameMapE2(newMap);
     rays = GRays(rayAmount, rayLenght);
 
     alive = true;
+    maplocation = newmaplocation;
 
-    std::ifstream f("maps/example.json");
+    std::ifstream f(maplocation);
     nlohmann::json mapData = nlohmann::json::parse(f); 
     f.close();
 

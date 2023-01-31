@@ -11,7 +11,7 @@
 #include "draw.h"
 #include "GeneticAI/genetic2.h"
 #include "QtableAI/QtableAI.h"
-
+#include "selectMap.h"
 const int screenWidth = 1980;
 const int screenHeight = 1024;
 
@@ -29,6 +29,7 @@ void RenderMenu() {
     for (int i=0; i < menuButtonVector.size(); i++) {
         menuButtonVector.at(i).Draw();
     }
+
     DrawFPS(10,10);
     EndDrawing();
 }
@@ -45,11 +46,9 @@ void StartMenu() {
 }
 
 void UpdateMenu() {
-    
 }
 
 int main() {
-    // srand(time(NULL));
     InitWindow(screenWidth, screenHeight, "menu");
     SetTargetFPS(60);
     bool notChosenMenu = true;
@@ -80,6 +79,8 @@ int main() {
 
     CloseWindow();
     
+    std::string maplocation;
+
     switch (choice) {
         case 0:
             draw.run();
@@ -88,7 +89,8 @@ int main() {
             train.run();
             break;
         case 2:
-            gen.run();
+            maplocation = runhjk();
+            gen.run(maplocation);
             break;
         case 3:
             runrun();
