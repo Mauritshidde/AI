@@ -173,7 +173,6 @@ void GeneticNeuralNetwork::loadNeuralNetwork(nlohmann::json networkData) {
             }
         }
         int lenghti2 = networkData["biases"][std::to_string(i)]["lenght"].get<int>();
-
         for (int j=0; j < lenghti2; j++) {
             levels.at(i).biases.at(j) = networkData["biases"][std::to_string(i)][std::to_string(j)].get<double>();
         }

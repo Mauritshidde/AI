@@ -132,7 +132,7 @@ void Genetic::genCars() {
 }
 
 void Genetic::setCars(bool mutate) {
-    std::ifstream f("NeuralNetworks/GNN.json");
+    std::ifstream f("NeuralNetworks/NN.json");
     nlohmann::json networkData = nlohmann::json::parse(f);
     f.close();
     
@@ -152,7 +152,7 @@ void Genetic::setCars(bool mutate) {
 }
 
 void Genetic::loadNNCars() {
-    std::ifstream f("NeuralNetworks/GNN.json");
+    std::ifstream f("NeuralNetworks/NN.json");
     nlohmann::json networkData = nlohmann::json::parse(f);
     f.close();
     
@@ -168,7 +168,7 @@ void Genetic::loadNNCars() {
 }
 
 void Genetic::resetCars() {
-    std::ifstream f("NeuralNetworks/GNN.json");
+    std::ifstream f("NeuralNetworks/NN.json");
     nlohmann::json networkData = nlohmann::json::parse(f);
     f.close();
 

@@ -20,6 +20,7 @@ class NNLevel {
     private:
 };
 
+// generate weights and biases for level according to input
 NNLevel::NNLevel(int inputCount, int outpuCount) {
     srand(time(NULL));
     levelInputCount = inputCount;
@@ -44,6 +45,7 @@ NNLevel::NNLevel(int inputCount, int outpuCount) {
     }
 }
 
+// return an output and sets variable by using the input and calculating the output by using the weights an biases
 std::vector<double> NNLevel::FeedForward(std::vector<double> *neuralNetworkInputValues) {
     levelNeuronOutputValue.clear();
     networkNetValues.clear();
@@ -53,13 +55,13 @@ std::vector<double> NNLevel::FeedForward(std::vector<double> *neuralNetworkInput
             neuronValue += weights.at(i).at(j) * neuralNetworkInputValues->at(j);
         }
         networkNetValues.push_back(neuronValue - biases.at(i));
-        neuronValueSigmoid = relu(neuronValue - biases.at(i));
+        neuronValueSigmoid = relu(neuronValue - biases.at(i)); // uses relu as activation function
         levelNeuronOutputValue.push_back(neuronValueSigmoid);
     }
     return levelNeuronOutputValue;
 }
 
-double NNLevel::sigmoid(double x) {
+double NNLevel::sigmoid(double x) { // sigmoid function returns an value between 0 and 1
     double e = exp(-x);
     double value = 1 / (1 + e);
     return value;
@@ -95,14 +97,15 @@ class NeuralNetwork {
     private:
 };
 
+// generates neuralnetwork layered according to the input vector
 NeuralNetwork::NeuralNetwork(std::vector<int> neuralNetworkLevels) {
     for (int i=0; i < neuralNetworkLevels.size()-1; i++) {
         NNLevel level(neuralNetworkLevels.at(i), neuralNetworkLevels.at(i+1));
         levels.push_back(level);
     }
-    timesRun = 0;
 }
 
+// get input and calculates an output using the feedforward function of the levels
 std::vector<double> NeuralNetwork::feedForward(std::vector<double> networkInputValues) {
     networkInput = networkInputValues;
     std::vector<double> neuralNetworkInputValues = networkInputValues;
@@ -113,6 +116,7 @@ std::vector<double> NeuralNetwork::feedForward(std::vector<double> networkInputV
     return networkOutput;
 }
 
+// calculates the diference between the output and the expected/target output and updates the errorSum variable
 void NeuralNetwork::GradientError(std::vector<double> target) {
     errorSum = 0;
     for (int i=0; i < networkOutput.size(); i++) {
@@ -138,7 +142,6 @@ double NeuralNetwork::derivativeRelu(double x) {
     }
 }
 
-
 std::vector<double> NeuralNetwork::propagate(std::vector<double>* inputs, std::vector<double>* outputValues, std::vector<double>* targets, NNLevel* level, double* learningRate) {
     std::vector<std::vector<double>> newWeightValues;
     std::vector<double> Zj;
@@ -152,7 +155,7 @@ std::vector<double> NeuralNetwork::propagate(std::vector<double>* inputs, std::v
     }
 
     std::vector<std::vector<double>> weightGradients;
-    for (int i=0; i < outputValues->size(); i++) {
+    for (int i=0; i < outputValues->size(); i++) { // calculates the gradient of the weights by using the chainrule and derivatives
         double dATOdZ = derivativeRelu(Zj.at(i)); // derivative A / derivative Z
 
         std::vector<double> weightGradient;
@@ -178,7 +181,7 @@ std::vector<double> NeuralNetwork::propagate(std::vector<double>* inputs, std::v
     newBiasesUpdate.insert(newBiasesUpdate.begin(), biasGradients);
 
     std::vector<double> nextLayerTarget;
-    for (int i=0; i < inputs->size(); i++) {
+    for (int i=0; i < inputs->size(); i++) { // calculates the target for the next network
         double derivative;
         for (int j=0; j < outputValues->size(); j++) {
             double w = level->weights.at(j).at(i);
@@ -276,39 +279,16 @@ std::vector<double> NeuralNetwork::propagate2(std::vector<double>* inputs, std::
 
 void NeuralNetwork::backPropogation(std::vector<double>* newTargets, std::vector<double>* input) {
     std::vector<double> targets;
-    if (timesRun == 0) {
-        newWeigths.clear();
-        newBiases.clear();
-        std::vector<std::vector<std::vector<double>>> x;
-        std::vector<std::vector<double>> qz;
-        for (int i=0; i < levels.size(); i++) {
-            std::vector<std::vector<double>> y;
-            for (int j=0; j < levels.at(i).weights.size(); j++) {
-                std::vector<double> z;
-                for (int k=0; k < levels.at(i).weights.at(j).size(); k++) {
-                    z.push_back(0);
-                }
-                y.push_back(z);
-            }
-            x.push_back(y);
-            std::vector<double> w;
-            for (int j=0; j < levels.at(i).biases.size(); j++) { 
-                w.push_back(0);
-            }
-            qz.push_back(w);
-        }
-        newWeigths = x;
-        newBiases = qz;
-    }
-
-    timesRun += 1;
-    newWeightsUpdate.clear();
-    newBiasesUpdate.clear();
     for (int i=0; i < newTargets->size(); i++) {
         targets.push_back(newTargets->at(i));
     }
+
     feedForward(*input);
-    double learningRate = 0.01;
+    double learningRate = 0.1;
+
+    // the loop starts at levels.size()-1
+    // the propagate function is different from the propagate2 function because the calculations 
+    //for the nextlayertarget and gardients of the weight and biases are diferent 
     for (int i=levels.size()-1; -1 < i; i--) { // loop backwards trough te levels for backpropagation
         std::vector<double>* targetsPtr = new std::vector<double>(targets);
         if (i == 0) {
@@ -320,21 +300,6 @@ void NeuralNetwork::backPropogation(std::vector<double>* newTargets, std::vector
         }
         delete targetsPtr;
         targetsPtr = NULL;
-    }
-
-    for (int i=0; i < levels.size(); i++) {
-        for (int j=0; j < levels.at(i).weights.size(); j++) {
-            for (int k=0; k < levels.at(i).weights.at(j).size(); k++) {
-                newWeigths.at(i).at(j).at(k) = newWeigths.at(i).at(j).at(k) + newWeightsUpdate.at(i).at(j).at(k);
-            }
-        }
-        for (int j=0; j < levels.at(i).biases.size(); j++) {
-            newBiases.at(i).at(j) = newBiases.at(i).at(j) +  newBiasesUpdate.at(i).at(j);
-        }
-    }    
-
-    if (timesRun >= 10) {
-        timesRun = 0;
     }
 }
 
