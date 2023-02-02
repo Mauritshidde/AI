@@ -11,7 +11,6 @@ class Car {
         Car(Map* newMap, double newDirection, Vector2 newPosition, std::vector<int> newNNBlueprint = {8, 12, 12, 6, 4});
         ~Car();
         void update(double deltaTime, Vector2 *screen);
-        double accelerate(double dTime, bool forward);
         void castRay();
         void draw(bool best);
         void createPolygon();
@@ -46,7 +45,6 @@ class Car {
         const Vector2 size2{10, 20};
 
         std::vector<Vector2> polygon, wallVec, outerWallVec;
-        // std::vector<std::vector<Vector2>> points;
 
         Rays rays;
         Rectangle rectangle;
@@ -305,20 +303,6 @@ std::vector<double> Car::move4(double deltaTime, std::vector<double> actions, st
     position.y = (position2.y/1024)*GetScreenHeight();
 
     return actions;
-}
-
-double Car::accelerate(double dTime, bool forward) {
-    if (forward) {
-        speed += acceleration * dTime;
-    } else {
-        speed -= acceleration * dTime;
-    }
-    if (speed > maxSpeed) {
-        speed = maxSpeed;
-    }if (speed < -maxSpeed/2) {
-        speed = maxSpeed/2;
-    }
-    return speed;
 }
 
 bool Car::polyIntersect(std::vector<Vector2> poly1, std::vector<Vector2> poly2) {
