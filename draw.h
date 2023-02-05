@@ -209,7 +209,7 @@ void Drawer::setbools(bool in, bool out, bool spa, bool poi, bool sel) { // chan
 }
 
 void Drawer::update(double deltaTime) { // check if button is pressed and change draw mode or draw accordingly
-    switch (GetKeyPressed()) {
+    switch (GetKeyPressed()) { // switch statement uses ascii value for capital letters 
         case 79:
             setbools(true, false, false, false, false);
             break;
