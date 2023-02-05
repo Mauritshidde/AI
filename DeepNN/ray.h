@@ -67,8 +67,6 @@ Vector4 Rays::getIntersection(Vector2 A, Vector2 B, Vector2 C, Vector2 D) {
     return test;
 }
 
-
-
 bool Rays::calcRayHits(int endRayLoc, Map* map) {
     std::vector<Vector3> touches;
     Vector2 endRay = eindRay.at(endRayLoc);
@@ -169,10 +167,6 @@ void Rays::castRays() {
 
         float eindx = (startRay.x  - sin(rayAngle) * rayLenght);
         float eindy = (startRay.y - cos(rayAngle) * rayLenght);
-
-        // float eindx = (((startRay.x/1980)*GetScreenWidth())  - sin(rayAngle) * rayLenght);
-        // float eindy = (((startRay.y/1024)*GetScreenHeight()) - cos(rayAngle) * rayLenght);
-
 
         Vector2 newEindRay = {eindx, eindy};
 
