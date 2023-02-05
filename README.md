@@ -1,4 +1,4 @@
-# AI
+# AI learns to drive
 AI for the AI learns to drive specilisation
 
 ## infromation
@@ -50,7 +50,12 @@ The window of Genetic shows some data in the top left corner and has a small cir
 the neuralnetwork visualisation.
 
 ### map DeepNN
+#### keys:
+```
+Left ctrl: save neuralnetwork to NN.json
 
+Right ctrl: load the neuralnetwork from NN.json
+```
 In the map DeepNN the window is rescalable, (but the rays won't scale down with it) and it uses backpropagation
 to update weights and biases in the neuralnetwork to improve the actions that the car takes.
 
