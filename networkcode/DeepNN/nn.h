@@ -51,6 +51,7 @@ std::vector<double> NNLevel::FeedForward(std::vector<double> *neuralNetworkInput
     networkNetValues.clear();
     for (int i=0; i < levelOutputCount; i++) {
         double neuronValue, neuronValueSigmoid;
+        neuronValue = 0;
         for (int j=0; j < levelInputCount; j++) {
             neuronValue += weights.at(i).at(j) * neuralNetworkInputValues->at(j);
         }
