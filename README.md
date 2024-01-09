@@ -1,15 +1,16 @@
 # AI learns to drive
 AI for the AI learns to drive specilisation
-this project has 2 types of neural networks for AI.
+this project has 3 types of  AI.
 1. deep neuralnetwork
 2. genetic AI
+3. Qtable
 
-## infromation
+## information
 
 ### map drawer
 
 the map drawer uses key inputs to switch drawing mode 
-#### keys:
+#### key bindings:
 ```
 O: innerwall drawing mode  
 
@@ -53,7 +54,7 @@ The window of Genetic shows some data in the top left corner and has a small cir
 the neuralnetwork visualisation.
 
 ### map DeepNN
-#### keys:
+#### key binds:
 ```
 Left ctrl: save neuralnetwork to NN.json
 
@@ -72,16 +73,12 @@ This car can uses the multiple spawnpoints of the map.
 
 ## Instalation guide linux:
 
-### using gitclone:
+### using make(only option):
 ```
 git clone https://github.com/Mauritshidde/AI.git AI
-```
-#### using make
-```
 cd AI
 make
 ```
-
 #### to run the script type:
 ```
 ./main   to run the script
