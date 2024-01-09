@@ -81,7 +81,7 @@ make
 ```
 #### to run the script type:
 ```
-./main   to run the script
+./main
 ```
 
 
