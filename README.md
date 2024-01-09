@@ -1,5 +1,8 @@
 # AI learns to drive
 AI for the AI learns to drive specilisation
+this project has 2 types of neural networks for AI.
+1. deep neuralnetwork
+2. genetic AI
 
 ## infromation
 
